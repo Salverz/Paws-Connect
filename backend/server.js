@@ -60,10 +60,10 @@ function dbConnection() {
     connectTimeout: 60 * 60 * 1000,
     acquireTimeout: 60 * 60 * 1000,
     connectionLimit: 10,
-    host: "eyvqcfxf5reja3nv.cbetxkdyhwsb.us-east-1.rds.amazonaws.com",
-    user: "b1jece9nmuw0lowf",
-    password: "rn6cwuudehgsjr9a",
-    database: "zjc0cza164eelrk9"
+    host: "FILL IN",
+    user: "FILL IN",
+    password: "FILL IN",
+    database: "FILL IN"
 
   });
   return pool;
