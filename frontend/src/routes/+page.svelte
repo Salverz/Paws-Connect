@@ -1,19 +1,17 @@
 <script>
 import { onMount } from "svelte";
-import { apiData} from './store.js';
-
+let data;
 onMount(async () => {
-  fetch("https://www.thecocktaildb.com/api/json/v1/1/filter.php?i=Bourbon")
-  .then(response => response.json())
-  .then(data => {
-		console.log(data);
-    apiData.set(data);
-  }).catch(error => {
-    console.log(error);
-    return [];
-  });
+  const response = await fetch('http://localhost:3000/account/create');
+  const json = await response.json();
+  
+  data = json.login;
 });
 </script>
 
 <h1>Welcome to SvelteKit</h1>
 <p>Visit <a href="https://kit.svelte.dev">kit.svelte.dev</a> to read the documentation</p>
+<p>data is {data}</p>
+
+Enter your password: <input type="text">
+<input type="submit">
