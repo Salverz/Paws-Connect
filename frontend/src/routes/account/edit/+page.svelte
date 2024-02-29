@@ -9,8 +9,8 @@
 <!-- can update the user's profile with the new information -->
 <h1>Edit your profile</h1>
 <form>
-    <!-- TODO: Put the user's id in here so the backend knows what account to update -->
-    <input type="hidden" id="userId" name="userId" value={}>
+    <!-- The user will put their id here so that we know which user to update -->
+    <input type="number" id="userId" name="userId">
 
     <!-- TODO: Pre-fill-in with the display name -->
     <input type="text" id="displayName" name="displayName" value={}>

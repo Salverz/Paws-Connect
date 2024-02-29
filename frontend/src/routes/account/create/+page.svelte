@@ -6,9 +6,18 @@
 <h1>Create a new account</h1>
 <!-- TODO: Edit this form so that it sends a post request to the /account/create route on the backend -->
 <form>
-    <!-- TODO: create a username input -->
+    <!-- EXAMPLE: create a username input -->
+    <input type="text" id="username" name="username">
 
     <!-- TODO: create a password input-->
+
+    <!-- TODO: create a display name input-->
+
+    <!-- TODO: create a profile picture link input-->
+
+    <!-- TODO: create a geographical location input-->
+
+    <!-- TODO: create a preferred language input-->
 
     <!-- TODO: create a submit button -->
 </form>
