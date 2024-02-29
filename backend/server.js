@@ -22,24 +22,9 @@ app.get('/test', (req, res) => {
 });
 
 app.get('/account/create', (req, res) => {
-    
-    req.body.password
-    "user1"
-    "pass"
-
-    let sql_query = `
-    SELECT userId
-    FROM users
-    WHERE username = "req.body.password" and password = "pass"
-    `
-
-    // if (sql_query.length = 1) {
-    //     res.json({login: "success"});
-    // } else {
-    //     res.json({login: "failed"});
-    // }
-    
-
+  res.json({
+    "response": "account created!"
+  });
   
 });
 
