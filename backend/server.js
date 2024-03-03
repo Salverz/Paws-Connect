@@ -82,15 +82,16 @@ app.post('/login', async (req, res) => {
 // and add it to the database
 app.post('/account/create', async (req, res) => {
   // 1. Grab username and password data using req.body.[PARAMETER]
-  // let username = 
-  // let password =
+  // let username = req.body.username;
+  // let passcode = req.body.passcode;
 
   // 2. Create an SQL query to add a new account to the database. Embed each of the parameters you got from the frontend
-  // let sql = ``
+  // let sql = `INSERT INTO user (username, passcode) VALUES ('${username}', '${passcode}')`;
 
 
   // 3. Run the SQL query and store result in variable
-  // let rows =
+  // let rows = await executeSQL(sql, [username, passcode]);
+  // console.log(rows);
 
 
   // 4. Check the rows variable to confirm that adding the new account was successful
@@ -98,7 +99,7 @@ app.post('/account/create', async (req, res) => {
 
   // 5. Return the response to the user (the account was created successfully or not)
   res.json({
-    "response": ""
+    "response": "Account Has Been Created"
   });
 });
 
