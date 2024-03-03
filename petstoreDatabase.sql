@@ -48,5 +48,3 @@ CREATE TABLE breed(
     breedID INT NOT NULL PRIMARY KEY, 
     breedName VARCHAR(100)
 );
-
-CREATE TABLE 
