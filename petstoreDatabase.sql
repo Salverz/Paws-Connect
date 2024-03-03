@@ -40,8 +40,8 @@ CREATE TABLE user_friends (
 
 CREATE TABLE language(
     languageID INT NOT NULL PRIMARY KEY,
-    languageSelect VARCHAR(50),
-    
+    languageSelect VARCHAR(50)
+    FOREIGN KEY (languageSelect) REFERENCES user(preferredLanguage)
 );
 
 CREATE TABLE breed(
