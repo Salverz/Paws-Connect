@@ -10,6 +10,7 @@ app.use(cors({origin: 'http://localhost:5173'})); // This should be the url for 
 
 const pool = dbConnection();
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 // Ignore all this ^ (unless you get an error)
 
 
@@ -43,7 +44,6 @@ app.get('/test', async (req, res) => {
     databaseResponse: currentLocationOfUser
   });
 });
-
 
 // app.post is a POST method. This means that when the front end calls "login", it is
 // SENDING DATA TO THE BACKEND
@@ -82,24 +82,36 @@ app.post('/login', async (req, res) => {
 // and add it to the database
 app.post('/account/create', async (req, res) => {
   // 1. Grab username and password data using req.body.[PARAMETER]
-  // let username = 
-  // let password =
+  let username = req.body.username;
+  let passcode = req.body.passcode;
+  let key = req.body.key;
+  console.log(username);
+  console.log(passcode);
 
-  // 2. Create an SQL query to add a new account to the database. Embed each of the parameters you got from the frontend
-  // let sql = ``
+  let sql = `SELECT COUNT(*) "exists"
+            FROM user
+            WHERE username=?`
+  let rows = await executeSQL(sql, [username]);
+  console.log(rows);
 
+  if (rows[0].exists == 0) {
+    // 2. Create an SQL query to add a new account to the database. Embed each of the parameters you got from the frontend
+    sql = `INSERT INTO user (username, passcode, ID) VALUES (?, ?, ?)`;
 
-  // 3. Run the SQL query and store result in variable
-  // let rows =
+    // 3. Run the SQL query and store result in variable
+    rows = await executeSQL(sql, [username, passcode, key]);
+    console.log(rows);
 
-
-  // 4. Check the rows variable to confirm that adding the new account was successful
-
-
-  // 5. Return the response to the user (the account was created successfully or not)
-  res.json({
-    "response": ""
-  });
+    // 4. Check the rows variable to confirm that adding the new account was successful
+    // 5. Return the response to the user (the account was created successfully or not)
+    res.json({
+      "response": "Account Has Been Created"
+    });
+  } else {
+    res.json({
+      "response": "Account creation failure: username already exists"
+    });
+  }
 });
 
 
