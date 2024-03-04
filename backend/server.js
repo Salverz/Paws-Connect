@@ -159,28 +159,42 @@ app.get("/account/info/:userId", async (req, res) => {
 // information, we can update the database to reflect the changes
 app.post("/account/edit", async (req, res) => {
   // 1. Grab each of the input parameters using req.body.[PARAMETER]
-  // let userId =
-  // let displayName =
-  // let profilePictureRef =
-  // let currentLocation = 
-  // let preferredLanguage =
-
+  let userId = req.body.userId;
+  let displayName = req.body.displayName;
+  let profilePictureRef = req.body.profilePictureRef;
+  let currentLocation = req.body.currentLocation;
+  let preferredLanguage = req.body.preferredLanguage;
+  console.log(userId);
+  console.log(displayName);
+  console.log(profilePictureRef);
+  console.log(currentLocation);
+  console.log(preferredLanguage);
 
   // 2. Create an SQL query to update the user's information in the database. Embed each of the parameters you got from the frontend
-  // let rows = ``
-
-
+  let sql = `UPDATE user
+            SET displayName=?, profilePictureRef=?, currentLocation=?, preferredLanguage=?
+            WHERE ID = ?`
   // 3. Run the SQL query and store the result in a variable
-  // let rows =
-
+  let rows = await executeSQL(sql, [displayName, profilePictureRef, currentLocation, preferredLanguage, userId]);
+  console.log(rows);
 
   // 4.Check the rows variable to confirm that the profile was updated successfully
+  if (rows.affectedRows > 0) {
+    sql = `INSERT INTO user (displayName, profilePictureRef, currentLocation, preferredLanguage) VALUES (?, ?, ?, ?)`;
 
+    rows = await executeSQL(sql, [displayName, profilePictureRef, currentLocation, preferredLanguage, userId]);
+    console.log(rows);
 
+    res.json({
+      "response": "Account update Success"
+    });
+  } else {
+    res.json({
+      "response": "Account update Failed"
+    });
+  }
   // 5. Return the response to the user (the profile was updated successfully or not)
-  res.json({
-    "response": ""
-  });
+
 });
 
 
