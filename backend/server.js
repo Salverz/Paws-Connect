@@ -121,31 +121,37 @@ app.post('/account/create', async (req, res) => {
 app.get("/account/info/:userId", async (req, res) => {
   // See the :userId in the url? This means that the front end can add the userId onto the
   // url, and we can access it with req.params.userId. For example:
-  http://localhost:3000/account/info/3 would make req.params.userId == 3
+  //http://localhost:3000/account/info/3 would make req.params.userId == 3
 
   // 1. Extract the userId from the request
-  // let userId =
-
+  let userId = req.params.userId;
 
   // 2. Create an SQL query to get all the profile data of the user by embedding the userId in the query
-  // let sql = ``
-
+  let sql = `SELECT COUNT (*) "exists"
+            FROM user
+            WHERE username=?`
+  let rows = await executeSQL(sql, [userId]);
 
   // 3. Execute the SQL and store the result in a variable. We should get data for one user, so our result should have just one row.
   // In other words, "rows" should be an array with one element, a json that contains all the user's profile data
   // let rows =
+  if (rows[0].exists == 0) { 
+    res.json({message: "User not found"});
+  }else {
+    // If user exists, fetch their profile data
+    // 5. Create an SQL query to get profile data of the user
+    let profileSql = `SELECT username, displayName, profilePictureRef, currentLocation, preferredLanguage
+                      FROM user
+                      WHERE username = ?`;
+    let profileRows = await executeSQL(profileSql, [userId]);
 
+    // 4. Extract the user's profile information
+    let userProfile = profileRows[0];
 
-  // 4. Extract the user's profile information from the query result
+    // 5. Send the user's profile data back to the frontend
+    res.json(userProfile);
+  }
 
-  
-  // 5. Send the user's profile data to the front end
-  res.json({
-    "displayName": "",
-    "profilePictureRef": "",
-    "currentLocation": "",
-    "preferredLanguage": ""
-  });
 });
 
 
