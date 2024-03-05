@@ -9,16 +9,18 @@ SET REFERENTIAL_INTEGRITY TRUE;
 CREATE TABLE user (
     ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(250) NOT NULL,
-    passcode VARCHAR(250) NOT NULL,
-    isAdmin BOOLEAN NOT NULL,
+    passcode VARCHAR(250) NOT NULL,    
+    birthDate DATE,
     displayname VARCHAR(250),
+    isAdmin BOOLEAN,
     profilePictureRef VARCHAR(250),
-    locationOfChoice VARCHAR(250),
-    preferredLanguage VARCHAR(100),
+    chosenLocation VARCHAR(250),
+    selectedLanguage VARCHAR(100),
+    FOREIGN KEY (selectedLanguage) REFERENCES language(languageSelect)
 );
 
 CREATE TABLE pets (
-    petsID INT NOT NULL PRIMARY KEY,
+    petsID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     userID INT, 
     petname VARCHAR(250) NOT NULL,
     petPictureRef VARCHAR(250),
@@ -39,7 +41,6 @@ CREATE TABLE user_friends (
 CREATE TABLE language(
     languageID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     languageSelect VARCHAR(50) UNIQUE
-    FOREIGN KEY (languageSelect) REFERENCES user(preferredLanguage)
 );
 
 CREATE TABLE breed(
