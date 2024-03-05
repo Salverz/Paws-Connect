@@ -10,7 +10,7 @@ CREATE TABLE user (
     ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(250) NOT NULL,
     passcode VARCHAR(250) NOT NULL,
-    isAdmin tinyint(1),
+    isAdmin BOOLEAN NOT NULL,
     displayname VARCHAR(250),
     profilePictureRef VARCHAR(250),
     locationOfChoice VARCHAR(250),
