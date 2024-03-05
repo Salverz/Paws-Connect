@@ -7,16 +7,14 @@ DROP TABLE IF EXISTS user;
 SET REFERENTIAL_INTEGRITY TRUE;
 
 CREATE TABLE user (
-    ID INT NOT NULL PRIMARY KEY,
+    ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(250) NOT NULL,
     passcode VARCHAR(250) NOT NULL,
-    isAdmin BOOLEAN NOT NULL,
+    isAdmin tinyint(1),
     displayname VARCHAR(250),
     profilePictureRef VARCHAR(250),
     locationOfChoice VARCHAR(250),
     preferredLanguage VARCHAR(100),
-    CONSTRAINT check_language CHECK(preferredLanguage IN ('English', 'Spanish', 
-    'French', 'German', 'Simplified Chinese', 'Hindi'))
 );
 
 CREATE TABLE pets (
@@ -39,8 +37,8 @@ CREATE TABLE user_friends (
 );
 
 CREATE TABLE language(
-    languageID INT NOT NULL PRIMARY KEY,
-    languageSelect VARCHAR(50)
+    languageID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    languageSelect VARCHAR(50) UNIQUE
     FOREIGN KEY (languageSelect) REFERENCES user(preferredLanguage)
 );
 
@@ -48,3 +46,4 @@ CREATE TABLE breed(
     breedID INT NOT NULL PRIMARY KEY, 
     breedName VARCHAR(100)
 );
+
