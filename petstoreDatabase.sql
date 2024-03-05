@@ -9,7 +9,8 @@ SET REFERENTIAL_INTEGRITY TRUE;
 CREATE TABLE user (
     ID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(250) NOT NULL,
-    passcode VARCHAR(250) NOT NULL,    
+    passcode VARCHAR(250) NOT NULL,
+    email VARCHAR(250) NOT NULL,
     birthDate DATE,
     displayname VARCHAR(250),
     isAdmin BOOLEAN,
