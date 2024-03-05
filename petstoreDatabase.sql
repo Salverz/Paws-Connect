@@ -15,8 +15,7 @@ CREATE TABLE user (
     isAdmin BOOLEAN,
     profilePictureRef VARCHAR(250),
     chosenLocation VARCHAR(250),
-    selectedLanguage VARCHAR(100),
-    FOREIGN KEY (selectedLanguage) REFERENCES language(languageSelect)
+    selectedLanguage VARCHAR(100)
 );
 
 CREATE TABLE pets (
@@ -40,7 +39,8 @@ CREATE TABLE user_friends (
 
 CREATE TABLE language(
     languageID INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    languageSelect VARCHAR(50) UNIQUE
+    languageSelect VARCHAR(50) UNIQUE,
+    FOREIGN KEY (languageSelect) REFERENCES user(selectedLanguage)
 );
 
 CREATE TABLE breed(
