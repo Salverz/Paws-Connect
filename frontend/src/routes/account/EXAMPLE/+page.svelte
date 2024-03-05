@@ -1,6 +1,6 @@
 <script>
     // Need to have this to have access to the json from the +page.js file
-    export let data;
+    // export let data;
 </script>
 
 <h1>account page</h1>
