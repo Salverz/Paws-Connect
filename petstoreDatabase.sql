@@ -14,7 +14,6 @@ CREATE TABLE user (
     birthDate DATE,
     displayname VARCHAR(250),
     isAdmin BOOLEAN,
-    profilePictureRef VARCHAR(250),
     chosenLocation VARCHAR(250),
     selectedLanguage VARCHAR(100)
 );
