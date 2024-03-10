@@ -12,6 +12,7 @@ async function getAccountInfo() {
     let json = await databaseResult.json();
     if (json.message == "User not found") {
         alert("Account not found")
+        accountInfo = undefined;
     } else {
         accountInfo = json;
     }
