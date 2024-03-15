@@ -40,7 +40,8 @@ CREATE TABLE pet_profile (
     breed VARCHAR(64), 
     color VARCHAR(16),
     age INT,
-    FOREIGN KEY (user_id) REFERENCES user_account(user_id) 
+    FOREIGN KEY (user_id) REFERENCES user_account(user_id),
+    FOREIGN KEY (preferred_language) REFERENCES language(language_code)
 );
 
 CREATE TABLE connection (
@@ -144,3 +145,7 @@ CREATE TABLE pet_types(
     type_of_pets_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     categoryName VARCHAR(100)
 );
+
+CREATE TABLE transfer_pets(
+
+)
