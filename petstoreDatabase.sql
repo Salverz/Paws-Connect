@@ -96,7 +96,7 @@ CREATE TABLE activity_logs(
     activity_type VARCHAR(100),
     description VARCHAR(500),
     activity_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES userProfile(user_id)
+    FOREIGN KEY (user_id) REFERENCES user_profile(user_id)
 );
 
 
@@ -107,7 +107,7 @@ CREATE TABLE notifications(
     message VARCHAR(500),
     is_read BOOLEAN DEFAULT FALSE,
     creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES userProfile(user_id)
+    FOREIGN KEY (user_id) REFERENCES user_profile(user_id)
 );
 
 
@@ -116,7 +116,7 @@ CREATE TABLE search_history(
     user_id INT NOT NULL,
     searchQuery VARCHAR(250),
     searchDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id) REFERENCES userProfile(user_id)
+    FOREIGN KEY (user_id) REFERENCES user_profile(user_id)
 );
 
 
@@ -126,7 +126,7 @@ CREATE TABLE likes(
     user_id INT NOT NULL, 
     likeDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (post_id) REFERENCES posts(post_id),
-    FOREIGN KEY (user_id) REFERENCES userProfile(user_id)
+    FOREIGN KEY (user_id) REFERENCES user_profile(user_id)
 );
 
 
@@ -137,7 +137,7 @@ CREATE TABLE comments(
     commentText VARCHAR(500),
     creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (post_id) REFERENCES posts(post_id),
-    FOREIGN KEY (user_id) REFERENCES userProfile(user_id)
+    FOREIGN KEY (user_id) REFERENCES user_profile(user_id)
 );
 
 CREATE TABLE pet_types(
