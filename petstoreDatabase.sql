@@ -147,5 +147,10 @@ CREATE TABLE pet_types(
 );
 
 CREATE TABLE transfer_pets(
-
+    pet_id INT,
+    user_id_1 INT,
+    user_id_2 INT,
+    transfer_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id_1) REFERENCES user_account(user_id),
+    FOREIGN KEY (user_id_2) REFERENCES user_account(user_id)
 )
