@@ -1,5 +1,6 @@
-<div >
+<div>
     <form class="create-account-card" action="http://localhost:3000/account/create" method="post">
+        <h1 class="card-header">Create a new account</h1>
         <div class="input-block">
             <label for="username">Username</label>
             <input type="text" id="username" name="username">
@@ -10,23 +11,13 @@
             <input type="password" id="password" name="password">
         </div>
     
-        <!-- <label for="displayName">Display Name:</label>
-        <input type="text" id="displayName" name="displayName">
-
-        <label for="profilePicture">Profile Picture Link:</label>
-        <input type="text" id="profilePicture" name="profilePicture">
-
-        <label for="location">Geographical Location:</label>
-        <input type="text" id="location" name="location">
-
-        <label for="preferredLanguage">Preferred Language:</label>
-        <input type="text" id="preferredLanguage" name="preferredLanguage"> -->
-
         <button>Create Account</button>
-    </form>
-    <div class="google">
-        <a>Sign in with Google</a>
-    </div>
+        <div class="google">
+            <a>Sign in with Google</a>
+            <img class="google-logo-icon" alt="Sign in with google icon" src="/images/Google_G_logo.svg">
+        </div>
+</form>
+
 </div>
 
 
@@ -42,8 +33,15 @@
         align-items: center;
 
         background-color: rgb(224, 224, 224);
-        padding: 30px;
+        padding: 10px 30px 30px 30px;
         border-radius: 5px;
+    }
+
+    .card-header {
+        font-size: 25px;
+        width: 300px;
+        font-weight: 350;
+        margin-bottom: 40px;
     }
 
     .input-block {
@@ -51,7 +49,7 @@
         display: flex;
         flex-direction: column;
 
-        margin: 20px 0px;
+        margin-bottom: 20px;
     }
 
     label {
@@ -71,7 +69,8 @@
 
     button {
         background-color: rgb(134, 134, 134);
-        padding: 10px 10px;
+        padding: 10px 0px;
+        width: 220px;
         color: white;
         border-radius: 5px;
         border-style: none;
@@ -83,7 +82,28 @@
     }
 
     .google {
-        padding: 10px;
+        /* Flexbox */
+        display: flex;
+        justify-content: center;
+        gap: 10px;
+        align-items: center;
+
+        /* Text */
+        color: white;
+
+        margin-top: 20px;
+        padding: 5px 0px;
+        width: 220px;
         border-style: solid;
+        border-radius: 5px;
+        background-color: rgb(55, 126, 240);
+        border-color: rgb(55, 126, 240);
+    }
+
+    .google-logo-icon {
+        background-color: white;
+        border-radius: 20px;
+        padding: 4px;
+        height: 15px;
     }
 </style>

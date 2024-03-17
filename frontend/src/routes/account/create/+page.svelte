@@ -1,22 +1,28 @@
 <script>
     import AccountCreationForm from "./components/AccountCreationForm.svelte"
+    import NavBar from "$lib/components/NavBar.svelte";
 </script>
 
-<a href="/account/edit">Edit an existing account</a>
-<br>
-<br>
-
-<h1>Create a new account</h1>
-<div class="login-box">
-    <AccountCreationForm/>
-</div>
+<section>
+    <a href="/account/edit">Edit an existing account</a>
+    <div class="login-box">
+        <AccountCreationForm/>
+    </div>
+</section>
 
 <style>
-    /* Flexbox */
+    section {
+        background-color: rgb(158, 233, 247);
+        min-height: 100vh;
+    } 
+    
     .login-box {
+        /* Flexbox */
         display: flex;
         align-items: center;
         justify-content: center;
+
+        margin: 50px;
     }
 </style>
 

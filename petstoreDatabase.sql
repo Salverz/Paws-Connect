@@ -17,7 +17,7 @@ SET REFERENTIAL_INTEGRITY TRUE;
 
 
 CREATE TABLE user_profile (
-    user_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
     birth_date DATE,
     display_name VARCHAR(32),
     location VARCHAR(32),
@@ -28,7 +28,7 @@ CREATE TABLE user_profile (
 CREATE TABLE user_account (
     user_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     username VARCHAR(32) NOT NULL,
-    passcode VARCHAR(256) NOT NULL, 
+    password VARCHAR(256) NOT NULL, 
     email VARCHAR(128) NOT NULL,  
 	is_admin BOOLEAN NOT NULL,
 );
@@ -53,17 +53,17 @@ CREATE TABLE connection (
 );
 
 CREATE TABLE language (
-    language_code CHAR(2) UNIQUE NOT NULL PRIMARY KEY,
+    language_code CHAR(4) UNIQUE NOT NULL PRIMARY KEY,
     language VARCHAR(64) UNIQUE
 );
 
-CREATE TABLE posts (
+CREATE TABLE post (
     post_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     content VARCHAR(1000),
     visibility ENUM('private', 'public', 'friend') NOT NULL,
     creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    post_language CHAR(2),
+    post_language_code CHAR(4),
     FOREIGN KEY (user_id) REFERENCES user_account(user_id),
     FOREIGN KEY (post_language) REFERENCES language(language_code)
 );
@@ -72,26 +72,26 @@ CREATE TABLE post_photo (
     photo_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     post_id INT NOT NULL,
     photo_link VARCHAR(256) NOT NULL,
-    FOREIGN KEY (post_id) REFERENCES posts(post_id)
+    FOREIGN KEY (post_id) REFERENCES post(post_id)
 );
 
-CREATE TABLE tagged_pets (
+CREATE TABLE tagged_pet (
     post_id INT NOT NULL,
     pet_id INT NOT NULL,
     PRIMARY KEY (post_id, pet_id),
-    FOREIGN KEY (post_id) REFERENCES posts(post_id),
+    FOREIGN KEY (post_id) REFERENCES post(post_id),
     FOREIGN KEY (pet_id) REFERENCES pet_profile(pet_id)
 );
 
-CREATE TABLE tagged_friends (
+CREATE TABLE tagged_friend (
     post_id INT NOT NULL,
     user_id INT NOT NULL,
     PRIMARY KEY (post_id, user_id),
-    FOREIGN KEY (post_id) REFERENCES posts(post_id),
+    FOREIGN KEY (post_id) REFERENCES post(post_id),
     FOREIGN KEY (user_id) REFERENCES user_account(user_id)
 );
 
-CREATE TABLE activity_logs(
+CREATE TABLE activity_log (
     log_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL, 
     activity_type VARCHAR(100),
@@ -101,7 +101,7 @@ CREATE TABLE activity_logs(
 );
 
 
-CREATE TABLE notifications(
+CREATE TABLE notification (
     notification_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     type VARCHAR(100),
@@ -112,7 +112,7 @@ CREATE TABLE notifications(
 );
 
 
-CREATE TABLE search_history(
+CREATE TABLE search_history (
     search_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
     searchQuery VARCHAR(250),
@@ -121,7 +121,7 @@ CREATE TABLE search_history(
 );
 
 
-CREATE TABLE likes(
+CREATE TABLE post_like (
     like_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     post_id INT NOT NULL, 
     user_id INT NOT NULL, 
@@ -131,7 +131,7 @@ CREATE TABLE likes(
 );
 
 
-CREATE TABLE comments(
+CREATE TABLE comment (
     comment_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     post_id INT NOT NULL,
     user_id INT NOT NULL,
@@ -141,12 +141,12 @@ CREATE TABLE comments(
     FOREIGN KEY (user_id) REFERENCES user_profile(user_id)
 );
 
-CREATE TABLE pet_types(
+CREATE TABLE pet_type (
     type_of_pets_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     categoryName VARCHAR(100)
 );
 
-CREATE TABLE transfer_pets(
+CREATE TABLE transfer_pet_log (
     pet_id INT,
     user_id_1 INT,
     user_id_2 INT,
