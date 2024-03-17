@@ -153,4 +153,4 @@ CREATE TABLE transfer_pets(
     transfer_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id_1) REFERENCES user_account(user_id),
     FOREIGN KEY (user_id_2) REFERENCES user_account(user_id)
-)
+);
