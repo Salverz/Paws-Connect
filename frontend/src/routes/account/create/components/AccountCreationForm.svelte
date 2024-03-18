@@ -10,13 +10,17 @@
             <label for="password">Password</label>
             <input type="password" id="password" name="password">
         </div>
+
+        <div class="sign-in-link">
+            <a href="./edit">Already have an account? Sign in</a>
+        </div>
     
         <button>Create Account</button>
         <div class="google">
             <a>Sign in with Google</a>
             <img class="google-logo-icon" alt="Sign in with google icon" src="/images/Google_G_logo.svg">
         </div>
-</form>
+    </form>
 
 </div>
 
@@ -34,6 +38,7 @@
 
         background-color: rgb(224, 224, 224);
         padding: 10px 30px 30px 30px;
+        margin: 10px 0px;
         border-radius: 5px;
     }
 
@@ -41,7 +46,7 @@
         font-size: 25px;
         width: 300px;
         font-weight: 350;
-        margin-bottom: 40px;
+        margin: 0;
     }
 
     .input-block {
@@ -49,7 +54,11 @@
         display: flex;
         flex-direction: column;
 
-        margin-bottom: 20px;
+        margin: 10px 0px;
+    }
+
+    .sign-in-link {
+        
     }
 
     label {
