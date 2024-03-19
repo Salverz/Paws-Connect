@@ -1,10 +1,12 @@
 <script>
     import AccountCreationForm from "./components/AccountCreationForm.svelte"
     import NavBar from "$lib/components/NavBar.svelte";
+    import SiteHeader from "$lib/components/SiteHeader.svelte";
 </script>
 
 <section>
-    <a href="/account/edit">Edit an existing account</a>
+    <SiteHeader/>
+	<!-- <a href="/account/edit">Edit an existing account</a> -->
     <div class="login-box">
         <AccountCreationForm/>
     </div>
@@ -22,7 +24,8 @@
         align-items: center;
         justify-content: center;
 
-        margin: 50px;
+		width: 100%;
+		/* margin: 50px; */
     }
 </style>
 

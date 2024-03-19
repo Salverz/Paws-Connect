@@ -1,28 +1,41 @@
-<div>
     <form class="create-account-card" action="http://localhost:3000/account/create" method="post">
-        <h1 class="card-header">Create a new account</h1>
-        <div class="input-block">
-            <label for="username">Username</label>
-            <input type="text" id="username" name="username">
-        </div>
-
-        <div class="input-block">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password">
-        </div>
-
-        <div class="sign-in-link">
-            <a href="./edit">Already have an account? Sign in</a>
-        </div>
+		<div class="card-header-section">
+        	<h1 class="card-header-text">Sign Up</h1>
+			<h2 class="tagline">Create an account to connect with pets, owners, and more!</h2>
+		</div>
+		<div class="form-input-area">
+			<div class="input-row">
+				<div class="input-block">
+					<label for="email">Email</label>
+					<input type="text" id="email" name="email">
+				</div>
+				<div class="input-block">
+					<label for="username">Username</label>
+					<input type="text" id="username" name="username">
+				</div>
+			</div>
+			<div class="input-row">
+				<div class="input-block">
+					<label for="password">Password</label>
+					<input type="password" id="password" name="password">
+				</div>
+				<div class="input-block">
+					<label for="password-confirm">Confirm Password</label>
+					<input type="password" id="password-confirm" name="password-confirm">
+				</div>
+			</div>
+		</div>
     
-        <button>Create Account</button>
+        <button>SIGN UP</button>
+		<p>- or -</p>
         <div class="google">
             <a>Sign in with Google</a>
             <img class="google-logo-icon" alt="Sign in with google icon" src="/images/Google_G_logo.svg">
         </div>
+        <div class="sign-in-link">
+			Already have an account? <a href="./edit">Sign in</a>
+        </div>
     </form>
-
-</div>
 
 
 <style>
@@ -36,29 +49,58 @@
         justify-content: center;
         align-items: center;
 
-        background-color: rgb(224, 224, 224);
-        padding: 10px 30px 30px 30px;
+		width: 50%;
+        background-color: rgb(240,240,250);
+		padding: 60px;
         margin: 10px 0px;
-        border-radius: 5px;
+        border-radius: 20px;
     }
 
-    .card-header {
-        font-size: 25px;
-        width: 300px;
-        font-weight: 350;
+	.card-header-section {
+		width: 100%;
+	}
+
+    .card-header-text {
+        font-size: 50px;
+        font-weight: 450;
         margin: 0;
     }
+
+	.tagline {
+		font-weight: 100;
+		font-size: 15px;
+		margin-bottom: 0;
+	}
+
+	.form-input-area {
+		/* Flexbox */
+		display: flex;
+		flex-direction: column;
+		gap: 10px;
+
+		width: 100%;
+		margin: 30px 0px;
+	}
+
+	.input-row {
+		/* Flexbox */
+		display: flex;
+		justify-content: center;
+		gap: 20px;
+		
+		width: 100%;
+	}
 
     .input-block {
         /* Flexbox */
         display: flex;
         flex-direction: column;
 
-        margin: 10px 0px;
+		width: 100%;
     }
 
     .sign-in-link {
-        
+		margin-top: 20px;
     }
 
     label {
@@ -70,23 +112,30 @@
     }
 
     input {
-        width: 300px;
-        height: 30px;
+        height: 40px;
         border-radius: 5px;
-        border-style: none;
+		border-style: solid;
+		border-width: 1px;
+		padding: 0px 10px;
     }
 
     button {
-        background-color: rgb(134, 134, 134);
-        padding: 10px 0px;
-        width: 220px;
+		/* Text properties */
+		font-weight: 500;
+
+        background-color: rgb(19, 13, 212);
+		width: 100%;
+		height: 50px;
         color: white;
         border-radius: 5px;
         border-style: none;
+
+		/* Animation */
+		transition: background-color 0.15s ease;
     }
 
     button:hover {
-        background-color: rgb(157, 157, 157);
+        background-color: rgb(4, 1, 97);
         cursor: pointer;
     }
 
@@ -98,21 +147,32 @@
         align-items: center;
 
         /* Text */
-        color: white;
+        color: rgb(55, 126, 240);
+		font-weight: 500;
 
-        margin-top: 20px;
-        padding: 5px 0px;
-        width: 220px;
+		width: 100%;
+		height: 50px;
         border-style: solid;
         border-radius: 5px;
-        background-color: rgb(55, 126, 240);
-        border-color: rgb(55, 126, 240);
+		border-width: 1px;
+		border-color: rgb(55, 126, 240);
+        background-color: white;
+
+		/* Animation */
+		transition: color 0.15s ease,
+					background-color 0.15s ease;
     }
 
+	.google:hover {
+		background-color: rgb(55, 126, 240);
+		color: white;
+		cursor: pointer;
+	}
+
     .google-logo-icon {
-        background-color: white;
-        border-radius: 20px;
-        padding: 4px;
-        height: 15px;
+        height: 20px;
+		border-radius: 50px;
+		background-color: white;
+		padding: 4px;
     }
 </style>
