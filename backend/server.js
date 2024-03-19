@@ -48,9 +48,11 @@ app.get('/test', async (req, res) => {
 
 const userRoute = require('./routes/user')
 const petRoute = require('./routes/pet')
+const postRoute = require('./routes/post')
 
 app.use('/user', userRoute)
 app.use('/pet', petRoute)
+app.use('/post', postRoute)
 
 // Use this to execute your SQL queries
 async function executeSQL(sql, params) {
