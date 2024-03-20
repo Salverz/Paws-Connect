@@ -1,6 +1,5 @@
 const db = require("../../helper_files/database");
-const express = require("express");
-const router = express.Router();
+const router = require("express").Router();
 
 // Authenticate a user
 router.post('/login', async (req, res) => {
@@ -8,9 +7,11 @@ router.post('/login', async (req, res) => {
     const password = req.body.password;
   
     // Find a user with the entered username and password
-    let sql = `SELECT *
-              FROM user_account
-              WHERE username=? AND password=?`;
+    let sql = `
+    SELECT *
+    FROM user_account
+    WHERE username=? AND password=?
+    `;
     
     // Run an SQL query to check whether the user exists
     let rows = await db.executeSQL(sql, [username, password]);
@@ -51,9 +52,11 @@ router.post('/create', async (req, res) => {
 	}
 
 	// Run SQL to check if an account exists already
-    let sql = `SELECT COUNT(*) "exists"
-              FROM user_account
-              WHERE username=? OR email=?`
+    let sql = `
+    SELECT COUNT(*) "exists"
+    FROM user_account
+    WHERE username=? OR email=?
+    `;
     let rows = await db.executeSQL(sql, [username, email]);
     console.log(rows);
   
@@ -66,7 +69,12 @@ router.post('/create', async (req, res) => {
 	}
 	
 	// Run SQL to add a new account
-  	sql = `INSERT INTO user_account (username, password, email, is_admin) VALUES (?, ?, ?, false)`;
+  	sql = `
+    INSERT INTO user_account
+    (username, password, email, is_admin)
+    VALUES
+    (?, ?, ?, false)
+    `;
   	rows = await db.executeSQL(sql, [username, password, email]);
   	console.log(rows);
   
@@ -92,11 +100,12 @@ router.get("/info/:username", async (req, res) => {
     const username = req.params.username;
 
     // Run an SQL query to get profile data of the user
-    const sql = `SELECT p.display_name, p.profile_picture, p.location, p.preferred_language, DATE_FORMAT(p.birth_date, "%Y-%m-%d") "birth_date"
-                  FROM user_profile p
-                  JOIN user_account a ON (p.user_id = a.user_id)
-                  WHERE a.username=?`;
-    console.log(sql);
+    const sql = `
+    SELECT p.display_name, p.profile_picture, p.location, p.preferred_language, DATE_FORMAT(p.birth_date, "%Y-%m-%d") "birth_date"
+    FROM user_profile p
+    JOIN user_account a ON (p.user_id = a.user_id)
+    WHERE a.username=?
+    `;
     const rows = await db.executeSQL(sql, [username]);
 
     console.log(rows);
@@ -117,7 +126,7 @@ router.get("/info/:username", async (req, res) => {
 });
   
 // Edit the user's profile with their input information
-router.post("/edit", async (req, res) => {
+router.put("/edit", async (req, res) => {
     const username = req.body.username;
     const displayName = req.body.displayName;
     const profilePicture = req.body.profilePicture;
@@ -125,9 +134,11 @@ router.post("/edit", async (req, res) => {
     const preferredLanguage = req.body.preferredLanguage;
   
     // Get the user's user_id
-    let sql = `SELECT user_id
-              FROM user_account
-              WHERE username=?`
+    let sql = `
+    SELECT user_id
+    FROM user_account
+    WHERE username=?
+    `;
     let rows = await db.executeSQL(sql, [username]);
 
     if (rows.length == 0) {
@@ -140,9 +151,10 @@ router.post("/edit", async (req, res) => {
     const user_id = rows[0].user_id;
 
     // Create an SQL query to update the user's information in the database. Embed each of the parameters you got from the frontend
-    sql = `UPDATE user_profile
-              SET display_name=?, profile_picture=?, location=?, preferred_language=?
-              WHERE user_id=?`
+    sql = `
+    UPDATE user_profile
+    SET display_name=?, profile_picture=?, location=?, preferred_language=?
+    WHERE user_id=?`;
     rows = await db.executeSQL(sql, [displayName, profilePicture, location, preferredLanguage, user_id]);
     console.log(rows);
   

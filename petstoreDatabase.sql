@@ -48,7 +48,8 @@ CREATE TABLE pet_profile (
     pet_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     owner_user_id INT,
     name VARCHAR(64) NOT NULL,
-    profile_picture_link VARCHAR(256),
+    profile_picture VARCHAR(256),
+    species VARCHAR(128),
     breed VARCHAR(64),
     color VARCHAR(16),
 	birth_date DATE,
@@ -69,9 +70,9 @@ CREATE TABLE post (
     text_content VARCHAR(512),
     visibility ENUM('private', 'public', 'friend') NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    post_language_code CHAR(4),
+    post_language VARCHAR(64),
     FOREIGN KEY (poster_user_id) REFERENCES user_account(user_id),
-    FOREIGN KEY (post_language_code) REFERENCES language(language_code)
+    FOREIGN KEY (post_language) REFERENCES language(language)
 );
 
 CREATE TABLE post_photo (

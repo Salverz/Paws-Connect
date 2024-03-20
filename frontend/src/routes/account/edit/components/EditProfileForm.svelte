@@ -17,7 +17,7 @@ async function getAccountInfo() {
 
 async function updateAccountInfo() {
     let databaseResult = await fetch(`http://localhost:3000/account/edit`, {
-        method: "POST",
+        method: "PUT",
         body: JSON.stringify({
             "username": username,
             "displayName": accountInfo.displayName,
