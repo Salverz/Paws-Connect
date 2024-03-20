@@ -1,28 +1,28 @@
-SET REFERENTIAL_INTEGRITY FALSE;
-DROP TABLE IF EXISTS likes;
-DROP TABLE IF EXISTS comments;
-DROP TABLE IF EXISTS search_history;
-DROP TABLE IF EXISTS notifications;
-DROP TABLE IF EXISTS activity_logs;
-DROP TABLE IF EXISTS tagged_friends;
-DROP TABLE IF EXISTS tagged_pets;
-DROP TABLE IF EXISTS post_photo;
-DROP TABLE IF EXISTS posts;
+USE j59qb6u7tk71ja7u;
+
+
 DROP TABLE IF EXISTS pet_profile;
 DROP TABLE IF EXISTS connection;
+
 DROP TABLE IF EXISTS user_profile;
+DROP TABLE IF EXISTS post_photo;
+DROP TABLE IF EXISTS tagged_pet;
+DROP TABLE IF EXISTS tagged_friend;
+DROP TABLE IF EXISTS post_like;
+DROP TABLE IF EXISTS comment;
+DROP TABLE IF EXISTS post;
 DROP TABLE IF EXISTS user_account;
 DROP TABLE IF EXISTS language;
-SET REFERENTIAL_INTEGRITY TRUE;
 
-CREATE TABLE user_profile (
-    user_id INT,
-    birth_date DATE,
-    display_name VARCHAR(32),
-    location VARCHAR(32),
-    preferred_language_code CHAR(4),
-    FOREIGN KEY (user_id) REFERENCES account(user_id),
-	FOREIGN KEY (preferred_language_code) REFERENCES language(language_code)
+-- Unused tables
+DROP TABLE IF EXISTS activity_log;
+DROP TABLE IF EXISTS notification;
+DROP TABLE IF EXISTS search_history;
+DROP TABLE IF EXISTS pet_type;
+DROP TABLE IF EXISTS transfer_pet_log;
+
+CREATE TABLE language (
+    language VARCHAR(64) UNIQUE NOT NULL PRIMARY KEY
 );
 
 CREATE TABLE user_account (
@@ -30,7 +30,18 @@ CREATE TABLE user_account (
     username VARCHAR(32) NOT NULL,
     password VARCHAR(256) NOT NULL,
     email VARCHAR(128) NOT NULL,
-	is_admin BOOLEAN NOT NULL,
+	is_admin BOOLEAN NOT NULL
+);
+
+CREATE TABLE user_profile (
+    user_id INT,
+    birth_date DATE,
+    display_name VARCHAR(32),
+    profile_picture VARCHAR(512),
+    location VARCHAR(32),
+    preferred_language VARCHAR(64),
+    FOREIGN KEY (user_id) REFERENCES user_account(user_id),
+	FOREIGN KEY (preferred_language) REFERENCES language(language)
 );
 
 CREATE TABLE pet_profile (
@@ -41,7 +52,7 @@ CREATE TABLE pet_profile (
     breed VARCHAR(64),
     color VARCHAR(16),
 	birth_date DATE,
-    FOREIGN KEY (owner_user_id) REFERENCES user_account(user_id),
+    FOREIGN KEY (owner_user_id) REFERENCES user_account(user_id)
 );
 
 CREATE TABLE connection (
@@ -49,12 +60,7 @@ CREATE TABLE connection (
     user_2_id INT NOT NULL,
     PRIMARY KEY (user_1_id, user_2_id),
     FOREIGN KEY (user_1_id) REFERENCES user_account(user_id),
-    FOREIGN KEY (user_2) REFERENCES user_account(user_id)
-);
-
-CREATE TABLE language (
-    language_code CHAR(4) UNIQUE NOT NULL PRIMARY KEY,
-    language VARCHAR(64) UNIQUE
+    FOREIGN KEY (user_2_id) REFERENCES user_account(user_id)
 );
 
 CREATE TABLE post (
@@ -62,7 +68,7 @@ CREATE TABLE post (
     poster_user_id INT NOT NULL,
     text_content VARCHAR(512),
     visibility ENUM('private', 'public', 'friend') NOT NULL,
-    creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     post_language_code CHAR(4),
     FOREIGN KEY (poster_user_id) REFERENCES user_account(user_id),
     FOREIGN KEY (post_language_code) REFERENCES language(language_code)
@@ -91,7 +97,26 @@ CREATE TABLE tagged_friend (
     FOREIGN KEY (tagged_friend_user_id) REFERENCES user_account(user_id)
 );
 
-CREATE TABLE activity_log (
+CREATE TABLE post_like (
+    like_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    liked_post_id INT NOT NULL, 
+    liker_user_id INT NOT NULL,
+    FOREIGN KEY (liked_post_id) REFERENCES post(post_id),
+    FOREIGN KEY (liker_user_id) REFERENCES user_account(user_id)
+);
+
+CREATE TABLE comment (
+    comment_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    commented_post_id INT NOT NULL,
+    commenter_user_id INT NOT NULL,
+    comment_text VARCHAR(256),
+    comment_creation_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (commented_post_id) REFERENCES post(post_id),
+    FOREIGN KEY (commenter_user_id) REFERENCES user_account(user_id)
+);
+
+-- Unused tables
+/* CREATE TABLE activity_log (
     log_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL, 
     activity_type VARCHAR(100),
@@ -118,25 +143,6 @@ CREATE TABLE search_history (
     FOREIGN KEY (user_id) REFERENCES user_profile(user_id)
 );
 
-CREATE TABLE post_like (
-    like_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    liked_post_id INT NOT NULL, 
-    liker_user_id INT NOT NULL, 
-    like_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (liked_post_id) REFERENCES posts(post_id),
-    FOREIGN KEY (liker_user_id) REFERENCES user_profile(user_id)
-);
-
-CREATE TABLE comment (
-    comment_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    commented_post_id INT NOT NULL,
-    commenter_user_id INT NOT NULL,
-    comment_text VARCHAR(256),
-    comment_creation_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (commented_post_id) REFERENCES posts(post_id),
-    FOREIGN KEY (commenter_user_id) REFERENCES user_profile(user_id)
-);
-
 CREATE TABLE pet_type (
     type_of_pets_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     categoryName VARCHAR(100)
@@ -149,4 +155,4 @@ CREATE TABLE transfer_pet_log (
     transfer_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id_1) REFERENCES user_account(user_id),
     FOREIGN KEY (user_id_2) REFERENCES user_account(user_id)
-);
+); */

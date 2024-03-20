@@ -6,7 +6,7 @@ const mysql = require('mysql');
 // Create an Express application
 const app = express();
 const port = 3000;
-app.use(cors({origin: 'http://localhost:5173'})); // This should be the url for your front end server (the URL you go to to see the website)
+app.use(cors({origin: 'http://localhost:5174'})); // This should be the url for your front end server (the URL you go to to see the website)
 
 const pool = dbConnection();
 app.use(express.urlencoded({ extended: true }));
@@ -46,13 +46,13 @@ app.get('/test', async (req, res) => {
 });
 
 
-const userRoute = require('./routes/user')
-const petRoute = require('./routes/pet')
-const postRoute = require('./routes/post')
+const accountRoute = require('./routes/account/account');
+const petRoute = require('./routes/pet/pet');
+const postRoute = require('./routes/post/post');
 
-app.use('/user', userRoute)
-app.use('/pet', petRoute)
-app.use('/post', postRoute)
+app.use('/account', accountRoute);
+app.use('/pet', petRoute);
+app.use('/post', postRoute);
 
 // Use this to execute your SQL queries
 async function executeSQL(sql, params) {
