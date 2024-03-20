@@ -6,6 +6,8 @@ const profileRoute = require('./profile/profile');
 // Routers
 router.use('/profile', profileRoute);
 
+// USE "db.executeSQL()" TO RUN SQL
+
 // Create a new pet
 // (accessed at [POST] http://localhost:3000/pet/create)
 router.post("/create", async (req, res) => {
