@@ -35,13 +35,13 @@ CREATE TABLE user_account (
 
 CREATE TABLE pet_profile (
     pet_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    user_id INT,
-    name VARCHAR(250) NOT NULL,
+    owner_user_id INT,
+    name VARCHAR(64) NOT NULL,
     profile_picture_link VARCHAR(256),
     breed VARCHAR(64),
     color VARCHAR(16),
-    age INT,
-    FOREIGN KEY (user_id) REFERENCES user_account(user_id),
+	birth_date DATE,
+    FOREIGN KEY (owner_user_id) REFERENCES user_account(user_id),
 );
 
 CREATE TABLE connection (
@@ -59,36 +59,36 @@ CREATE TABLE language (
 
 CREATE TABLE post (
     post_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    user_id INT NOT NULL,
-    content VARCHAR(1000),
+    poster_user_id INT NOT NULL,
+    text_content VARCHAR(512),
     visibility ENUM('private', 'public', 'friend') NOT NULL,
     creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     post_language_code CHAR(4),
-    FOREIGN KEY (user_id) REFERENCES user_account(user_id),
+    FOREIGN KEY (poster_user_id) REFERENCES user_account(user_id),
     FOREIGN KEY (post_language_code) REFERENCES language(language_code)
 );
 
 CREATE TABLE post_photo (
     photo_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    post_id INT NOT NULL,
+    attached_to_post_id INT NOT NULL,
     photo_link VARCHAR(256) NOT NULL,
-    FOREIGN KEY (post_id) REFERENCES post(post_id)
+    FOREIGN KEY (attached_to_post_id) REFERENCES post(post_id)
 );
 
 CREATE TABLE tagged_pet (
-    post_id INT NOT NULL,
-    pet_id INT NOT NULL,
-    PRIMARY KEY (post_id, pet_id),
-    FOREIGN KEY (post_id) REFERENCES post(post_id),
-    FOREIGN KEY (pet_id) REFERENCES pet_profile(pet_id)
+    tagged_post_id INT NOT NULL,
+    tagged_pet_id INT NOT NULL,
+    PRIMARY KEY (tagged_post_id, tagged_pet_id),
+    FOREIGN KEY (tagged_post_id) REFERENCES post(post_id),
+    FOREIGN KEY (tagged_pet_id) REFERENCES pet_profile(pet_id)
 );
 
 CREATE TABLE tagged_friend (
-    post_id INT NOT NULL,
-    user_id INT NOT NULL,
-    PRIMARY KEY (post_id, user_id),
-    FOREIGN KEY (post_id) REFERENCES post(post_id),
-    FOREIGN KEY (user_id) REFERENCES user_account(user_id)
+    tagged_post_id INT NOT NULL,
+    tagged_friend_user_id INT NOT NULL,
+    PRIMARY KEY (tagged_post_id, tagged_friend_user_id),
+    FOREIGN KEY (tagged_post_id) REFERENCES post(post_id),
+    FOREIGN KEY (tagged_friend_user_id) REFERENCES user_account(user_id)
 );
 
 CREATE TABLE activity_log (
@@ -120,21 +120,21 @@ CREATE TABLE search_history (
 
 CREATE TABLE post_like (
     like_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    post_id INT NOT NULL, 
-    user_id INT NOT NULL, 
-    likeDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (post_id) REFERENCES posts(post_id),
-    FOREIGN KEY (user_id) REFERENCES user_profile(user_id)
+    liked_post_id INT NOT NULL, 
+    liker_user_id INT NOT NULL, 
+    like_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (liked_post_id) REFERENCES posts(post_id),
+    FOREIGN KEY (liker_user_id) REFERENCES user_profile(user_id)
 );
 
 CREATE TABLE comment (
     comment_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    post_id INT NOT NULL,
-    user_id INT NOT NULL,
-    commentText VARCHAR(500),
-    creation_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (post_id) REFERENCES posts(post_id),
-    FOREIGN KEY (user_id) REFERENCES user_profile(user_id)
+    commented_post_id INT NOT NULL,
+    commenter_user_id INT NOT NULL,
+    comment_text VARCHAR(256),
+    comment_creation_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (commented_post_id) REFERENCES posts(post_id),
+    FOREIGN KEY (commenter_user_id) REFERENCES user_profile(user_id)
 );
 
 CREATE TABLE pet_type (
