@@ -46,11 +46,11 @@ app.get('/', async (req, res) => {
 });
 
 
-const userRoute = require('./routes/user')
+const userRoute = require('./routes/account')
 const petRoute = require('./routes/pet')
 const postRoute = require('./routes/post')
 
-app.use('/user', userRoute)
+app.use('/account', userRoute)
 app.use('/pet', petRoute)
 app.use('/post', postRoute)
 
