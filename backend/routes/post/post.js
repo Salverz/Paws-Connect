@@ -6,6 +6,7 @@ const router = require("express").Router();
 // Create a new post
 // (accessed at [POST] http://localhost:3000/post/create)
 router.post("/create", async (req, res) => {
+  console.log("Creating a new post");
   const { userID, postText, postImage, taggedFriends, taggedPets, visibility } = req.body;
   try {
     // Insert the post into the post table
@@ -50,6 +51,7 @@ router.post("/create", async (req, res) => {
 // Get all the posts to display on the user's feed (given the user's username)
 // (accessed at http://localhost:3000/post/get/[username])
 router.get("/get/:username", async (req, res) => {
+  console.log(`Fetching posts for user: ${req.params.username}`);
   const username = req.params.username;
 
   try {
