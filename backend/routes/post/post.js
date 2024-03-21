@@ -7,7 +7,6 @@ const router = require("express").Router();
 // (accessed at [POST] http://localhost:3000/post/create)
 router.post("/create", async (req, res) => {
   const { userID, postText, postImage, taggedFriends, taggedPets, visibility } = req.body;
-
   try {
     // Insert the post into the post table
     const postResult = await db.executeSQL(`
