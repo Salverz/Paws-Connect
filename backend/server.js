@@ -6,7 +6,7 @@ const mysql = require('mysql');
 // Create an Express application
 const app = express();
 const port = 3000;
-app.use(cors({origin: 'http://localhost:5173'})); // This should be the url for your front end server (the URL you go to to see the website)
+app.use(cors({origin: 'http://localhost:5174'})); // This should be the url for your front end server (the URL you go to to see the website)
 
 const pool = dbConnection();
 app.use(express.urlencoded({ extended: true }));
