@@ -20,8 +20,8 @@
 					<input type="password" id="password" name="password">
 				</div>
 				<div class="input-block">
-					<label for="password-confirm">Confirm Password</label>
-					<input type="password" id="password-confirm" name="password-confirm">
+					<label for="passwordConfirm">Confirm Password</label>
+					<input type="password" id="passwordConfirm" name="passwordConfirm">
 				</div>
 			</div>
 		</div>
