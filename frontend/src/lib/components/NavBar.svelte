@@ -1,6 +1,6 @@
 <div class="nav-bar">
     <a class="nav-link" href="/">Home</a>
-    <a class="nav-link" href="/">Feed</a>
+    <a class="nav-link" href="/feed">Feed</a>
     <a class="nav-link" href="/">View Pets</a>
     <a class="nav-link" href="/account/edit">Edit Account</a>
 </div>
