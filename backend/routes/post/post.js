@@ -86,9 +86,9 @@ router.post("/create", async (req, res) => {
   }
 });
 
-// router.post("/create", async (req, res) => {
+
 router.get("/get/:username", async (req, res) => {
-  const username = req.params.display_name;
+  const username = req.params.username;
 
   try {
     const userResult = await db.executeSQL(`
