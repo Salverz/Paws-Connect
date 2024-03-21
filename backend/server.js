@@ -22,7 +22,7 @@ app.use(express.json());
 
 // app.get is a GET method. This means when the front end calls "/test", it is
 // REQUESTING DATA FROM THE BACKEND
-app.get('/test', async (req, res) => {
+app.get('/', async (req, res) => {
 
   // Create an SQL query
   let sql = `SELECT *

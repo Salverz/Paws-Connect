@@ -74,7 +74,6 @@ router.post('/account/create', async (req, res) => {
       });
     }
 });
-  
 
   // TODO: make an /account/info route that will grab all of the profile data of the user.
   // This is so we can display on the front end what the current profile looks like before
@@ -140,7 +139,7 @@ router.post("/account/edit", async (req, res) => {
     });
 });
 
-router.post()
+// router.post()
 
 async function executeSQL(sql, params) {
   return new Promise(function(resolve, reject) {
