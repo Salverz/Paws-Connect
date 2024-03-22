@@ -7,6 +7,7 @@ const router = require("express").Router();
 // (accessed at [POST] http://localhost:3000/post/create)
 router.post("/create", async (req, res) => {
   const { userID, text_content, post_photo_link, visibility, post_language} = req.body;
+  console.log(req.body);
 
   if (!userID) {
     return res.status(400).json({ success: false, message: 'userID is required.' });
@@ -14,9 +15,10 @@ router.post("/create", async (req, res) => {
 
   try {
     const userProfile = await db.executeSQL(`
-      SELECT username, profile_picture
-      FROM user_profile
-      WHERE user_id = ?
+      SELECT a.username, p.profile_picture
+      FROM user_profile p
+      JOIN user_account a ON (a.user_id = p.user_id)
+      WHERE a.user_id = ?
     `, [userID]);
 
     if (userProfile.length === 0) {

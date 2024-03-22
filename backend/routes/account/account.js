@@ -1,6 +1,12 @@
 const db = require("../../helper_files/database");
 const router = require("express").Router();
 
+// Router files
+const profileRoute = require('./profile/profile');
+
+// Routers
+router.use('/profile', profileRoute);
+
 // Authenticate a user
 router.post('/login', async (req, res) => {
     const username = req.body.username;
@@ -132,6 +138,8 @@ router.put("/edit", async (req, res) => {
     const profilePicture = req.body.profilePicture;
     const location = req.body.location;
     const preferredLanguage = req.body.preferredLanguage;
+    const birth_date = req.body.birthDate;
+    console.log(birth_date);
   
     // Get the user's user_id
     let sql = `

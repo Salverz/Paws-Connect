@@ -1,5 +1,6 @@
 <script>
     import SiteHeader from "$lib/components/SiteHeader.svelte";
+	import { onMount } from "svelte";
     let posts = [
         {
             "post_id": 1,
@@ -24,6 +25,17 @@
             "likes": 14,
         }
     ];
+
+    async function getPosts() {
+        let response = await fetch("http://localhost:3000/post/get/dave");
+        let json = await response.json();
+        console.log(json.posts);
+        posts = json.posts;
+    }
+
+    onMount(async () => {
+        await getPosts();
+    });
 </script>
 
 <SiteHeader/>
@@ -34,13 +46,13 @@
         <div class="post">
             <div class="poster-profile-section">
                 <img class="poster-profile-picture" src={post.poster_profile_picture}>
-                <h1>{post.poster_username}</h1>
+                <a href="/user/profile/{post.poster_username}"><h1>{post.poster_username}</h1></a>
             </div>
             <p class="post-text">{post.text_content}</p>
             <img class="post-photo" src="{post.post_photo_link}">
             <div class="post-information-section">
                 <p class="likes">{post.likes} likes</p>
-                <p>Posted on {post.created_at.split(" ")[0]} at {post.created_at.split(" ")[1]}</p>
+                <p>Posted on {post.created_at.split("T")[0]} at {post.created_at.split("T")[1]}</p>
             </div>
         </div>
     {/each}

@@ -38,7 +38,7 @@
     }
 
     .nav-link:hover {
-        background-color: rgb(168, 168, 168)X;
+        background-color: rgb(168, 168, 168);
         transform: translateX(-20px);
         background-color: rgb(175, 175, 175);
         /* padding-bottom: 15px;

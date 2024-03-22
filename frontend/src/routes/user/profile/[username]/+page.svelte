@@ -1,7 +1,10 @@
 <script>
+    import { page } from "$app/stores";
+	import { onMount } from "svelte";
   let name = "Brownei";
   let profile_picture = "https://hips.hearstapps.com/hmg-prod/images/dog-puppy-on-garden-royalty-free-image-1586966191.jpg?crop=1xw:0.74975xh;center,top&resize=1200:*";
   let bio = "A pet who enjoys spending";
+  let location, preferred_language;
 
   let follows = 520;
   let followers = 1234;
@@ -34,6 +37,27 @@
   function toggleSimilarProfiles() {
       showSimilarProfiles = !showSimilarProfiles;
   }
+
+  name = $page.params.username;
+  console.log(name);
+
+  async function getProfileData() {
+    console.log("running");
+    let data = await fetch(`http://localhost:3000/account/profile/${name}`);
+    let json = await data.json();
+    console.log(json);
+    name = json[0].display_name;
+    profile_picture = json[0].profile_picture;
+    location = json[0].location;
+    preferred_language = json[0].preferred_language;
+  }
+
+
+//   getProfileData();
+  onMount(async () => {
+    await getProfileData();
+  });
+
 </script>
 
 <style>
@@ -186,12 +210,13 @@
   <div class="profile-header">
       <img class="profile-picture" src="{profile_picture}" alt="Profile Picture">
       <div class="profile-info">
-          <h1>{name}</h1>
-          <p class="bio">{bio}</p>
+        <h1>{name}</h1>
           <div class="stats">
-              <p>Follows: {follows}</p>
-              <p>Followers: {followers}</p>
+              <!-- <p>Follows: {follows}</p> -->
+              <!-- <p>Followers: {followers}</p> -->
+              <p>Location: {location}</p>
               <p>Connections: {connections.length}</p>
+              <p>Preferred language: {preferred_language}</p>
           </div>
       </div>
   </div>

@@ -8,20 +8,28 @@
 
 <form method="POST" action="http://localhost:3000/post/create">
     <div class="input-section">
-        <label for="username">Username</label>
-        <input id="username" name="username">
+        <label for="userID">user ID</label>
+        <input id="userID" name="userID">
 
     </div>
     <div class="input-section">
-        <label for="postText">Caption</label>
-        <textarea id="postText" name="postText" rows="4" cols="50"></textarea>
+        <label for="text_content">Caption</label>
+        <textarea id="text_content" name="text_content" rows="4" cols="50"></textarea>
     </div>
     <div class="input-section">
-        <label for="postImage">Picture</label>
-        <input id="postImage" name="postImage" bind:value={postPicture}>
+        <label for="post_photo_link">Picture</label>
+        <input id="post_photo_link" name="post_photo_link" bind:value={postPicture}>
     </div>
-    <img src={postPicture}>
+    <div class="input-section">
+        <label for="visibility">Visability</label>
+        <input id="visibility" name="visibility">
+    </div>
+    <div class="input-section">
+        <label for="post_language">Post language</label>
+        <input id="post_language" name="post_language">
+    </div>
     <button>Create post</button>
+    <img src={postPicture}>
 </form>
 
 <style>
