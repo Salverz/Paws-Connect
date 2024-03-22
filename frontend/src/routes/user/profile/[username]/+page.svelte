@@ -1,23 +1,27 @@
 <script>
+<<<<<<< HEAD:frontend/src/routes/user/profile/[username]/+page.svelte
     import { page } from "$app/stores";
 	import { onMount } from "svelte";
   let name = "Brownei";
   let profile_picture = "https://hips.hearstapps.com/hmg-prod/images/dog-puppy-on-garden-royalty-free-image-1586966191.jpg?crop=1xw:0.74975xh;center,top&resize=1200:*";
   let bio = "A pet who enjoys spending";
   let location, preferred_language;
+=======
+  let name = "Antonio";
+  let profile_picture = "https://media.licdn.com/dms/image/C5603AQGXFbcWFMDlGA/profile-displayphoto-shrink_800_800/0/1588655970246?e=2147483647&v=beta&t=MnAPiEcWIr3dfNhJWOoxGfhUgtBEqdXE6w9_LohS0Wo";
+  let bio = "I love nature";
+  let pronouns = "He/Him";
+  let location = "USA, California"
+>>>>>>> 9b68daabe040beb9da4df9082217865f9c9070ab:frontend/src/routes/user/profile/+page.svelte
 
-  let follows = 520;
-  let followers = 1234;
+  let friends = 520;
+  let posts = 121;
   let connections = [
-      { name: "John", profile_picture: "https://t4.ftcdn.net/jpg/00/97/58/97/360_F_97589769_t45CqXyzjz0KXwoBZT9PRaWGHRk5hQqQ.jpg" },
-      { name: "Ty", profile_picture: "https://static.vecteezy.com/system/resources/thumbnails/023/595/164/small/rabbit-in-the-forest-at-sunset-animal-in-nature-easter-bunny-wildlife-scene-generative-ai-photo.jpg" },
-      { name: "Mike", profile_picture: "https://people.com/thmb/f96tuDus6iHbftSvPZjYpMAsTCk=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc():focal(777x504:779x506)/petting-dog-080323-1-b4440cd8468c4242b3a707dbcb415120.jpg" },
-      { name: "Rohn", profile_picture: "https://images.pexels.com/photos/416160/pexels-photo-416160.jpeg?cs=srgb&dl=pexels-pixabay-416160.jpg&fm=jpg" },
-      { name: "Rahui", profile_picture: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQi4m4tcRb66quRUIsggE-2ZU8zi5LlAT960Q&usqp=CAU" },
-      { name: "David", profile_picture: "https://d2zp5xs5cp8zlg.cloudfront.net/image-62867-800.jpg" },
-      { name: "Kim", profile_picture: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR6jsN-2AKB5AOLIuR8X1myKe5pdN0XPA715g&usqp=CAU" },
-      { name: "Jeff", profile_picture: "https://www.worldatlas.com/r/w1200/upload/4a/08/fb/shutterstock-716133220.jpg" },
-      { name: "Chase", profile_picture: "https://hips.hearstapps.com/hmg-prod/images/how-to-keep-ducks-call-ducks-1615457181.jpg?resize=2048:*" },
+      { name: "Rahul", profile_picture: "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500" },
+      { name: "David", profile_picture: "https://i.pinimg.com/236x/39/f8/f1/39f8f15525a9d4727728aa214bae0ddf.jpg" },
+      { name: "Kim", profile_picture: "https://variety.com/wp-content/uploads/2024/01/Kim-Kardashian.jpg" },
+      { name: "Jeff", profile_picture: "https://media.gettyimages.com/id/143071480/photo/student-standing-on-steps-outdoors.jpg?s=612x612&w=gi&k=20&c=UbOAUe8a6nWfpfMbej3a7J8awOhBdVnNSc65rXmfV7A=" },
+      { name: "Chase", profile_picture: "https://pics.craiyon.com/2023-07-07/7fc64a9b0eb141689af167796b348537.webp" },
   ];
 
   let showConnections = false;
@@ -26,10 +30,10 @@
       showConnections = !showConnections;
   }
   let similarProfiles = [
-      { name: "Isabella", profile_picture: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSxmPbZp25Cr3qjPxZI4Sgmq1Kk3XzgD9AWnQ&usqp=CAU" },
-      { name: "Mike", profile_picture: "https://i.pinimg.com/474x/44/55/ce/4455ce9fb7a611e621ce6106f3e2b191.jpg" },
-      { name: "Ramen", profile_picture: "https://www.thesprucepets.com/thmb/y4YEErOurgco9QQO-zJ6Ld1yVkQ=/3000x0/filters:no_upscale():strip_icc()/english-dog-breeds-4788340-hero-14a64cf053ca40f78e5bd078b052d97f.jpg" },
-      { name: "Cookie", profile_picture: "https://media.istockphoto.com/id/1361394182/photo/funny-british-shorthair-cat-portrait-looking-shocked-or-surprised.jpg?s=612x612&w=0&k=20&c=6yvVxdufrNvkmc50nCLCd8OFGhoJd6vPTNotl90L-vo=" }
+      { name: "Isabella", profile_picture: "https://m.media-amazon.com/images/M/MV5BZDQxNGNmZDctODI3ZC00ZDNjLWE2YjctZjhhOTkzMmM1MGM1XkEyXkFqcGdeQXVyMzQ2Njc1OTY@._V1_.jpg" },
+      { name: "Mike", profile_picture: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRiyAi_e7nPeAB-jWMUT0-YsBEUhZUBcAGqxg&usqp=CAU" },
+      { name: "Jack", profile_picture: "https://images.mubicdn.net/images/cast_member/24202/cache-207702-1489464067/image-w856.jpg?size=800x" },
+      { name: "Noah", profile_picture: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkC9a9mZGJvcvFlXXR9VutCVx4TJGeVHuh4A&usqp=CAU" }
   ];
 
   let showSimilarProfiles = false;
@@ -212,11 +216,19 @@
       <div class="profile-info">
         <h1>{name}</h1>
           <div class="stats">
+<<<<<<< HEAD:frontend/src/routes/user/profile/[username]/+page.svelte
               <!-- <p>Follows: {follows}</p> -->
               <!-- <p>Followers: {followers}</p> -->
               <p>Location: {location}</p>
               <p>Connections: {connections.length}</p>
               <p>Preferred language: {preferred_language}</p>
+=======
+              <p>Friends: {friends}</p>
+              <p>Posts: {posts}</p>
+              <p>Connections: {connections.length}</p>
+              <p>Pronouns: {pronouns}</p>
+              <p>Geo Location: {location}</p>
+>>>>>>> 9b68daabe040beb9da4df9082217865f9c9070ab:frontend/src/routes/user/profile/+page.svelte
           </div>
       </div>
   </div>
