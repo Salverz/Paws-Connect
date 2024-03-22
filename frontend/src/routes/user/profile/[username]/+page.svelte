@@ -1,18 +1,10 @@
 <script>
-<<<<<<< HEAD:frontend/src/routes/user/profile/[username]/+page.svelte
     import { page } from "$app/stores";
 	import { onMount } from "svelte";
   let name = "Brownei";
   let profile_picture = "https://hips.hearstapps.com/hmg-prod/images/dog-puppy-on-garden-royalty-free-image-1586966191.jpg?crop=1xw:0.74975xh;center,top&resize=1200:*";
   let bio = "A pet who enjoys spending";
   let location, preferred_language;
-=======
-  let name = "Antonio";
-  let profile_picture = "https://media.licdn.com/dms/image/C5603AQGXFbcWFMDlGA/profile-displayphoto-shrink_800_800/0/1588655970246?e=2147483647&v=beta&t=MnAPiEcWIr3dfNhJWOoxGfhUgtBEqdXE6w9_LohS0Wo";
-  let bio = "I love nature";
-  let pronouns = "He/Him";
-  let location = "USA, California"
->>>>>>> 9b68daabe040beb9da4df9082217865f9c9070ab:frontend/src/routes/user/profile/+page.svelte
 
   let friends = 520;
   let posts = 121;
@@ -216,19 +208,11 @@
       <div class="profile-info">
         <h1>{name}</h1>
           <div class="stats">
-<<<<<<< HEAD:frontend/src/routes/user/profile/[username]/+page.svelte
               <!-- <p>Follows: {follows}</p> -->
               <!-- <p>Followers: {followers}</p> -->
               <p>Location: {location}</p>
               <p>Connections: {connections.length}</p>
               <p>Preferred language: {preferred_language}</p>
-=======
-              <p>Friends: {friends}</p>
-              <p>Posts: {posts}</p>
-              <p>Connections: {connections.length}</p>
-              <p>Pronouns: {pronouns}</p>
-              <p>Geo Location: {location}</p>
->>>>>>> 9b68daabe040beb9da4df9082217865f9c9070ab:frontend/src/routes/user/profile/+page.svelte
           </div>
       </div>
   </div>
