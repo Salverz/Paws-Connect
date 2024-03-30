@@ -1,5 +1,6 @@
 <script>
     import AccountCreationForm from "./components/AccountCreationForm.svelte"
+	import ProfileCreationForm from "./components/ProfileCreationForm.svelte";
     import NavBar from "$lib/components/NavBar.svelte";
     import SiteHeader from "$lib/components/SiteHeader.svelte";
 </script>
@@ -8,7 +9,8 @@
     <SiteHeader/>
 	<!-- <a href="/account/edit">Edit an existing account</a> -->
     <div class="login-box">
-        <AccountCreationForm/>
+		<!-- <AccountCreationForm/> -->
+		<ProfileCreationForm/>
     </div>
 </section>
 
