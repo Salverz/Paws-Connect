@@ -1,42 +1,80 @@
-    <form class="create-account-card" action="http://localhost:3000/account/create" method="post">
-		<div class="card-header-section">
-        	<h1 class="card-header-text">Sign Up</h1>
-			<h2 class="tagline">Create an account to connect with pets, owners, and more!</h2>
-		</div>
-		<div class="form-input-area">
-			<div class="input-row">
-				<div class="input-block">
-					<label for="email">Email</label>
-					<input type="text" id="email" name="email">
-				</div>
-				<div class="input-block">
-					<label for="username">Username</label>
-					<input type="text" id="username" name="username">
-				</div>
-			</div>
-			<div class="input-row">
-				<div class="input-block">
-					<label for="password">Password</label>
-					<input type="password" id="password" name="password">
-				</div>
-				<div class="input-block">
-					<label for="passwordConfirm">Confirm Password</label>
-					<input type="password" id="passwordConfirm" name="passwordConfirm">
-				</div>
-			</div>
-		</div>
-    
-        <button>SIGN UP</button>
-		<p>- or -</p>
-        <div class="google">
-            <a>Sign in with Google</a>
-            <img class="google-logo-icon" alt="Sign in with google icon" src="/images/Google_G_logo.svg">
-        </div>
-        <div class="sign-in-link">
-			Already have an account? <a href="./edit">Sign in</a>
-        </div>
-    </form>
+<script>
+	export let onButtonClick;
 
+	let email, username, password, passwordConfirm;
+
+	async function handleClick() {
+		if (await createAccount()) {
+			onButtonClick();
+		} else {
+			console.log("passwords do not match");
+		}
+	}
+
+	async function createAccount() {
+		console.log(email, username, password, passwordConfirm);
+
+		if (password !== passwordConfirm) {
+			return false;
+		}
+
+		let databaseResult = await fetch(`http://localhost:3000/account/create`, {
+			method: "POST",
+			body: JSON.stringify({
+				"email": email,
+				"username": username,
+				"password": password,
+				"passwordConfirm": passwordConfirm
+			}),
+			headers: {
+				"Content-type": "application/json; charset=UTF-8"
+			}
+		});
+
+		let json = await databaseResult.json();
+		console.log(json);
+		return true;
+	}
+</script>
+
+<div class="create-account-card">
+	<div class="card-header-section">
+		<h1 class="card-header-text">Sign Up</h1>
+		<h2 class="tagline">Create an account to connect with pets, owners, and more!</h2>
+	</div>
+	<div class="form-input-area">
+		<div class="input-row">
+			<div class="input-block">
+				<label for="email">Email</label>
+				<input type="text" id="email" name="email" bind:value={email}>
+			</div>
+			<div class="input-block">
+				<label for="username">Username</label>
+				<input type="text" id="username" name="username" bind:value={username}>
+			</div>
+		</div>
+		<div class="input-row">
+			<div class="input-block">
+				<label for="password">Password</label>
+				<input type="password" id="password" name="password" bind:value={password}>
+			</div>
+			<div class="input-block">
+				<label for="passwordConfirm">Confirm Password</label>
+				<input type="password" id="passwordConfirm" name="passwordConfirm" bind:value={passwordConfirm}>
+			</div>
+		</div>
+	</div>
+
+	<button on:click={handleClick}>SIGN UP</button>
+	<p>- or -</p>
+	<div class="google">
+		<a>Sign in with Google</a>
+		<img class="google-logo-icon" alt="Sign in with google icon" src="/images/Google_G_logo.svg">
+	</div>
+	<div class="sign-in-link">
+		Already have an account? <a href="./edit">Sign in</a>
+	</div>
+</div>
 
 <style>
     .create-account-card {

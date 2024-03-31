@@ -1,5 +1,5 @@
 <script>
-let profile_picture_image;
+	let profile_picture_image;
 </script>
 
 <form class="create-account-card" action="http://localhost:3000/account/profile/create" method="POST">

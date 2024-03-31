@@ -3,14 +3,21 @@
 	import ProfileCreationForm from "./components/ProfileCreationForm.svelte";
     import NavBar from "$lib/components/NavBar.svelte";
     import SiteHeader from "$lib/components/SiteHeader.svelte";
+
+	// Switch from create account view to create profile view
+	let currentComponent = AccountCreationForm;
+	function handleButtonClick() {
+		currentComponent = ProfileCreationForm
+	}
 </script>
 
 <section>
     <SiteHeader/>
 	<!-- <a href="/account/edit">Edit an existing account</a> -->
     <div class="login-box">
-		<!-- <AccountCreationForm/> -->
-		<ProfileCreationForm/>
+		{#if currentComponent}
+			<svelte:component this={currentComponent} onButtonClick={handleButtonClick} />
+		{/if}
     </div>
 </section>
 
