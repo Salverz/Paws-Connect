@@ -27,7 +27,7 @@ CREATE TABLE language (
 
 CREATE TABLE user_account (
     user_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    username VARCHAR(32) NOT NULL,
+    username VARCHAR(32) NOT NULL UNIQUE,
     password VARCHAR(256) NOT NULL,
     email VARCHAR(128) NOT NULL,
 	is_admin BOOLEAN NOT NULL
