@@ -1,3 +1,4 @@
+const db = require("../../helper_files/database");
 const router = require('express').Router();
 
 // Router files
@@ -7,16 +8,75 @@ const profileRoute = require('./profile/profile');
 router.use('/profile', profileRoute);
 
 // USE "db.executeSQL()" TO RUN SQL
-
 // Create a new pet
 // (accessed at [POST] http://localhost:3000/pet/create)
 router.post("/create", async (req, res) => {
+    const owner_user_id = req.body.ownerId;
+    const petName = req.body.petname;
+    const petPFP = req.body.petPFP;
+    const species = req.body.species;
+    const breed = req.body.breed;
+    const color = req.body.color;
+    const birthDay = req.body.birthDay;
+
+    //check if there is a user that has the id that was provided
+    let sql = `SELECT COUNT(*) "exists" 
+                FROM user_account 
+                WHERE user_id=?`;
+    //if there is not then give a error that says the id does not exist 
+    let rows = await db.executeSQL(sql, [owner_user_id]);
+    console.log(rows);
+    if (rows[0].exists == 0) {
+      res.json({
+        "message": "There is no account with that User ID"
+      });
+		return;
+    }
+    //add pet into database
+    sql = `INSERT INTO pet_profile
+            (owner_user_id, name, profile_picture, species, breed, color, birth_date)
+            VALUES (?, ?, ?, ?, ?, ?, ?)`;
+    rows = await db.executeSQL(sql, [owner_user_id, petName, petPFP, species, breed, color, birthDay]);
+    console.log(rows);
+
+    if (rows.affectedRows > 0) {
+      res.json({
+        "accountCreated": true,
+        "response": "Account created successfully"
+      });
+      return;
+    }
+    // Account was not inserted into the table
+    res.json({
+      "accountCreated": false,
+      "response": "Account creation failure: username already exists"
+    });
 
 });
 
 // Remove a pet
 // (accessed at [DELETE] http://localhost:3000/pet/remove)
 router.delete("/remove", async (req, res) => {
+    const petID = req.body.petID;
+    //check if pet id exists
+    let sql = `SELECT COUNT(*) "exists"
+                FROM pet_profile
+                WHERE pet_id = ?`;
+    //gives error
+    let rows = await db.executeSQL(sql, [petID]);
+    if (rows[0].exists == 0) {
+      res.jason ({
+        "message": "There is no pet with matching Pet ID"
+      });
+      return;
+    } 
+    //delete pet profile linked to pet_id
+    let sqlDelete = `DELETE FROM pet_profile
+                      WHERE pet_id = ?`;
+    await db.executeSQL(sqlDelete, [petID]);
+    return res.json({
+      "message": "Pet profile deleted sucessfully"
+    });
 
 });
 
