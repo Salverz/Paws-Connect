@@ -1,8 +1,11 @@
 const db = require("../../helper_files/database");
 const router = require("express").Router();
 
+// const searchRoute = require('./routes/search/search');
+// app.use('/search', searchRoute);
+
 // Search pet profiles
-router.get("/search/pet", async (req, res) => {
+router.get("/pet", async (req, res) => {
     const {name = "", species = "", breed = "", color = "", ownerUsername = ""} = req.query;
 
     let sql = `
@@ -34,7 +37,7 @@ router.get("/search/pet", async (req, res) => {
     }
 });
 // Search user profiles
-router.get("/search/user", async (req, res) => {
+router.get("/user", async (req, res) => {
     const {username = "", displayName = "", location = "", language = ""} = req.query;
 
     let sql = `
@@ -57,3 +60,4 @@ router.get("/search/user", async (req, res) => {
         res.status(500).send("An error occurred while fetching user profiles.");
     }
 });
+module.exports = router;

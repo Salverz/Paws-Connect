@@ -1,6 +1,8 @@
 const db = require("../../../helper_files/database");
 const router = require("express").Router();
 
+
+
 // Search user profiles
 router.get("/search/user", async (req, res) => {
     const {username = "", displayName = "", location = "", language = ""} = req.query;
