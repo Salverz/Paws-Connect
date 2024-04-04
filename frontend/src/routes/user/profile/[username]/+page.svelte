@@ -1,7 +1,7 @@
 <script>
     import { page } from "$app/stores";
 	import { onMount } from "svelte";
-  let name = "Brownei";
+  let name = "Jake";
   let profile_picture = "https://hips.hearstapps.com/hmg-prod/images/dog-puppy-on-garden-royalty-free-image-1586966191.jpg?crop=1xw:0.74975xh;center,top&resize=1200:*";
   let bio = "A pet who enjoys spending";
   let location, preferred_language;
