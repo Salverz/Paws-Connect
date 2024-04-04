@@ -39,22 +39,36 @@
 //     console.log(rows);
 //     res.json(rows);
 // });
-const db = require("../../helper_files/database");
+const db = require("../../../helper_files/database");
 const router = require("express").Router();
+
+// Router files
+const searchRoute = require('./search/search');
+
+// Routers
+router.use('/search', searchRoute);
 
 // Search pet profiles
 router.get("/search/pet", async (req, res) => {
-    const {name = "", petID = " "} = req.query;
+    const {name = "", species = "", breed = "", color = "", ownerUsername = ""} = req.query;
 
     let sql = `
     SELECT p.name, p.profile_picture, p.species, p.breed, p.color, p.birth_date, u.username AS owner_username
     FROM pet_profile p
     JOIN user_account u ON p.owner_user_id = u.user_id
     WHERE p.name LIKE ?
-    AND p.pet_id LIKE ?`;
+    AND p.species LIKE ?
+    AND p.breed LIKE ?
+    AND (p.color LIKE ? OR ? = '')
+    AND u.username LIKE ?`;
 
     const params = [
-        `%${name}%`,`%${petID}%`
+        `%${name}%`,
+        `%${species}%`,
+        `%${breed}%`,
+        color,
+        color, // This allows for a color search if provided, or ignores it if empty
+        `%${ownerUsername}%`
     ];
 
     try {
