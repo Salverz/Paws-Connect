@@ -3,7 +3,7 @@ const router = require("express").Router();
 
 // Search user profiles
 router.get("/search/user", async (req, res) => {
-    const {username = "", displayName = "", location = "", language = ""} = req.query;
+    const {username = "", displayName = "", location = ""} = req.query;
 
     let sql = `
     SELECT u.username, up.display_name, up.profile_picture, up.location, up.preferred_language
@@ -11,10 +11,9 @@ router.get("/search/user", async (req, res) => {
     LEFT JOIN user_profile up ON u.user_id = up.user_id
     WHERE u.username LIKE ?
     AND up.display_name LIKE ?
-    AND up.location LIKE ?
-    AND up.preferred_language LIKE ?`;
+    AND up.location LIKE ?`;
 
-    const params = [`%${username}%`, `%${displayName}%`, `%${location}%`, `%${language}%`];
+    const params = [`%${username}%`, `%${displayName}%`, `%${location}%`];
 
     try {
         const rows = await db.executeSQL(sql, params);
