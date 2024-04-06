@@ -1,6 +1,12 @@
 const db = require("../../helper_files/database");
 const router = require("express").Router();
 
+// Router files
+const profileRoute = require('./profile/profile');
+
+// Routers
+router.use('/profile', profileRoute);
+
 
 // Search pet profiles
 router.get("/search/pet", async (req, res) => {
