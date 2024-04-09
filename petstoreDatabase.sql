@@ -115,7 +115,14 @@ CREATE TABLE comment (
     FOREIGN KEY (commented_post_id) REFERENCES post(post_id),
     FOREIGN KEY (commenter_user_id) REFERENCES user_account(user_id)
 );
-
+CREATE TABLE transfer_pet(
+    pet_id INT,
+    user_id_1 INT,
+    user_id_2 INT,
+    transfer_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id_1) REFERENCES user_account(user_id),
+    FOREIGN KEY (user_id_2) REFERENCES user_account(user_id)
+); 
 -- Unused tables
 /* CREATE TABLE activity_log (
     log_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -148,12 +155,5 @@ CREATE TABLE pet_type (
     type_of_pets_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     categoryName VARCHAR(100)
 );
+*/
 
-CREATE TABLE transfer_pet_log (
-    pet_id INT,
-    user_id_1 INT,
-    user_id_2 INT,
-    transfer_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id_1) REFERENCES user_account(user_id),
-    FOREIGN KEY (user_id_2) REFERENCES user_account(user_id)
-); */
