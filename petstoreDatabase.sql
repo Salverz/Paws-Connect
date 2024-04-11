@@ -54,7 +54,8 @@ CREATE TABLE pet_profile (
     color VARCHAR(16),
 	birth_date DATE,
     location VARCHAR(32),
-    FOREIGN KEY (owner_user_id) REFERENCES user_account(user_id)
+    FOREIGN KEY (owner_user_id) REFERENCES user_account(user_id),
+    FOREIGN KEY (location) REFERENCES user_profile(location)
 );
 
 CREATE TABLE connection (
@@ -124,6 +125,20 @@ CREATE TABLE transfer_pet(
     FOREIGN KEY (user_id_1) REFERENCES user_account(user_id),
     FOREIGN KEY (user_id_2) REFERENCES user_account(user_id)
 ); 
+CREATE TABLE location_lat_long(
+    user_id INT,
+    pet_id INT, 
+    latitude DECIMAL(9,6),
+    longitude DECIMAL(9,6),
+    FOREIGN KEY (user_id) REFERENCES user_account(user_id), 
+    FOREIGN KEY (pet_id) REFERENCES pet_profile(pet_id)
+);
+-- CREATE TABLE pet_location_lat_long(
+--     pet_id INT NOT NULL PRIMARY KEY,
+--     latitude DECIMAL(9,6),
+--     longitude DECIMAL(9,6),
+--     FOREIGN KEY ()
+-- );
 -- Unused tables
 /* CREATE TABLE activity_log (
     log_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
