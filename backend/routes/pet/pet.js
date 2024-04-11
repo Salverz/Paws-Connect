@@ -65,6 +65,7 @@ router.delete("/remove", async (req, res) => {
 
 	// The pet was not added
     if (rows[0].exists == 0) {
+
       	res.json ({
         	"message": "There is no pet with matching Pet ID"
       	});
@@ -78,6 +79,46 @@ router.delete("/remove", async (req, res) => {
     return res.json({
       	"message": "Pet profile deleted sucessfully"
     });
+
+});
+
+// http://localhost:3000/pet/transfer 
+router.put("/transfer", async (req, res) => {
+    const petID = req.body.petID;
+    const ownerID = req.body.ownerID;
+    const new_ownerID = req.body.new_ownerID;
+
+    let sql = `SELECT COUNT(*) "exists"
+                FROM pet_profile
+                WHERE pet_id=? AND owner_user_id=?`;
+    let rows = await db.executeSQL(sql, [petID, ownerID]);
+    //checks pet id and owner id is good
+    if (rows[0].exists == 0) {
+      res.json ({
+        "message": "There is no pet or user matching that id"
+      });
+      return;
+    }
+    
+    sql = `SELECT COUNT(*) "exists"
+            FROM user_profile
+            WHERE user_id=?`;
+    rows = await db.executeSQL(sql, [new_ownerID]);
+    if (rows[0].exists == 0) {
+      res.json ({
+        "message": "There is no user matching that id"
+      });
+      return;
+    }
+    
+    sql = `UPDATE pet_profile
+            SET owner_user_id=?
+            WHERE pet_id=?`;
+    rows = await db.executeSQL(sql, [new_ownerID, petID]);
+    console.log(rows);
+    res.json ({
+      "success": rows.affectedRows > 0
+    })
 
 });
 
