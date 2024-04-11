@@ -1,7 +1,7 @@
 const db = require("../../helper_files/database");
 const router = require("express").Router();
 const geolib = require('geolib');
-const fetch = require('node-fetch');
+const fetch = require('fetch');
 
 // const searchRoute = require('./routes/search/search');
 // app.use('/search', searchRoute);

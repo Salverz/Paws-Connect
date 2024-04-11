@@ -53,9 +53,7 @@ CREATE TABLE pet_profile (
     breed VARCHAR(64),
     color VARCHAR(16),
 	birth_date DATE,
-    location VARCHAR(32),
-    FOREIGN KEY (owner_user_id) REFERENCES user_account(user_id),
-    FOREIGN KEY (location) REFERENCES user_profile(location)
+    FOREIGN KEY (owner_user_id) REFERENCES user_account(user_id)
 );
 
 CREATE TABLE connection (
@@ -119,19 +117,17 @@ CREATE TABLE comment (
 );
 CREATE TABLE transfer_pet(
     pet_id INT,
-    user_id_1 INT,
-    user_id_2 INT,
+    previous_owner INT,
+    new_owner INT,
     transfer_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id_1) REFERENCES user_account(user_id),
-    FOREIGN KEY (user_id_2) REFERENCES user_account(user_id)
+    FOREIGN KEY (previous_owner) REFERENCES user_account(user_id),
+    FOREIGN KEY (new_owner) REFERENCES user_account(user_id)
 ); 
 CREATE TABLE location_lat_long(
     user_id INT,
-    pet_id INT, 
     latitude DECIMAL(9,6),
     longitude DECIMAL(9,6),
-    FOREIGN KEY (user_id) REFERENCES user_account(user_id), 
-    FOREIGN KEY (pet_id) REFERENCES pet_profile(pet_id)
+    FOREIGN KEY (user_id) REFERENCES user_account(user_id)
 );
 -- CREATE TABLE pet_location_lat_long(
 --     pet_id INT NOT NULL PRIMARY KEY,

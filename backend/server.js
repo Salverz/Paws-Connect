@@ -50,11 +50,13 @@ const accountRoute = require('./routes/account/account')
 const petRoute = require('./routes/pet/pet')
 const postRoute = require('./routes/post/post')
 const searchRoute = require('./routes/search/search')
+const transferRoute = require('./routes/transfer/transfer_pet')
 
 app.use('/account', accountRoute)
 app.use('/pet', petRoute)
 app.use('/post', postRoute)
 app.use('/search', searchRoute)
+app.user('/transfer_pet', transferRoute)
 
 // Use this to execute your SQL queries
 async function executeSQL(sql, params) {
