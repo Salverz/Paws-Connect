@@ -44,6 +44,7 @@ function deletePet(petName) {
 <button>Add a new pet</button>
 	{#each pets as pet}
 		<div class="pet-entry">
+			<input type="hidden" value={pet.id}/>
 			<img class="profile-picture" src={pet.profile_picture}>
 			{pet.name}
 			<button>Edit</button>
