@@ -2,7 +2,15 @@
 	import NavBar from "$lib/components/NavBar.svelte";
 	import SiteHeader from "$lib/components/SiteHeader.svelte";
 
-const pets = [
+	let userId;
+
+	async function getPets() {
+		console.log("calling user: " + userId);
+		const response = await fetch(`http://localhost:3000/pet/pets/${userId}`);
+		pets = await response.json();
+	}
+
+let pets = [
 	{
 		id: 1,
 		name: "Buster",
@@ -39,6 +47,9 @@ function deletePet(petName) {
 
 <SiteHeader/>
 <NavBar/>
+<label for="userId">Enter your user ID: </label>
+<input type="text" id="userId" bind:value={userId}>
+<button on:click={getPets}>View your pets</button>
 <div class="pet-list">
 <h2>Your pets</h2>
 <button>Add a new pet</button>

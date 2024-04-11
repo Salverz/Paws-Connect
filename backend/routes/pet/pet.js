@@ -11,13 +11,13 @@ router.use('/profile', profileRoute);
 // Create a new pet
 // (accessed at [POST] http://localhost:3000/pet/create)
 router.post("/create", async (req, res) => {
-    const owner_user_id = req.body.ownerId;
-    const petName = req.body.petname;
-    const petPFP = req.body.petPFP;
+    const owner_user_id = req.body.userId;
+    const name = req.body.name;
+    const profilePicture = req.body.profilePictureImage;
     const species = req.body.species;
     const breed = req.body.breed;
     const color = req.body.color;
-    const birthDay = req.body.birthDay;
+    const birthDate = req.body.birthDate;
 
     //check if there is a user that has the id that was provided
     let sql = `SELECT COUNT(*) "exists" 
@@ -36,7 +36,7 @@ router.post("/create", async (req, res) => {
     sql = `INSERT INTO pet_profile
             (owner_user_id, name, profile_picture, species, breed, color, birth_date)
             VALUES (?, ?, ?, ?, ?, ?, ?)`;
-    rows = await db.executeSQL(sql, [owner_user_id, petName, petPFP, species, breed, color, birthDay]);
+    rows = await db.executeSQL(sql, [owner_user_id, name, profilePicture, species, breed, color, birthDate]);
     console.log(rows);
 
     if (rows.affectedRows > 0) {
@@ -65,7 +65,7 @@ router.delete("/remove", async (req, res) => {
     //gives error
     let rows = await db.executeSQL(sql, [petID]);
     if (rows[0].exists == 0) {
-      res.jason ({
+      res.json ({
         "message": "There is no pet with matching Pet ID"
       });
       return;
@@ -79,5 +79,17 @@ router.delete("/remove", async (req, res) => {
     });
 
 });
+
+// Get all the pets that a user has
+router.get("/pets/:userId", async (req, res) => {
+	const sql =`
+	SELECT pet_id "id", name, profile_picture, species, breed, color, birth_date
+	FROM pet_profile
+	WHERE owner_user_id=?
+	`
+	const rows = await db.executeSQL(sql, [req.params.userId]);
+	res.send(rows);
+});
+
 
 module.exports = router;

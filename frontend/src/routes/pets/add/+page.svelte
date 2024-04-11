@@ -1,28 +1,56 @@
 <script>
-	let profile_picture_image;
+	let userId, name, profilePictureImage, species, breed, color, birthDate;
+
+	async function createNewPet() {
+		let databaseResult = await fetch(`http://localhost:3000/pet/create`, {
+			method: "POST",
+			body: JSON.stringify({
+				"userId": userId,
+				"name": name,
+				"profilePictureImage": profilePictureImage,
+				"species": species,
+				"breed": breed,
+				"color": color,
+				"birthDate": birthDate
+			}),
+			headers: {
+				"Content-type": "application/json; charset=UTF-8"
+			}
+		});
+
+		let json = await databaseResult.json();
+		console.log(json);
+		return true;
+	}
 </script>
 
 <form class="create-account-card" action="http://localhost:3000/account/profile/create" method="POST">
 	<div class="card-header-section">
 		<h1 class="card-header-text">Add a pet</h1>
-		<h2 class="tagline">Introduce your furry friend!</h2>
+		<h2 class="tagline">Let's meet your furry friend!</h2>
 	</div>
 	<div class="form-input-area">
 		<div class="input-row">
 			<div class="input-block">
+				<label for="userId">Your user ID</label>
+				<input class="text-input" type="text" id="userId" name="userId" bind:value={userId}>
+			</div>
+		</div>
+		<div class="input-row">
+			<div class="input-block">
 				<label for="name">Pet's name</label>
-				<input class="text-input" type="text" id="name" name="name">
+				<input class="text-input" type="text" id="name" name="name" bind:value={name}>
 			</div>
 			<div class="input-block">
 				<label for="profilePicture">Add a profile picture</label>
 				<!-- <input type="file" id="profilePicture" name="profilePicture" bind:files={profile_picture_image}> -->
-				<input class="text-input" type="text" id="profilePicture" name="profilePicture" bind:value={profile_picture_image}>
+				<input class="text-input" type="text" id="profilePicture" name="profilePicture" bind:value={profilePictureImage}>
 			</div>
 			<!--
 			TODO: MAKE UPLOADED IMAGE DISPLAY PREVIEW ON UPLOAD
 			-->
-			{#if profile_picture_image}
-				<img class="profile-picture-preview" src={profile_picture_image} alt="uploaded profile picture preview">
+			{#if profilePictureImage}
+				<img class="profile-picture-preview" src={profilePictureImage} alt="uploaded profile picture preview">
 				<!--
 				<p>{profile_picture_image["0"].webkitRelativePath}</p>
 				<img src="{profile_picture_image["0"].name}">
@@ -32,26 +60,26 @@
 		<div class="input-row">
 			<div class="input-block">
 				<label for="species">Species</label>
-				<input class="text-input" type="text" id="species" name="species">
+				<input class="text-input" type="text" id="species" name="species" bind:value={species}>
 			</div>
 			<div class="input-block">
 				<label for="breed">Breed</label>
-				<input class="text-input" type="text" id="breed" name="breed">
+				<input class="text-input" type="text" id="breed" name="breed" bind:value={breed}>
 			</div>
 			<div class="input-block">
 				<label for="color">Color</label>
-				<input class="text-input" type="text" id="color" name="color">
+				<input class="text-input" type="text" id="color" name="color" bind:value={color}>
 			</div>
 		</div>
 		<div class="input-row">
 			<div class="input-block">
 				<label for="birthDate">Date of birth</label>
-				<input class="text-input" type="date" id="birthDate" name="birthDate">
+				<input class="text-input" type="date" id="birthDate" name="birthDate" bind:value={birthDate}>
 			</div>
 		</div>
 	</div>
 
-	<button>Create Pet Profile</button>
+	<button on:click={createNewPet}>Create Pet Profile</button>
 </form>
 
 
