@@ -11,7 +11,8 @@ router.patch("/transfer", async (req, res)=> {
     try{
 
     }catch(ERROR){
-
+        console.error("Error transferring pet to new user:", ERROR);
+        res.status(500).send("An error occurred while transferring pet.");
     }
 });
 
