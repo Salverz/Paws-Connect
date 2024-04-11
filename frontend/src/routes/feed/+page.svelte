@@ -1,5 +1,6 @@
 <script>
     import SiteHeader from "$lib/components/SiteHeader.svelte";
+	import NavBar from "../../lib/components/NavBar.svelte";
 	import { onMount } from "svelte";
     let posts = [
         {
@@ -40,7 +41,7 @@
 
 <SiteHeader/>
 <h1>Feed</h1>
-<a href="/feed/post">Create a new post!</a>
+<NavBar/>
 <div class="feed">
     {#each posts as post}
         <div class="post">

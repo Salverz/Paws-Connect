@@ -1,8 +1,9 @@
 <div class="nav-bar">
     <a class="nav-link" href="/">Home</a>
     <a class="nav-link" href="/feed">Feed</a>
-    <a class="nav-link" href="/">View Pets</a>
+	<a class="nav-link" href="/pets/dashboard">View Pets</a>
     <a class="nav-link" href="/account/edit">Edit Account</a>
+	<a class="nav-link" href="/feed/post">Create a new post</a>
 </div>
 
 <style>

@@ -1,14 +1,14 @@
 const db = require("../../../helper_files/database");
 const router = require("express").Router();
 
-router.get('/:petName', async (req, res) => {
-    const petName = req.params.petName;
+router.get('/:petId', async (req, res) => {
+    const petName = req.params.petId;
 
     const sql =
     `
     SELECT name, profile_picture, species, breed, color, DATE_FORMAT(birth_date, "%Y-%m-%d") "birth_date"
     FROM pet_profile
-    WHERE name=?
+    WHERE pet_id=?
     `;
 
     const rows = await db.executeSQL(sql, [petName]);

@@ -52,7 +52,7 @@ function deletePet(petName) {
 <button on:click={getPets}>View your pets</button>
 <div class="pet-list">
 <h2>Your pets</h2>
-<button>Add a new pet</button>
+<a href="/pets/add">Add a new pet</a>
 	{#each pets as pet}
 		<div class="pet-entry">
 			<input type="hidden" value={pet.id}/>
