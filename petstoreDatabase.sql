@@ -53,6 +53,7 @@ CREATE TABLE pet_profile (
     breed VARCHAR(64),
     color VARCHAR(16),
 	birth_date DATE,
+    location VARCHAR(32),
     FOREIGN KEY (owner_user_id) REFERENCES user_account(user_id)
 );
 
