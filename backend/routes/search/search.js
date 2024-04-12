@@ -18,14 +18,30 @@ async function getSearcherLocation(userID){
     }
     return null;
 }
-async function fetchLocation(location){
+async function fetchLocationAndUpdate(location){
     const apiKey = 'e700389f30b100907f2332b17bfea4c9';
     const url = `http://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(location)}&limit=1&appid=${apiKey}`;
     try{
         const reply = await fetch(url);
         const data = await reply.json();
         if(data.length > 0){
-            return {latitude: data[0].lat, longitude: data[0].lon};
+            const latitude = data[0].lat;
+            const longitude = data[0].lon;
+
+            const type = userId ? 'user_id' : 'pet_id';
+            const typeId = userId || petId;
+
+            let sql = `
+            INSERT INTO location_lat_long (${type}, latitude, longitude)
+            VALUES (?,?,?)
+            ON DUPLICATE KEY UPDATE
+            latitude = VALUES(latitude),
+            longitude = VALUES(longitude);`;
+
+            const params = [typeId, latitude, longitude];
+
+            await db.executeSQL(sql, params);
+            return {latitude, longitude};
         }
     }catch(ERROR){
         console.error("Coordinates not found for location", ERROR);
@@ -41,7 +57,7 @@ router.get("/pet", async (req, res) => {
 
     const searcherID = req.userID;
     const locationName = await getSearcherLocation(searcherID);
-    const searcherLocation = await fetchLocation(locationName);
+    const searcherLocation = await fetchLocationAndUpdate(locationName);
     
     let sql = `
     SELECT p.name, p.profile_picture, p.species, p.breed, p.color, p.birth_date, u.username AS owner_username, lll.latitude, lll.longitude
@@ -68,7 +84,7 @@ router.get("/pet", async (req, res) => {
 
         const distanceFilter = async (row) => {
             if (!row.location) return false;
-            const rowLocation = await fetchLocation(row.location);
+            const rowLocation = await fetchLocationAndUpdate(row.location);
             if (!rowLocation) return false;
             return geolib.getDistance(
                 { latitude: searcherLocation.latitude, longitude: searcherLocation.longitude },
@@ -91,7 +107,7 @@ router.get("/user", async (req, res) => {
     
     const searcherID = req.userID;
     const locationName = await getSearcherLocation(searcherID);
-    const searcherLocation = await fetchLocation(locationName);
+    const searcherLocation = await fetchLocationAndUpdate(locationName);
     
     let sql = `
     SELECT u.username, up.display_name, up.profile_picture, up.preferred_language, up.user_id, lll.latitude, lll.longitude
