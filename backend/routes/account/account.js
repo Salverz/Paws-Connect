@@ -1,5 +1,7 @@
 const db = require("../../helper_files/database");
 const router = require("express").Router();
+const bcrypt = require("bcrypt");
+
 
 // Router files
 const profileRoute = require('./profile/profile');
@@ -31,12 +33,20 @@ router.post('/login', async (req, res) => {
       });
       return;
     }
-  
-    res.json({
-      "login": true,
-      "message": "Logged in!",
-      "userId": rows[0].user_id
-    });
+    
+    const match = await bcrypt.compare(password, rows[0].password);
+    if (match) {
+      res.json({
+          "login": true,
+          "message": "Logged in!",
+          "userId": rows[0].user_id
+      });
+    } else {
+      res.json({
+          "login": false,
+          "message": "Incorrect password"
+      });
+    }
 });
   
   
@@ -73,7 +83,9 @@ router.post('/create', async (req, res) => {
 		});
 		return;
 	}
-	
+  const salt = 10;
+  const hashedPassword = await bcrypt.hash(password, salt);
+
 	// Run SQL to add a new account
   	sql = `
     INSERT INTO user_account
@@ -81,7 +93,7 @@ router.post('/create', async (req, res) => {
     VALUES
     (?, ?, ?, false)
     `;
-  	rows = await db.executeSQL(sql, [username, password, email]);
+  	rows = await db.executeSQL(sql, [username, hashedPassword, email]);
   	console.log(rows);
   
 	// Account was inserted into table successfully
