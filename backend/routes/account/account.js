@@ -2,15 +2,6 @@ const db = require("../../helper_files/database");
 const router = require("express").Router();
 const bcrypt = require("bcrypt");
 
-
-// async function hashExistingAccounts(){
-//   let sql = `SELECT user_id, password
-//   FROM user_account`;
-//   let users = await db.executeSQL(sql);
-
-
-// }
-
 // Router files
 const profileRoute = require('./profile/profile');
 
@@ -26,11 +17,11 @@ router.post('/login', async (req, res) => {
     let sql = `
     SELECT *
     FROM user_account
-    WHERE username=? AND password=?
+    WHERE username=?
     `;
     
     // Run an SQL query to check whether the user exists
-    let rows = await db.executeSQL(sql, [username, password]);
+    let rows = await db.executeSQL(sql, [username]);
   
     console.log(rows);
     
@@ -43,6 +34,7 @@ router.post('/login', async (req, res) => {
     }
     
     const match = await bcrypt.compare(password, rows[0].password);
+
     if (match) {
       res.json({
           "login": true,
@@ -60,9 +52,9 @@ router.post('/login', async (req, res) => {
   
 // Add a new user account to the database
 router.post('/create', async (req, res) => {
-  	const email = req.body.email; 
-    const username = req.body.username;
-    const password = req.body.password;
+  const email = req.body.email; 
+  const username = req.body.username;
+  const password = req.body.password;
 	const passwordConfirm = req.body.passwordConfirm;
 
 	// Confirm that the entered passwords match
@@ -93,8 +85,8 @@ router.post('/create', async (req, res) => {
 	}
   const salt = 10;
   const hashedPassword = await bcrypt.hash(password, salt);
-
 	// Run SQL to add a new account
+    
   	sql = `
     INSERT INTO user_account
     (username, password, email, is_admin)
