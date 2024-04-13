@@ -1,16 +1,24 @@
 const db = require("../../../helper_files/database");
 const router = require("express").Router();
 
-async function fetchLocationAndUpdate(location, userId) {
+
+async function fetchZipcodeAndUpdate(zipcode, userId) {
 	const apiKey = 'e700389f30b100907f2332b17bfea4c9';
-	const url = `http://api.openweathermap.org/geo/1.0/direct?q=${encodeURIComponent(location)}&limit=1&appid=${apiKey}`;
+	const url = `http://api.openweathermap.org/geo/1.0/zip?zip=${zipcode},us&appid=${apiKey}`;
+	
+	console.log(url);
 	try {
 	  const reply = await fetch(url);
 	  const data = await reply.json();
-	  if (data.length > 0) {
-		const latitude = data[0].lat;
-		const longitude = data[0].lon;
-  
+	  console.log(data);
+	  console.log(data.message);
+	  if (!data.message) {
+		const latitude = data.lat;
+		const longitude = data.lon;
+		
+		console.log(latitude);
+		console.log(longitude);
+
 		let sql = `
 		INSERT INTO location_lat_long (user_id, latitude, longitude)
 		VALUES (?, ?, ?)
@@ -20,6 +28,7 @@ async function fetchLocationAndUpdate(location, userId) {
   
 		const params = [userId, latitude, longitude];
 		await db.executeSQL(sql, params);
+		
 		return {latitude, longitude};
 	  }
 	} catch (ERROR) {
@@ -31,35 +40,36 @@ async function fetchLocationAndUpdate(location, userId) {
 
 // Create a user profile
 router.post("/create", async (req, res) => {
-	const { username, displayName, profilePicture, birthDate, location, language } = req.body;
+	const { username, displayName, profilePicture, birthDate, zipcode, language } = req.body;
   
 	try {
-	  if (!location) {
-		return res.status(400).json({
-		  success: false,
-		  message: "No location provided. Please enter a location to complete profile creation."
-		});
-	  }
-  
+		if (!zipcode) {
+			return res.status(400).json({
+				success: false,
+				message: "No zipcode provided. Please enter a zipcode to complete profile creation."
+			});
+		}
+		const user = await db.executeSQL(`SELECT user_id FROM user_account WHERE username = ?`, [username]);
+		if (user.length > 0) {
+			const { latitude, longitude } = await fetchZipcodeAndUpdate(zipcode, user[0].user_id);
+			console.log("zipcode updated with latitude:", latitude, "and longitude:", longitude);
+
+			res.redirect("http://localhost:5173/feed");
+		} else {
+			res.status(404).send("User not found for the provided username.");
+		}
 	  // Insert user profile data
 	  const result = await db.executeSQL(`
 		INSERT INTO user_profile
-		  (user_id, birth_date, display_name, profile_picture, location, preferred_language)
+		  (user_id, birth_date, display_name, profile_picture, zipcode, preferred_language)
 		SELECT user_id, ?, ?, ?, ?, ?
 		FROM user_account
 		WHERE username = ?`,
-		[birthDate, displayName, profilePicture, location, language, username]
+		[birthDate, displayName, profilePicture, zipcode, language, username]
 	  );
+	  
 	  console.log(result);
-	  const user = await db.executeSQL(`SELECT user_id FROM user_account WHERE username = ?`, [username]);
-	  if (user.length > 0) {
-		const { latitude, longitude } = await fetchLocationAndUpdate(location, user[0].user_id);
-		console.log("Location updated with latitude:", latitude, "and longitude:", longitude);
-
-		res.redirect("http://localhost:5173/feed");
-	  } else {
-		res.status(404).send("User not found for the provided username.");
-	  }
+	  
 	} catch (error) {
 	  console.error("Error creating user profile:", error);
 	  res.status(500).send("Failed to create user profile.");
