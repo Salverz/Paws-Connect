@@ -1,4 +1,6 @@
 <script>
+	import NavBar from "$lib/components/NavBar.svelte";
+
 	let userId, name, profilePictureImage, species, breed, color, birthDate;
 
 	async function createNewPet() {
@@ -20,11 +22,17 @@
 
 		let json = await databaseResult.json();
 		console.log(json);
-		return true;
+
+		if (json.created) {
+			alert("Pet created successfully!");
+		} else {
+			alert("Pet creation failed");
+		}
 	}
 </script>
 
-<form class="create-account-card" action="http://localhost:3000/account/profile/create" method="POST">
+<NavBar/>
+<div class="create-account-card">
 	<div class="card-header-section">
 		<h1 class="card-header-text">Add a pet</h1>
 		<h2 class="tagline">Let's meet your furry friend!</h2>
@@ -80,8 +88,7 @@
 	</div>
 
 	<button on:click={createNewPet}>Create Pet Profile</button>
-</form>
-
+</div>
 
 <style>
     .create-account-card {

@@ -6,15 +6,30 @@ router.get('/:petId', async (req, res) => {
 
     const sql =
     `
-    SELECT name, profile_picture, species, breed, color, DATE_FORMAT(birth_date, "%Y-%m-%d") "birth_date"
-    FROM pet_profile
-    WHERE pet_id=?
+    SELECT
+		name,
+		profile_picture,
+		species,
+		breed,
+		color,
+		DATE_FORMAT(birth_date, "%Y-%m-%d") "birth_date"
+    FROM
+		pet_profile
+    WHERE
+		pet_id=?
     `;
 
     const rows = await db.executeSQL(sql, [petName]);
-    console.log(rows);
+    console.log(rows.length);
 
+	if (rows.length == 0) {
+		res.json({
+			"exists": false
+		});
+		return;
+	}
     res.json({
+		"exists": true,
         "name": rows[0].name,
         "profilePicture": rows[0].profile_picture,
         "species": rows[0].species,
@@ -24,4 +39,41 @@ router.get('/:petId', async (req, res) => {
     });
 });
 
+
+router.patch('/edit', async (req, res) => {
+	const petId = req.body.petId;
+	const name = req.body.name;
+	const profilePictureImage = req.body.profilePictureImage;
+	const species = req.body.species;
+	const breed = req.body.breed;
+	const color = req.body.color;
+	const birthDate = req.body.birthDate;
+
+    const sql = `
+	UPDATE
+		pet_profile
+	SET 
+    	name = ?,
+    	profile_picture = ?,
+    	species = ?,
+    	breed = ?,
+    	color = ?,
+    	birth_date = STR_TO_DATE(?, '%Y-%m-%d')
+	WHERE
+		pet_id = ?
+	`;
+
+    const rows = await db.executeSQL(sql, [name, profilePictureImage, species, breed, color, birthDate, petId]);
+    console.log(rows);
+
+	if (rows.length == 0) {
+		res.json({
+			"updated": false
+		});
+		return;
+	}
+    res.json({
+		"updated": true
+    });
+});
 module.exports = router;

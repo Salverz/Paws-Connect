@@ -26,6 +26,7 @@ router.post("/create", async (req, res) => {
     console.log(rows);
     if (rows[0].exists == 0) {
       	res.json({
+			"created": false,
         	"message": "There is no account with that User ID"
     	});
 		return;
@@ -39,7 +40,7 @@ router.post("/create", async (req, res) => {
 
     if (rows.affectedRows > 0) {
       	res.json({
-        	"accountCreated": true,
+        	"created": true,
         	"response": "Pet profile created successfully"
     	});
     	return;
@@ -47,7 +48,7 @@ router.post("/create", async (req, res) => {
 
     // Pet profile was not inserted into the table
     res.json({
-    	"accountCreated": false,
+    	"created": false,
       	"response": "Pet profile creation failure: Pet already exists"
     });
 
@@ -56,6 +57,7 @@ router.post("/create", async (req, res) => {
 // Remove a pet
 router.delete("/remove", async (req, res) => {
     const petId = req.body.petId;
+	console.log(`removing pet ${petId}`);
 
     // Check if the pet to delete exists
     let sql = `SELECT COUNT(*) "exists"
@@ -67,6 +69,7 @@ router.delete("/remove", async (req, res) => {
     if (rows[0].exists == 0) {
 
       	res.json ({
+			"deleted": false,
         	"message": "There is no pet with matching Pet ID"
       	});
       	return;
@@ -75,8 +78,9 @@ router.delete("/remove", async (req, res) => {
     // Delete the pet
     sql = `DELETE FROM pet_profile
            WHERE pet_id = ?`;
-    await db.executeSQL(sqlDelete, [petId]);
+    await db.executeSQL(sql, [petId]);
     return res.json({
+		"deleted": true,
       	"message": "Pet profile deleted sucessfully"
     });
 

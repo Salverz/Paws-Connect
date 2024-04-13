@@ -1,11 +1,15 @@
 <script>
-	let petId, name, profilePictureImage, species, breed, color, birthDate;
+    import { page } from "$app/stores";
+	import { onMount } from "svelte";
 
-	async function createNewPet() {
-		let databaseResult = await fetch(`http://localhost:3000/pet/create`, {
-			method: "POST",
+  	const petId = $page.params.petId;
+	let name, profilePictureImage, species, breed, color, birthDate;
+
+	async function savePetChanges() {
+		const databaseResult = await fetch(`http://localhost:3000/pet/profile/edit`, {
+			method: "PATCH",
 			body: JSON.stringify({
-				"userId": userId,
+				"petId": petId,
 				"name": name,
 				"profilePictureImage": profilePictureImage,
 				"species": species,
@@ -19,14 +23,24 @@
 		});
 
 		let json = await databaseResult.json();
-		console.log(json);
-		return true;
+
+		if (json.updated) {
+			alert(`Updated ${name}'s profile successfully`);
+		} else {
+			alert(`Failed to update ${name}'s profile`);
+		}
 	}
 
 	async function getPetInfo() {
+		console.log("getting info for pet " + petId);
 		const databaseResult = await fetch(`http://localhost:3000/pet/profile/${petId}`);
-		const json = databaseResult.json();
+		const json = await databaseResult.json();
 		
+		if (!json.exists) {
+			alert("Pet does not exist");
+			return;
+		}
+
 		name = json.name;
 		profilePictureImage = json.profilePicture;
 		species = json.species;
@@ -34,26 +48,24 @@
 		color = json.color;
 		birthDate = json.birthDate;
 	}
+
+	onMount(async () => {
+		await getPetInfo();
+	});
 </script>
 
-<form class="create-account-card" action="http://localhost:3000/account/profile/create" method="POST">
+<div class="create-account-card">
 	<div class="card-header-section">
 		<h1 class="card-header-text">Edit pet profile</h1>
 	</div>
 	<div class="form-input-area">
 		<div class="input-row">
 			<div class="input-block">
-				<label for="userId">Pet ID</label>
-				<input class="text-input" type="text" id="petId" name="petId" bind:value={petId}>
-			</div>
-		</div>
-		<div class="input-row">
-			<div class="input-block">
 				<label for="name">Pet's name</label>
 				<input class="text-input" type="text" id="name" name="name" bind:value={name}>
 			</div>
 			<div class="input-block">
-				<label for="profilePicture">Add a profile picture</label>
+				<label for="profilePicture">Profile picture</label>
 				<!-- <input type="file" id="profilePicture" name="profilePicture" bind:files={profile_picture_image}> -->
 				<input class="text-input" type="text" id="profilePicture" name="profilePicture" bind:value={profilePictureImage}>
 			</div>
@@ -90,8 +102,8 @@
 		</div>
 	</div>
 
-	<button on:click={createNewPet}>Create Pet Profile</button>
-</form>
+	<button on:click={savePetChanges}>Save Changes</button>
+</div>
 
 
 <style>
