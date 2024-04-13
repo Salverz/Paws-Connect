@@ -50,7 +50,7 @@ router.post("/create", async (req, res) => {
 		WHERE username = ?`,
 		[birthDate, displayName, profilePicture, location, language, username]
 	  );
-  
+	  console.log(result);
 	  const user = await db.executeSQL(`SELECT user_id FROM user_account WHERE username = ?`, [username]);
 	  if (user.length > 0) {
 		const { latitude, longitude } = await fetchLocationAndUpdate(location, user[0].user_id);

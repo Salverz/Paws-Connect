@@ -5,18 +5,7 @@ const fetch = require('fetch');
 
 // const searchRoute = require('./routes/search/search');
 // app.use('/search', searchRoute);
-async function getSearcherLocation(userID){
-    const sql = 'SELECT location FROM user_profile WHERE user_id = ?';
-    try{
-        const [user] = await db.executeSQL(sql, [userID]);
-        if(user){
-            return user.location;
-        }
-    }catch(ERROR){
-        console.error("Location for user is not found", ERROR);
-    }
-    return null;
-}
+
 // Search pet profiles
 router.get("/pet", async (req, res) => {
     const { petId = "", petName = "", distance = "" } = req.query;

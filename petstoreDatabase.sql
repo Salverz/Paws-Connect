@@ -129,12 +129,7 @@ CREATE TABLE location_lat_long(
     longitude DECIMAL(9,6),
     FOREIGN KEY (user_id) REFERENCES user_account(user_id)
 );
--- CREATE TABLE pet_location_lat_long(
---     pet_id INT NOT NULL PRIMARY KEY,
---     latitude DECIMAL(9,6),
---     longitude DECIMAL(9,6),
---     FOREIGN KEY ()
--- );
+
 -- Unused tables
 /* CREATE TABLE activity_log (
     log_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
@@ -163,9 +158,5 @@ CREATE TABLE search_history (
     FOREIGN KEY (user_id) REFERENCES user_profile(user_id)
 );
 
-CREATE TABLE pet_type (
-    type_of_pets_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    categoryName VARCHAR(100)
-);
 */
 
