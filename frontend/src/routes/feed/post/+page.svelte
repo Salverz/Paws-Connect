@@ -1,11 +1,13 @@
 <script>
     import SiteHeader from "$lib/components/SiteHeader.svelte";
+	import NavBar from "../../../lib/components/NavBar.svelte";
     let postPicture;
 </script>
 
 <SiteHeader/>
 <h1>Create a post</h1>
 
+<NavBar/>
 <form method="POST" action="http://localhost:3000/post/create">
     <div class="input-section">
         <label for="userID">user ID</label>
