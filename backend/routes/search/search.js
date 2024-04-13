@@ -36,7 +36,7 @@ async function fetchLocationAndUpdate(location, userId = null, petId = null){
             VALUES (?,?,?)
             ON DUPLICATE KEY UPDATE
             latitude = VALUES(latitude),
-            longitude = VALUES(longitude);`;
+            longitude = VALUES(longitude)`;
 
             const params = [typeId, latitude, longitude];
 

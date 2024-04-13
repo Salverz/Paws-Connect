@@ -3,6 +3,14 @@ const router = require("express").Router();
 const bcrypt = require("bcrypt");
 
 
+// async function hashExistingAccounts(){
+//   let sql = `SELECT user_id, password
+//   FROM user_account`;
+//   let users = await db.executeSQL(sql);
+
+
+// }
+
 // Router files
 const profileRoute = require('./profile/profile');
 
