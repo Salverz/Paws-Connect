@@ -32,7 +32,7 @@ const router = require("express").Router();
 // });
 
 router.get('/:petId', async (req, res) => {
-    const petName = req.params.petId;
+    const petId = req.params.petId;
 
     const sql =
     `
@@ -49,8 +49,8 @@ router.get('/:petId', async (req, res) => {
 		pet_id=?
     `;
 
-    const rows = await db.executeSQL(sql, [petName]);
-    console.log(rows);
+    const rows = await db.executeSQL(sql, [petId]);
+    console.log(rows.length);
 
 	if (rows.length == 0) {
 		res.json({
