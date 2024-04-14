@@ -38,7 +38,7 @@ CREATE TABLE user_profile (
     birth_date DATE,
     display_name VARCHAR(32),
     profile_picture VARCHAR(512),
-    location VARCHAR(32),
+    zipcode VARCHAR(32),
     preferred_language VARCHAR(64),
     FOREIGN KEY (user_id) REFERENCES user_account(user_id),
 	FOREIGN KEY (preferred_language) REFERENCES language(language)
@@ -115,6 +115,20 @@ CREATE TABLE comment (
     FOREIGN KEY (commented_post_id) REFERENCES post(post_id),
     FOREIGN KEY (commenter_user_id) REFERENCES user_account(user_id)
 );
+CREATE TABLE transfer_pet(
+    pet_id INT,
+    previous_owner INT,
+    new_owner INT,
+    transfer_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (previous_owner) REFERENCES user_account(user_id),
+    FOREIGN KEY (new_owner) REFERENCES user_account(user_id)
+); 
+CREATE TABLE location_lat_long(
+    user_id INT,
+    latitude DECIMAL(9,6),
+    longitude DECIMAL(9,6),
+    FOREIGN KEY (user_id) REFERENCES user_account(user_id)
+);
 
 -- Unused tables
 /* CREATE TABLE activity_log (
@@ -144,16 +158,5 @@ CREATE TABLE search_history (
     FOREIGN KEY (user_id) REFERENCES user_profile(user_id)
 );
 
-CREATE TABLE pet_type (
-    type_of_pets_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
-    categoryName VARCHAR(100)
-);
+*/
 
-CREATE TABLE transfer_pet_log (
-    pet_id INT,
-    user_id_1 INT,
-    user_id_2 INT,
-    transfer_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (user_id_1) REFERENCES user_account(user_id),
-    FOREIGN KEY (user_id_2) REFERENCES user_account(user_id)
-); */
