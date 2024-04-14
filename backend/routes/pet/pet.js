@@ -103,35 +103,9 @@ router.get("/pets/:userId", async (req, res) => {
 // http://localhost:3000/pet/transfer 
 router.put("/transfer", async (req, res) => {
     const petID = req.body.petID;
-    const ownerID = req.body.ownerID;
     const new_ownerID = req.body.new_ownerID;
     const transferCheck = req.body.transferCheck;
 
-    //checks pet id and owner id is good
-    let sql = `SELECT COUNT(*) "exists"
-                FROM pet_profile
-                WHERE pet_id=? AND owner_user_id=?`;
-    let rows = await db.executeSQL(sql, [petID, ownerID]);
-    if (rows[0].exists == 0) {
-      res.json ({
-        "message": "There is no pet or user matching that id"
-      });
-      return;
-    }
-    
-    //check if new ownerID is good
-    sql = `SELECT COUNT(*) "exists"
-            FROM user_profile
-            WHERE user_id=?`;
-    rows = await db.executeSQL(sql, [new_ownerID]);
-    if (rows[0].exists == 0) {
-      res.json ({
-        "message": "There is no user matching that id"
-      });
-      return;
-    }
-
-    //checks if the pet transfer request exists
     sql = `SELECT COUNT(*) "exists"
             FROM pet_transfer_request
             WHERE pet_id=?`;
@@ -166,53 +140,21 @@ router.put("/transfer", async (req, res) => {
 //http://localhost:3000/pet/createTransferRequest
 router.post("/createTransferRequest", async (req, res) => {
     const petID = req.body.petID;
-    const ownerID = req.body.ownerID;
     const new_ownerID = req.body.new_ownerID;
 
-    //checks pet id and owner id is good
-    let sql = `SELECT COUNT(*) "exists"
-                FROM pet_profile
-                WHERE pet_id=? AND owner_user_id=?`;
-    let rows = await db.executeSQL(sql, [petID, ownerID]);
-    if (rows[0].exists == 0) {
-      res.json ({
-        "message": "There is no pet or user matching that id"
-      });
-      return;
-    }
-    
-    //check if new ownerID is good
-    sql = `SELECT COUNT(*) "exists"
-            FROM user_profile
-            WHERE user_id=?`;
-    rows = await db.executeSQL(sql, [new_ownerID]);
-    if (rows[0].exists == 0) {
-      res.json ({
-        "message": "There is no user matching that id"
-      });
-      return;
-    }
-
-    //checks that there is not a existing request usiing that pet id
-    sql = `SELECT COUNT(*) "exists"
-            FROM pet_transfer_request
-            WHERE pet_id=?`;
-    rows = await db.executeSQL(sql, [petID]);
-
-    if (rows[0].exists > 0) {
-      res.json({
-        "requestCreated": false,
-        "response": "Request for pet already exisits "
-      });
-      return;
-    }
-
     //create transfer request
-    sql = `INSERT INTO pet_transfer_request
-            (pet_id, current_owner, new_owner)
-            VALUES (?, ?, ?)`;
-    rows = await db.executeSQL(sql, [petID, ownerID, new_ownerID]);
-    console.log(rows);
+    try {
+      sql = `INSERT INTO pet_transfer_request
+      (pet_id, new_owner)
+      VALUES (?, ?)`;
+      rows = await db.executeSQL(sql, [petID, new_ownerID]);
+      console.log(rows);
+    } catch (error) {
+      res.json ({
+        "request exist": "Request cancled"
+      });
+      return;
+    }
 
     if (rows.affectedRows > 0) {
       res.json({
