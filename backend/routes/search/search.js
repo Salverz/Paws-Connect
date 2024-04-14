@@ -1,36 +1,39 @@
 const db = require("../../helper_files/database");
 const router = require("express").Router();
+const geolib = require('geolib');
+const fetch = require('fetch');
 
 // const searchRoute = require('./routes/search/search');
 // app.use('/search', searchRoute);
 
 // Search pet profiles
 router.get("/pet", async (req, res) => {
-    const {name = "", species = "", breed = "", color = "", ownerUsername = ""} = req.query;
-
-    let sql = `
-    SELECT p.name, p.profile_picture, p.species, p.breed, p.color, p.birth_date, u.username AS owner_username
-    FROM pet_profile p
-    JOIN user_account u ON p.owner_user_id = u.user_id
-    WHERE p.name LIKE ?
-    AND p.species LIKE ?
-    AND p.breed LIKE ?
-    AND (p.color LIKE ? OR ? = '')
-    AND u.username LIKE ?`;
-
-    const params = [
-        `%${name}%`,
-        `%${species}%`,
-        `%${breed}%`,
-        color,
-        color, // This allows for a color search if provided, or ignores it if empty
-        `%${ownerUsername}%`
-    ];
+    const { petId = "", petName = "", distance = "" } = req.query;
+    const searcherID = req.userID; // Use userID from the session or authentication context
 
     try {
+        const [{ latitude: searcherLat, longitude: searcherLon }] = await db.executeSQL(
+            `SELECT latitude, longitude FROM location_lat_long WHERE user_id = ?`, [searcherID]
+        );
+
+        let sql = `
+        SELECT p.pet_id, p.name, p.profile_picture, p.species, p.breed, p.color, p.birth_date, lll.latitude, lll.longitude
+        FROM pet_profile p
+        JOIN location_lat_long lll ON p.pet_id = lll.pet_id
+        WHERE (p.pet_id = ? OR p.name LIKE ?)`;
+
+        const params = [petId, `%${petName}%`];
         const rows = await db.executeSQL(sql, params);
-        console.log(rows);
-        res.json(rows);
+
+        const maxDistanceMeters = distance * 1609.34; // Convert miles to meters
+        const filteredRows = rows.filter(row => {
+            return geolib.getDistance(
+                { latitude: searcherLat, longitude: searcherLon },
+                { latitude: row.latitude, longitude: row.longitude }
+            ) <= maxDistanceMeters;
+        });
+
+        res.json(filteredRows);
     } catch (error) {
         console.error("Error executing pet profile search:", error);
         res.status(500).send("An error occurred while fetching pet profiles.");
@@ -38,23 +41,33 @@ router.get("/pet", async (req, res) => {
 });
 // Search user profiles
 router.get("/user", async (req, res) => {
-    const {username = "", displayName = "", location = "", language = ""} = req.query;
-
-    let sql = `
-    SELECT u.username, up.display_name, up.profile_picture, up.location, up.preferred_language
-    FROM user_account u
-    LEFT JOIN user_profile up ON u.user_id = up.user_id
-    WHERE u.username LIKE ?
-    AND up.display_name LIKE ?
-    AND up.location LIKE ?
-    AND up.preferred_language LIKE ?`;
-
-    const params = [`%${username}%`, `%${displayName}%`, `%${location}%`, `%${language}%`];
+    const { username = "", displayName = "", distance = "" } = req.query;
+    const searcherID = req.userID;
 
     try {
+        const [{ latitude: searcherLat, longitude: searcherLon }] = await db.executeSQL(
+            `SELECT latitude, longitude FROM location_lat_long WHERE user_id = ?`, [searcherID]
+        );
+
+        let sql = `
+        SELECT u.username, up.display_name, up.profile_picture, up.location, lll.latitude, lll.longitude
+        FROM user_account u
+        JOIN user_profile up ON u.user_id = up.user_id
+        JOIN location_lat_long lll ON u.user_id = lll.user_id
+        WHERE (u.username LIKE ? OR up.display_name LIKE ?)`;
+
+        const params = [`%${username}%`, `%${displayName}%`];
         const rows = await db.executeSQL(sql, params);
-        console.log(rows);
-        res.json(rows);
+
+        const maxDistanceMeters = distance * 1609.34; // Convert miles to meters
+        const filteredRows = rows.filter(row => {
+            return geolib.getDistance(
+                { latitude: searcherLat, longitude: searcherLon },
+                { latitude: row.latitude, longitude: row.longitude }
+            ) <= maxDistanceMeters;
+        });
+
+        res.json(filteredRows);
     } catch (error) {
         console.error("Error executing user profile search:", error);
         res.status(500).send("An error occurred while fetching user profiles.");
