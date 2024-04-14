@@ -91,47 +91,76 @@ router.delete("/remove", async (req, res) => {
 // Get all the pets that a user has
 router.get("/pets/:userId", async (req, res) => {
 	const sql =`
-	SELECT pet_id "id", name, profile_picture, species, breed, color, birth_date
-	FROM pet_profile
-	WHERE owner_user_id=?
-	`
-	const rows = await db.executeSQL(sql, [req.params.userId]);
+		SELECT
+			pet.pet_id AS id,
+			pet.name,
+			pet.profile_picture,
+			pet.species,
+			pet.breed,
+			pet.color,
+			pet.birth_date,
+			transfer.new_owner
+		FROM
+			pet_profile pet
+		LEFT JOIN
+			pet_transfer_request transfer ON (pet.pet_id = transfer.pet_id)
+		WHERE
+			pet.owner_user_id=?
+
+		UNION
+
+		SELECT
+			pet.pet_id AS id,
+			pet.name,
+			pet.profile_picture,
+			pet.species,
+			pet.breed,
+			pet.color,
+			pet.birth_date,
+			transfer.new_owner
+		FROM
+			pet_profile pet
+		LEFT JOIN
+			pet_transfer_request transfer ON (pet.pet_id = transfer.pet_id)
+		WHERE
+			transfer.new_owner=?
+	`;
+	const rows = await db.executeSQL(sql, [req.params.userId, req.params.userId]);
 	res.send(rows);
 });
 
 
 // http://localhost:3000/pet/transfer 
 router.put("/transfer", async (req, res) => {
-    const petID = req.body.petID;
-    const new_ownerID = req.body.new_ownerID;
-    const transferCheck = req.body.transferCheck;
+    const petId = req.body.petId;
+    const newOwnerId = req.body.newOwnerId;
+    const doTransfer = req.body.doTransfer;
 
     sql = `SELECT COUNT(*) "exists"
             FROM pet_transfer_request
             WHERE pet_id=?`;
-    rows = await db.executeSQL(sql ,[petID]);
+    rows = await db.executeSQL(sql ,[petId]);
     if (rows[0].exists == 0) {
       res.json ({
+		"success": false,
         "message": "There is no transfer request to match that pet id"
       });
       return;
     }
     
-    if (transferCheck == true ) {
+    if (doTransfer) {
       sql = `UPDATE pet_profile
               SET owner_user_id=?
               WHERE pet_id=?`;
-      rows = await db.executeSQL(sql, [new_ownerID, petID]);
+      rows = await db.executeSQL(sql, [newOwnerId, petId]);
       console.log(rows);
-      res.json ({
-        "success": rows.affectedRows > 0
-      })
     }
+
     let sqlDelete = `DELETE FROM pet_transfer_request
                       WHERE pet_id=?`;
-    await db.executeSQL(sqlDelete, [petID]);
+	await db.executeSQL(sqlDelete, [petId]);
     res.json ({
-      "success": "delete"
+      "success": true
     })
 
 
@@ -139,19 +168,34 @@ router.put("/transfer", async (req, res) => {
 
 //http://localhost:3000/pet/createTransferRequest
 router.post("/createTransferRequest", async (req, res) => {
-    const petID = req.body.petID;
-    const new_ownerID = req.body.new_ownerID;
+    const petId = req.body.petId;
+    const newOwnerUsername = req.body.newOwnerUsername;
 
     //create transfer request
     try {
-      sql = `INSERT INTO pet_transfer_request
-      (pet_id, new_owner)
-      VALUES (?, ?)`;
-      rows = await db.executeSQL(sql, [petID, new_ownerID]);
+		sql = `
+		INSERT INTO
+			pet_transfer_request (
+				pet_id,
+				new_owner
+			)
+		VALUES (
+			?,
+			(
+				SELECT
+					user_id
+				FROM
+					user_account
+				WHERE
+					username=?
+			))`;
+      rows = await db.executeSQL(sql, [petId, newOwnerUsername]);
       console.log(rows);
     } catch (error) {
+		console.log(error);
       res.json ({
-        "request exist": "Request cancled"
+        "requestCreated": false,
+        "response": "Transfer request already exists or username does not exist"
       });
       return;
     }
