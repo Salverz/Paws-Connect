@@ -41,8 +41,8 @@
 				<input class="text-input" type="date" id="birthDate" name="birthDate">
 			</div>
 			<div class="input-block">
-				<label for="location">Your location</label>
-				<input class="text-input" type="text" id="location" name="location">
+				<label for="zip">Your zip code</label>
+				<input class="text-input" type="number" id="zip" name="zip">
 			</div>
 			<div class="input-block">
 				<label for="language">Your preferred language</label>

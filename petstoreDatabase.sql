@@ -38,7 +38,7 @@ CREATE TABLE user_profile (
     birth_date DATE,
     display_name VARCHAR(32),
     profile_picture VARCHAR(512),
-    zipcode VARCHAR(32),
+    zip VARCHAR(10),
     preferred_language VARCHAR(64),
     FOREIGN KEY (user_id) REFERENCES user_account(user_id),
 	FOREIGN KEY (preferred_language) REFERENCES language(language)

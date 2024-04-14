@@ -2,7 +2,7 @@ const db = require("../../../helper_files/database");
 const router = require("express").Router();
 
 router.get('/:petId', async (req, res) => {
-    const petName = req.params.petId;
+    const petId = req.params.petId;
 
     const sql =
     `
@@ -19,7 +19,7 @@ router.get('/:petId', async (req, res) => {
 		pet_id=?
     `;
 
-    const rows = await db.executeSQL(sql, [petName]);
+    const rows = await db.executeSQL(sql, [petId]);
     console.log(rows.length);
 
 	if (rows.length == 0) {

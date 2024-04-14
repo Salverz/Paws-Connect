@@ -9,7 +9,7 @@
 			body: JSON.stringify({
 				"userId": userId,
 				"name": name,
-				"profilePictureImage": profilePictureImage,
+				"profilePicture": profilePictureImage,
 				"species": species,
 				"breed": breed,
 				"color": color,
