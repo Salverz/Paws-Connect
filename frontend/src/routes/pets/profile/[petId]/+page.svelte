@@ -1,19 +1,43 @@
 <script>
-    const petInfo = {
-        "petId": 7,
-        "species": "dog",
-        "breed": "Poodle",
-        "color": "brown",
-        "name": "Rena",
-        "birthDate": "2021-05-12",
-        "profilePicture": "https://mleiatrkukou.i.optimole.com/cb:iQWp.102bc/w:auto/h:auto/q:mauto/f:best/https://bon[…]img-products-1200x628.png",
-        "owner": "Joshua"
-    };
 
-    let name = "Max";
-    let gender = "Male";
-    let bio = "A friendly and playful pet.";
-    let location = "New York";
+    import { page } from "$app/stores";
+	import { onMount } from "svelte";
+
+    let petId = $page.params.petId;
+    console.log(petId);
+
+    // let petId;
+    let owner;
+    let petName//name
+    let profilePicture;
+    let species;
+    let breed;
+    let color;
+    let birthDate;
+
+    async function getPetData() {
+        console.log("running");
+        let data = await fetch(`http://localhost:3000/pet/profile/${petId}`);
+        let json = await data.json();
+        console.log(json);
+        //owner = json.owner_user_id;
+        petName = json.name;
+        profilePicture = json.profilePicture;
+        species = json.species;
+        breed = json.breed;
+        color = json.color;
+        birthDate = json.birthDate;
+    }
+
+    onMount(async () => {
+        await getPetData();
+    });
+
+
+    // let name = "Max";
+    // let gender = "Male";
+    // let bio = "A friendly and playful pet.";
+    // let location = "New York";
     
     let connections = [
         { name: "Buddy", gender: "Male" },
@@ -101,12 +125,13 @@
 </style>
 
 <div class="pet-container">
-    <h1>{petInfo.name}</h1>
-    <p>Species: {petInfo.species}</p>
-    <p>Breed: {petInfo.breed}</p>
-    <p>Color: {petInfo.color}</p>
-    <p>Birth Date: {petInfo.birthDate}</p>
-    <p>Owner: {petInfo.owner}</p>
+    <h1>{petName}</h1>
+    <img src = {profilePicture}>
+    <p>Species: {species}</p>
+    <p>Breed: {breed}</p>
+    <p>Color: {color}</p>
+    <p>Birth Date: {birthDate}</p>
+    <!-- <p>Owner: {owner}</p> -->
 
     <div class="action-buttons">
         <button class="action-button" on:click={toggleConnections}>Connections</button>
