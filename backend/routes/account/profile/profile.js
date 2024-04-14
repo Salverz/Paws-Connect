@@ -123,26 +123,75 @@ router.post("/create", async (req, res) => {
 	});
 });
 
-// Get the user's profile data
-router.get("/:username", async (req, res) => {
-    const username = req.params.username;
-    let sql = `
-    	SELECT
-			a.username,
-			p.display_name,
-			p.profile_picture,
-			p.location,
-			p.preferred_language
-    	FROM
-			user_account a 
-    	JOIN
-			user_profile p ON (a.user_id = p.user_id)
-    	WHERE
-			a.username = ?
-    `;
-    const rows = await db.executeSQL(sql, username);
-    console.log(rows);
-    res.json(rows);
-});
+// Retrieve a user's profile data
+router.get("/:userId", async (req, res) => {
+    const userId = req.params.userId;
 
+    // Run an SQL query to get profile data of the user
+    const sql = `
+    SELECT a.username, p.display_name, p.profile_picture, p.zip, p.preferred_language, DATE_FORMAT(p.birth_date, "%Y-%m-%d") "birth_date"
+    FROM user_profile p
+    JOIN user_account a ON (p.user_id = a.user_id)
+    WHERE a.user_id=?
+    `;
+    const rows = await db.executeSQL(sql, [userId]);
+
+    console.log(rows);
+    // Check that the user exists
+    if (rows.length == 0) { 
+      res.json({
+		  accountFound: false,
+		  message: `User with user ID ${userId} does not have a profile`
+	  });
+      return;
+    }
+
+    // Send the user's profile data back to the frontend
+    res.json({
+		"accountFound": true,
+		"username": rows[0].username,
+		"displayName": rows[0].display_name,
+		"profilePicture": rows[0].profile_picture,
+		"zip": rows[0].zip,
+		"preferredLanguage": rows[0].preferred_language,
+		"birthDate": rows[0].birth_date
+    });
+});
+  
+// Edit the user's profile with their input information
+router.put("/edit", async (req, res) => {
+    const userId = req.body.userId;
+    const displayName = req.body.displayName;
+    const profilePicture = req.body.profilePicture;
+    const zip = req.body.zip;
+    const preferredLanguage = req.body.preferredLanguage;
+    const birthDate = req.body.birthDate;
+  
+	if (fetchZipcodeAndUpdate(zip, userId) == null) {
+		res.json({
+			"accountUpdated": false,
+			"message": "Invalid zip code"
+		})
+		return;
+	}
+
+    const sql = `
+		UPDATE
+			user_profile
+		SET
+			display_name=?,
+			profile_picture=?,
+			zip=?,
+			preferred_language=?,
+			birth_date=?
+		WHERE
+			user_id=?
+	`;
+    rows = await db.executeSQL(sql, [displayName, profilePicture, zip, preferredLanguage, birthDate, userId]);
+    console.log(rows);
+  
+    res.json({
+      "accountUpdated": rows.affectedRows > 0
+    });
+});
 module.exports = router;

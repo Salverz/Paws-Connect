@@ -1,10 +1,11 @@
 <script>
     import { page } from "$app/stores";
 	import { onMount } from "svelte";
+	import NavBar from "$lib/components/NavBar.svelte";
   let name = "Jake";
   let profile_picture = "https://hips.hearstapps.com/hmg-prod/images/dog-puppy-on-garden-royalty-free-image-1586966191.jpg?crop=1xw:0.74975xh;center,top&resize=1200:*";
   let bio = "A pet who enjoys spending";
-  let location, preferred_language;
+  let zip, preferred_language, username, birthDate;
 
   let friends = 520;
   let posts = 121;
@@ -34,18 +35,19 @@
       showSimilarProfiles = !showSimilarProfiles;
   }
 
-  name = $page.params.username;
-  console.log(name);
+  const userId = $page.params.userId;
+  console.log(userId);
 
   async function getProfileData() {
-    console.log("running");
-    let data = await fetch(`http://localhost:3000/account/profile/${name}`);
+    let data = await fetch(`http://localhost:3000/account/profile/${userId}`);
     let json = await data.json();
     console.log(json);
-    name = json[0].display_name;
-    profile_picture = json[0].profile_picture;
-    location = json[0].location;
-    preferred_language = json[0].preferred_language;
+	username = json.username;
+    name = json.displayName;
+    profile_picture = json.profilePicture;
+	zip = json.zip;
+    preferred_language = json.preferredLanguage;
+	birthDate = json.birthDate;
   }
 
 
@@ -201,21 +203,21 @@
 
 
 </style>
-
+<NavBar/>
 <div class="container">
   <div class="profile-header">
       <img class="profile-picture" src="{profile_picture}" alt="Profile Picture">
       <div class="profile-info">
         <h1>{name}</h1>
           <div class="stats">
-              <!-- <p>Follows: {follows}</p> -->
-              <!-- <p>Followers: {followers}</p> -->
-              <p>Location: {location}</p>
-              <p>Connections: {connections.length}</p>
+              <p>Username: {username}</p>
+              <p>Zip code: {zip}</p>
+              <p>Birthday: {birthDate}</p>
               <p>Preferred language: {preferred_language}</p>
           </div>
       </div>
   </div>
+  <!--
   <div class="action-buttons">
       <button class="action-button" on:click={toggleConnections}>Connections</button>
       <button class="action-button similar-profiles-button" on:click={toggleSimilarProfiles}>Similar Profiles</button>
@@ -240,6 +242,7 @@
       {/each}
   </div>
   {/if}
+  -->
 </div>
 
 

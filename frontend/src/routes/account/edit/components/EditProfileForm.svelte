@@ -1,29 +1,30 @@
 <script>
-let username, accountInfo;
+let userId, accountInfo;
 
 async function getAccountInfo() {
     // Fetch the data from the backend (/account/info/[userId] in this case, put the user's userId, in the [userId] slot)
-    let databaseResult = await fetch(`http://localhost:3000/account/info/${username}`);
+    let databaseResult = await fetch(`http://localhost:3000/account/profile/${userId}`);
 
     // Format the data into json
     let json = await databaseResult.json();
-    if (json.message == "User not found") {
-        alert("Account not found")
+    if (!json.accountFound) {
+        alert(json.message)
         accountInfo = undefined;
-    } else {
-        accountInfo = json;
-    }
+		return
+	}
+	accountInfo = json;
 }
 
 async function updateAccountInfo() {
-    let databaseResult = await fetch(`http://localhost:3000/account/edit`, {
+	let databaseResult = await fetch(`http://localhost:3000/account/profile/edit`, {
         method: "PUT",
         body: JSON.stringify({
-            "username": username,
+            "userId": userId,
             "displayName": accountInfo.displayName,
             "profilePicture": accountInfo.profilePicture,
-            "location": accountInfo.location,
-            "preferredLanguage": accountInfo.preferredLanguage
+            "zip": accountInfo.zip,
+            "preferredLanguage": accountInfo.preferredLanguage,
+            "birthDate": accountInfo.birthDate
         }),
         headers: {
             "Content-type": "application/json; charset=UTF-8"
@@ -33,10 +34,10 @@ async function updateAccountInfo() {
     let json = await databaseResult.json();
 
     console.log(json);
-    if (json.success) {
+    if (json.accountUpdated) {
         alert("Account updated successfully!")
     } else {
-        alert("Account was not updated. Please enter a valid username")
+        alert(json.message)
     }
 }
 </script>
@@ -44,39 +45,37 @@ async function updateAccountInfo() {
 <div class="edit-account-form">
     <h1>Edit your profile</h1>
     <div class="input-block">
-        <label for="username">Username</label>
-        <input type="text" bind:value={username}>
+        <label for="userId">User ID</label>
+        <input type="number" bind:value={userId}>
     </div>
     <button on:click={getAccountInfo}>Get account details</button>
 
     {#if accountInfo != undefined}
-        <form on:submit={updateAccountInfo}>
-            <div class="input-block">
-                <label for="displayName">Display Name</label>
-                <input id="displayName" type="text" bind:value={accountInfo.displayName}>
-            </div>
+		<div class="input-block">
+			<label for="displayName">Display Name</label>
+			<input id="displayName" type="text" bind:value={accountInfo.displayName}>
+		</div>
 
-            <div class="input-block">
-                <label for="profilePicture">Profile Picture Link</label>
-                <input id="profilePicture" type="text" bind:value={accountInfo.profilePicture}>
-            </div>
+		<div class="input-block">
+			<label for="profilePicture">Profile Picture Link</label>
+			<input id="profilePicture" type="text" bind:value={accountInfo.profilePicture}>
+		</div>
 
-            <div class="input-block">
-                <label for="location">Location</label>
-                <input id="location" type="text" bind:value={accountInfo.location}>
-            </div>
-            
-            <div class="input-block">
-                <label for="preferredLanguage">Preferred Language</label>
-                <input id="preferredLanguage" type="text" bind:value={accountInfo.preferredLanguage}>
-            </div>
+		<div class="input-block">
+			<label for="zip">Zip code</label>
+			<input id="zip" type="text" bind:value={accountInfo.zip}>
+		</div>
+		
+		<div class="input-block">
+			<label for="preferredLanguage">Preferred Language</label>
+			<input id="preferredLanguage" type="text" bind:value={accountInfo.preferredLanguage}>
+		</div>
 
-            <div class="input-block">
-                <label for="birthDate">Date of birth</label>
-                <input id="birthDate" type="date" bind:value={accountInfo.birthDate}>
-            </div>
-            <input type="submit" value="Update account">
-        </form>
+		<div class="input-block">
+			<label for="birthDate">Date of birth</label>
+			<input id="birthDate" type="date" bind:value={accountInfo.birthDate}>
+		</div>
+		<button on:click={updateAccountInfo}>Update Account</button>
     {/if}
 </div>
 

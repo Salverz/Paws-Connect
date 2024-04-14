@@ -169,17 +169,37 @@ router.get("/get/:username", async (req, res) => {
     const userID = userResult[0].user_id;
 
     const posts = await db.executeSQL(`
-      SELECT p.post_id, ua.username AS poster_username, up.profile_picture AS poster_profile_picture,
-             p.text_content, p.visibility, p.created_at, p.post_language, 
-             pp.photo_link AS post_photo_link, 
-             (SELECT COUNT(*) FROM post_like WHERE liked_post_id = p.post_id) AS likes
-      FROM post p
-      JOIN user_account ua ON p.poster_user_id = ua.user_id
-      JOIN user_profile up ON ua.user_id = up.user_id
-      LEFT JOIN post_photo pp ON p.post_id = pp.attached_to_post_id
-      WHERE p.visibility = 'public' OR p.poster_user_id = ?
-      ORDER BY p.created_at DESC
-    `, [userID]);
+		SELECT
+			p.post_id,
+			p.poster_user_id,
+			ua.username AS poster_username,
+			up.profile_picture AS poster_profile_picture,
+			p.text_content,
+			p.visibility,
+			p.created_at,
+			p.post_language, 
+			pp.photo_link AS post_photo_link, 
+			(
+				SELECT
+					COUNT(*)
+				FROM
+					post_like
+				WHERE
+					liked_post_id = p.post_id
+			) AS likes
+		FROM
+			post p
+		JOIN
+			user_account ua ON p.poster_user_id = ua.user_id
+		JOIN
+			user_profile up ON ua.user_id = up.user_id
+		LEFT JOIN
+			post_photo pp ON p.post_id = pp.attached_to_post_id
+		WHERE
+			p.visibility = 'public' OR p.poster_user_id = ?
+		ORDER BY
+		p.created_at DESC
+	`, [userID]);
 
     res.json({ success: true, posts: posts });
   } catch (error) {
