@@ -20,7 +20,7 @@
         let data = await fetch(`http://localhost:3000/pet/profile/${petId}`);
         let json = await data.json();
         console.log(json);
-        //owner = json.owner_user_id;
+        owner = json.owner;
         petName = json.name;
         profilePicture = json.profilePicture;
         species = json.species;
@@ -127,11 +127,11 @@
 <div class="pet-container">
     <h1>{petName}</h1>
     <img src = {profilePicture}>
+	<p>Owner: {owner}</p>
     <p>Species: {species}</p>
     <p>Breed: {breed}</p>
     <p>Color: {color}</p>
     <p>Birth Date: {birthDate}</p>
-    <!-- <p>Owner: {owner}</p> -->
 
     <div class="action-buttons">
         <button class="action-button" on:click={toggleConnections}>Connections</button>

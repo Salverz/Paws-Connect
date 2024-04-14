@@ -37,14 +37,17 @@ router.get('/:petId', async (req, res) => {
     const sql =
     `
     SELECT
-		name,
-		profile_picture,
-		species,
-		breed,
-		color,
-		DATE_FORMAT(birth_date, "%Y-%m-%d") "birth_date"
+		user_profile.display_name,
+		pet.name,
+		pet.profile_picture,
+		pet.species,
+		pet.breed,
+		pet.color,
+		DATE_FORMAT(pet.birth_date, "%Y-%m-%d") "birth_date"
     FROM
-		pet_profile
+		pet_profile pet
+	JOIN
+		user_profile ON (user_profile.user_id = pet.owner_user_id)
     WHERE
 		pet_id=?
     `;
@@ -60,6 +63,7 @@ router.get('/:petId', async (req, res) => {
 	}
     res.json({
 		"exists": true,
+		"owner": rows[0].display_name,
         "name": rows[0].name,
         "profilePicture": rows[0].profile_picture,
         "species": rows[0].species,
