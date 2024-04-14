@@ -34,6 +34,66 @@
 			getPets();
 		}
 	}
+
+	async function transferPet(petIndex) {
+		if (pets[petIndex].transferTo == undefined) {
+			alert("Please enter a recipient to transfer the pet to");
+			return;
+		}
+
+		console.log(pets[petIndex].transferTo);
+		const response = await fetch(`http://localhost:3000/pet/createTransferRequest`, {
+			method: "POST",
+			body: JSON.stringify({
+				"petId": pets[petIndex].id,
+				"newOwnerUsername": pets[petIndex].transferTo
+			}),
+			headers: {
+				"Content-type": "application/json; charset=UTF-8"
+			}
+		});
+		const json = await response.json();
+		console.log(JSON.stringify(json));
+		if (!json.requestCreated) {
+			alert(`Failed to create a transfer request. ${json.response}`);
+			return;
+		}
+
+		alert(`Transfer request created successfully! When the recipient accepts it, ${pets[petIndex].name} will be transfered.`);
+		pets[petIndex].transfer = false;
+		pets[petIndex].new_owner = pets[petIndex].transferTo;
+	}
+
+	async function respondToTransfer(petIndex, doTransfer) {
+		const response = await fetch(`http://localhost:3000/pet/transfer`, {
+			method: "PUT",
+			body: JSON.stringify({
+				"petId": pets[petIndex].id,
+				"newOwnerId": userId,
+				"doTransfer": doTransfer
+			}),
+			headers: {
+				"Content-type": "application/json; charset=UTF-8"
+			}
+		});
+		const json = await response.json();
+		console.log(JSON.stringify(json));
+
+		if (!json.success) {
+			alert(`Transfer failed. ${json.message}`);
+			return;
+		}
+
+		if (doTransfer) {
+			alert(`Transfer successfull! ${pets[petIndex].name} is now your pet!`);
+			pets[petIndex].new_owner = null;
+		} else {
+			alert(`Transfer closed. ${pets[petIndex].name} was not transfered.`);
+			pets.splice(petIndex, 1);
+			pets = pets;
+		}
+		console.log(JSON.stringify(pets));
+	}
 </script>
 
 <SiteHeader/>
@@ -49,8 +109,23 @@
 			<input type="hidden" value={index}/>
 			<img class="profile-picture" src={pet.profile_picture}>
 			{pet.name}
-			<a href="/pets/edit/{pet.id}">Edit</a>
-			<button on:click={() => { deletePet(index) }}>Delete</button>
+			<a href="/pets/profile/{pet.id}">Profile</a>
+			{#if pet.new_owner == userId}
+				<button on:click={() => { respondToTransfer(index, true) }}>Accept Transfer</button>
+				<button on:click={() => { respondToTransfer(index, false) }}>Refuse Transfer</button>
+			{:else}
+				<a href="/pets/edit/{pet.id}">Edit</a>
+				<button on:click={() => { deletePet(index) }}>Delete</button>
+				<button on:click={() => { pets[index].transfer = !pets[index].transfer; }}>Transfer Pet</button>
+			{/if}
+
+			{#if pet.new_owner}
+				<p>Pending transfer</p>
+			{:else if pet.transfer}
+				<label for="newOwnerUsername">Who would you like to transfer {pet.name} to? </label>
+				<input type="text" id="newOwnerUsername" name="newOwnerUsername" bind:value={pets[index].transferTo}>
+				<button on:click={() => { transferPet(index) }}>Send Request</button>
+			{/if}
 		</div>
 	{/each}
 </div>
