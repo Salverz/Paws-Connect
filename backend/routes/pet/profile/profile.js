@@ -1,6 +1,36 @@
 const db = require("../../../helper_files/database");
 const router = require("express").Router();
 
+//route with pet name for getPetData function in svelte
+// router.get('/:petName', async (req, res) => {
+//     const petName = req.params.petName;
+
+//     const sql = `SELECT *
+//                 FROM pet_profile
+//                 WHERE name = ?`;
+
+//     const rows = await db.executeSQL(sql, [petName]);
+
+//     if (rows.length == 0) {
+//         res.json({
+//             "exist": false
+//         });
+//         return;
+//     }
+
+//     res.json({
+//         "exists": true,
+//         "petId": rows[0].pet_id,
+//         "ownerUserId": rows[0].owner_user_id,
+//         "name": rows[0].name,
+//         "profilePicture": rows[0].profile_picture,
+//         "species": rows[0].species,
+//         "breed": rows[0].breed,
+//         "color": rows[0].color,
+//         "birthDate": rows[0].birth_date,
+//     });
+// });
+
 router.get('/:petId', async (req, res) => {
     const petName = req.params.petId;
 
@@ -20,7 +50,7 @@ router.get('/:petId', async (req, res) => {
     `;
 
     const rows = await db.executeSQL(sql, [petName]);
-    console.log(rows.length);
+    console.log(rows);
 
 	if (rows.length == 0) {
 		res.json({
