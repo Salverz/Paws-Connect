@@ -45,6 +45,7 @@
     <p>Breed: {breed}</p>
     <p>Color: {color}</p>
     <p>Birth Date: {birthDate}</p>
+	<p>Bio: {bio}</p>
 
 </div>
 

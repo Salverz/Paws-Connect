@@ -1,5 +1,6 @@
 <script>
 	import { onMount } from "svelte";
+	import NavBar from "$lib/components/NavBar.svelte";
     import SiteHeader from "$lib/components/SiteHeader.svelte";
     let userId, postPicture, textContent, visibility, language;
 
@@ -68,6 +69,7 @@
 </script>
 
 <SiteHeader />
+<NavBar/>
 <h1>Create a post</h1>
 	<input type="hidden" id="petsToTag" name="petsToTag" bind:value={selectedConnections}>
     <div class="input-section">

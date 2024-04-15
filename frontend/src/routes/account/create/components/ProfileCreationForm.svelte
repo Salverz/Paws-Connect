@@ -9,7 +9,7 @@
 				"displayName": displayName,
 				"profilePicture": profilePicture,
 				"zip": zip,
-				"preferredLanguage": language,
+				"language": language,
 				"birthDate": birthDate
 			}),
 			headers: {

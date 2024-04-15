@@ -4,7 +4,7 @@
 	import { onMount } from "svelte";
 
   	const petId = $page.params.petId;
-	let name, profilePictureImage, species, breed, color, birthDate;
+	let name, profilePictureImage, species, breed, color, bio, birthDate;
 
 	async function savePetChanges() {
 		const databaseResult = await fetch(`http://localhost:3000/pet/profile/edit`, {
@@ -16,6 +16,7 @@
 				"species": species,
 				"breed": breed,
 				"color": color,
+				"bio": bio,
 				"birthDate": birthDate
 			}),
 			headers: {
@@ -46,6 +47,7 @@
 		profilePictureImage = json.profilePicture;
 		species = json.species;
 		breed = json.breed;
+		bio = json.bio;
 		color = json.color;
 		birthDate = json.birthDate;
 	}
@@ -100,6 +102,12 @@
 			<div class="input-block">
 				<label for="birthDate">Date of birth</label>
 				<input class="text-input" type="date" id="birthDate" name="birthDate" bind:value={birthDate}>
+			</div>
+		</div>
+		<div class="input-row">
+			<div class="input-block">
+				<label for="bio">Bio</label>
+				<textarea class="text-input" id="bio" name="bio" rows="4" cols="50" bind:value={bio}></textarea>
 			</div>
 		</div>
 	</div>
