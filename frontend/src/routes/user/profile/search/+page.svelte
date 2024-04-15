@@ -25,6 +25,7 @@
         const profileURL = `http://localhost:3000/profile/${id}`;
         window.location.href = profileURL;
     }
+
 </script>
 
 <h1>Profile Search</h1>
