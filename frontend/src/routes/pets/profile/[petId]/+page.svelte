@@ -1,7 +1,7 @@
 <script>
-	import NavBar from "$lib/components/NavBar.svelte";
     import { page } from "$app/stores";
 	import { onMount } from "svelte";
+	import NavBar from "$lib/components/NavBar.svelte";
 
     let petId = $page.params.petId;
     console.log(petId);
@@ -21,7 +21,7 @@
         let data = await fetch(`http://localhost:3000/pet/profile/${petId}`);
         let json = await data.json();
         console.log(json);
-        //owner = json.owner_user_id;
+        owner = json.owner;
         petName = json.name;
         profilePicture = json.profilePicture;
         species = json.species;
@@ -34,45 +34,21 @@
     onMount(async () => {
         await getPetData();
     });
-
-
-    // let name = "Max";
-    // let gender = "Male";
-    // let bio = "A friendly and playful pet.";
-    // let location = "New York";
-    
-    let connections = [
-        { name: "Buddy", gender: "Male" },
-        { name: "Daisy", gender: "Female" },
-        { name: "Rocky", gender: "Male" }
-    ];
-    
-    let suggestedProfiles = [
-        { name: "Lucy", gender: "Female" },
-        { name: "Charlie", gender: "Male" },
-        { name: "Bella", gender: "Female" }
-    ];
-    
-    let showConnections = false;
-    let showSuggestedProfiles = false;
-    
-    function toggleConnections() {
-        showConnections = !showConnections;
-    }
-    
-    function toggleSuggestedProfiles() {
-        showSuggestedProfiles = !showSuggestedProfiles;
-    }
 </script>
 
-<style>
-    body {
-        font-family: Arial, sans-serif;
-        background-color: #fafafa;
-        margin: 0;
-        padding: 0;
-    }
+<NavBar/>
+<div class="pet-container">
+    <h1>{petName}</h1>
+    <img src = {profilePicture}>
+	<p>Owner: {owner}</p>
+    <p>Species: {species}</p>
+    <p>Breed: {breed}</p>
+    <p>Color: {color}</p>
+    <p>Birth Date: {birthDate}</p>
 
+</div>
+
+<style>
     .pet-container {
         max-width: 800px;
         margin: 20px auto;
@@ -129,42 +105,3 @@
 		width: 500px;
 	}
 </style>
-
-<NavBar/>
-<div class="pet-container">
-    <h1>{petName}</h1>
-    <img src = {profilePicture}>
-	<p>Pet ID: {petId}</p>
-    <p>Species: {species}</p>
-    <p>Breed: {breed}</p>
-    <p>Color: {color}</p>
-    <p>Birth Date: {birthDate}</p>
-	<p>Bio: {bio}</p>
-    <!-- <p>Owner: {owner}</p> -->
-
-    <div class="action-buttons">
-        <button class="action-button" on:click={toggleConnections}>Connections</button>
-        {#if showConnections}
-        <div class="dropdown-list">
-            {#each connections as connection}
-            <div class="dropdown-item">
-                <p>{connection.name}</p>
-                <p>Gender: {connection.gender}</p>
-            </div>
-            {/each}
-        </div>
-        {/if}
-
-        <button class="action-button" on:click={toggleSuggestedProfiles}>Suggested Profiles</button>
-        {#if showSuggestedProfiles}
-        <div class="dropdown-list">
-            {#each suggestedProfiles as profile}
-            <div class="dropdown-item">
-                <p>{profile.name}</p>
-                <p>Gender: {profile.gender}</p>
-            </div>
-            {/each}
-        </div>
-        {/if}
-    </div>
-</div>

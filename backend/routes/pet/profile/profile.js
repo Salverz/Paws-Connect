@@ -44,8 +44,11 @@ router.get('/:petId', async (req, res) => {
 		breed,
 		color,
 		DATE_FORMAT(birth_date, "%Y-%m-%d") "birth_date"
+		user_profile.display_name,
     FROM
-		pet_profile
+		pet_profile pet
+	JOIN
+		user_profile ON (user_profile.user_id = pet.owner_user_id)
     WHERE
 		pet_id=?
     `;
@@ -61,6 +64,7 @@ router.get('/:petId', async (req, res) => {
 	}
     res.json({
 		"exists": true,
+		"owner": rows[0].display_name,
         "name": rows[0].name,
 		"bio": rows[0].bio,
         "profilePicture": rows[0].profile_picture,
