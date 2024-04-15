@@ -199,8 +199,14 @@ router.get("/get/:username", async (req, res) => {
 		ORDER BY
 		p.created_at DESC
 	`, [userID]);
+	  
+	  const tags = await db.executeSQL(`
+			SELECT *
+			FROM tagged_pet tag
+			JOIN pet_profile pet ON (tag.tagged_pet_id = pet.pet_id);
+		`)
 
-    res.json({ success: true, posts: posts });
+    res.json({ success: true, posts: posts, tags: tags });
   } catch (error) {
     console.error("Error retrieving posts:", error);
     res.status(500).json({ success: false, message: 'An error occurred while retrieving posts' });

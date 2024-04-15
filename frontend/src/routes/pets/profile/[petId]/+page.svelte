@@ -1,5 +1,5 @@
 <script>
-
+	import NavBar from "$lib/components/NavBar.svelte";
     import { page } from "$app/stores";
 	import { onMount } from "svelte";
 
@@ -13,6 +13,7 @@
     let species;
     let breed;
     let color;
+	let bio;
     let birthDate;
 
     async function getPetData() {
@@ -24,6 +25,7 @@
         petName = json.name;
         profilePicture = json.profilePicture;
         species = json.species;
+		bio = json.bio;
         breed = json.breed;
         color = json.color;
         birthDate = json.birthDate;
@@ -122,15 +124,22 @@
     .action-button:focus {
         outline: none;
     }
+
+	img {
+		width: 500px;
+	}
 </style>
 
+<NavBar/>
 <div class="pet-container">
     <h1>{petName}</h1>
     <img src = {profilePicture}>
+	<p>Pet ID: {petId}</p>
     <p>Species: {species}</p>
     <p>Breed: {breed}</p>
     <p>Color: {color}</p>
     <p>Birth Date: {birthDate}</p>
+	<p>Bio: {bio}</p>
     <!-- <p>Owner: {owner}</p> -->
 
     <div class="action-buttons">

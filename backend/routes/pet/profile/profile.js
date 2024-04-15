@@ -40,6 +40,7 @@ router.get('/:petId', async (req, res) => {
 		name,
 		profile_picture,
 		species,
+		bio,
 		breed,
 		color,
 		DATE_FORMAT(birth_date, "%Y-%m-%d") "birth_date"
@@ -61,6 +62,7 @@ router.get('/:petId', async (req, res) => {
     res.json({
 		"exists": true,
         "name": rows[0].name,
+		"bio": rows[0].bio,
         "profilePicture": rows[0].profile_picture,
         "species": rows[0].species,
         "breed": rows[0].breed,

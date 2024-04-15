@@ -1,4 +1,5 @@
 <script>
+	import NavBar from "$lib/components/NavBar.svelte";
     import { page } from "$app/stores";
 	import { onMount } from "svelte";
 
@@ -54,6 +55,7 @@
 	});
 </script>
 
+<NavBar/>
 <div class="create-account-card">
 	<div class="card-header-section">
 		<h1 class="card-header-text">Edit pet profile</h1>
