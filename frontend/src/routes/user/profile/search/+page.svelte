@@ -25,6 +25,24 @@
         const profileURL = `http://localhost:3000/profile/${id}`;
         window.location.href = profileURL;
     }
+
+    async function getProfileData() {
+    console.log("running");
+    let data = await fetch(`http://localhost:3000/account/profile/${name}`);
+    let json = await data.json();
+    console.log(json);
+    name = json[0].display_name;
+    profile_picture = json[0].profile_picture;
+    location = json[0].location;
+    preferred_language = json[0].preferred_language;
+  }
+
+
+//   getProfileData();
+  onMount(async () => {
+    await getProfileData();
+  });
+  
 </script>
 
 <h1>Profile Search</h1>
