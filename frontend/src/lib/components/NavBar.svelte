@@ -4,7 +4,7 @@
 	<a class="nav-link" href="/pets/dashboard">View pets</a>
     <a class="nav-link" href="/account/edit">Edit profile</a>
     <a class="nav-link" href="/account/create">Create an account</a>
-	<a class="nav-link" href="/feed/post">Create a new post</a>
+	<a class="nav-link" href="/feed/posts">Create a new post</a>
 	<a class="nav-link" href="/search">Search for users and pets</a>
 </div>
 

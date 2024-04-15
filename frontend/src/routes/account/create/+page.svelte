@@ -13,6 +13,7 @@
 
 <section>
     <SiteHeader/>
+	<NavBar/>
 	<!-- <a href="/account/edit">Edit an existing account</a> -->
     <div class="login-box">
 		{#if currentComponent}

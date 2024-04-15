@@ -6,7 +6,7 @@ const router = require("express").Router();
 // Create a new post
 // (accessed at [POST] http://localhost:3000/post/create)
 router.post("/create", async (req, res) => {
-  const { userID, text_content, post_photo_link, visibility, post_language} = req.body;
+  const { userID, text_content, post_photo_link, visibility, post_language, petsToTag } = req.body;
   console.log(req.body);
 
   if (!userID) {
@@ -53,16 +53,15 @@ router.post("/create", async (req, res) => {
     //   }
     // }
 
-    // Insert tagged pets
-    // if (taggedPets && taggedPets.length) {
-    //   for (const petId of taggedPets) {
-    //     await db.executeSQL(`
-    //       INSERT INTO tagged_pet (tagged_post_id, tagged_pet_id)
-    //       VALUES (?, ?)
-    //     `, [postId, petId]);
-    //   }
-    // }
-    // Constructing the new post object
+	// Insert tagged pets
+	 for (let i = 0; i < petsToTag.length; i++) {
+	 await db.executeSQL(`
+	   INSERT INTO tagged_pet (tagged_post_id, tagged_pet_id)
+	   VALUES (?, ?)
+	 `, [postId, petsToTag[i]]);
+   }
+
+	// Constructing the new post object
     const newPost = {
       post_id: postId,
       poster_username: poster_username,
