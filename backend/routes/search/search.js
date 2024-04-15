@@ -6,7 +6,7 @@ const geolib = require('geolib');
 router.get("/pet", async (req, res) => {
     const { petId = "", petName = "", distance = ""} = req.query;
 
-    const searcherID = req.body.userID;
+    const searcherID = req.query.userId;
     
     if (!searcherID) {
         return res.status(400).send("User ID is required for searching pet profiles.");
@@ -25,7 +25,7 @@ router.get("/pet", async (req, res) => {
         // Construct the SQL query to search for pets based on the owner's location.
         let sql = `
         SELECT p.pet_id, p.name, p.profile_picture, p.species, p.breed, p.color, p.birth_date, 
-               lll.latitude AS owner_latitude, lll.longitude AS owner_longitude
+               lll.latitude AS latitude, lll.longitude longitude
         FROM pet_profile p
         INNER JOIN user_account u ON p.owner_user_id = u.user_id
         INNER JOIN location_lat_long lll ON u.user_id = lll.user_id
@@ -41,7 +41,7 @@ router.get("/pet", async (req, res) => {
         const filteredPets = petRows.filter(pet => {
             return geolib.getDistance(
                 { latitude: searcherLocation.latitude, longitude: searcherLocation.longitude },
-                { latitude: pet.owner_latitude, longitude: pet.owner_longitude }
+                { latitude: pet.latitude, longitude: pet.longitude }
             ) <= maxDistanceMeters;
         });
 
@@ -54,7 +54,7 @@ router.get("/pet", async (req, res) => {
 // Search user profiles
 router.get("/user", async (req, res) => {
     const { username = "", displayName = "", distance = ""} = req.query;
-    const searcherID = req.body.userID; // Using user_id from query parameters
+    const searcherID = req.query.userId; // Using user_id from query parameters
 
     // Ensure that a searcher ID is provided
     if (!searcherID) {
@@ -74,7 +74,7 @@ router.get("/user", async (req, res) => {
 
         // Construct the SQL query to search for user profiles using the zipcode column
         let sql = `
-        SELECT u.username, up.display_name, up.profile_picture, up.zip, lll.latitude, lll.longitude
+        SELECT u.user_id, u.username, up.display_name, up.profile_picture, up.zip, lll.latitude, lll.longitude
         FROM user_account u
         JOIN user_profile up ON u.user_id = up.user_id
         JOIN location_lat_long lll ON u.user_id = lll.user_id

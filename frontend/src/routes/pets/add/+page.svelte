@@ -1,7 +1,7 @@
 <script>
 	import NavBar from "$lib/components/NavBar.svelte";
 
-	let userId, name, profilePictureImage, species, breed, color, birthDate;
+	let userId, name, profilePictureImage, species, breed, color, bio, birthDate;
 
 	async function createNewPet() {
 		let databaseResult = await fetch(`http://localhost:3000/pet/create`, {
@@ -13,6 +13,7 @@
 				"species": species,
 				"breed": breed,
 				"color": color,
+				"bio": bio,
 				"birthDate": birthDate
 			}),
 			headers: {
@@ -83,6 +84,12 @@
 			<div class="input-block">
 				<label for="birthDate">Date of birth</label>
 				<input class="text-input" type="date" id="birthDate" name="birthDate" bind:value={birthDate}>
+			</div>
+		</div>
+		<div class="input-row">
+			<div class="input-block">
+				<label for="bio">Bio</label>
+				<textarea class="text-input" id="bio" name="bio" rows="4" cols="50" bind:value={bio}></textarea>
 			</div>
 		</div>
 	</div>

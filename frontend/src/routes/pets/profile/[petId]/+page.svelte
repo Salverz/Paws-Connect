@@ -13,6 +13,7 @@
     let species;
     let breed;
     let color;
+	let bio;
     let birthDate;
 
     async function getPetData() {
@@ -24,6 +25,7 @@
         petName = json.name;
         profilePicture = json.profilePicture;
         species = json.species;
+		bio = json.bio;
         breed = json.breed;
         color = json.color;
         birthDate = json.birthDate;
@@ -43,6 +45,7 @@
     <p>Breed: {breed}</p>
     <p>Color: {color}</p>
     <p>Birth Date: {birthDate}</p>
+	<p>Bio: {bio}</p>
 
 </div>
 
@@ -57,6 +60,46 @@
         display: flex;
         flex-direction: column;
         align-items: flex-start;
+    }
+
+    .dropdown-list {
+        position: absolute;
+        background-color: #fff;
+        border: 1px solid #000;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        padding: 10px;
+        z-index: 1;
+        width: 100%;
+        left: 0;
+    }
+
+    .dropdown-item {
+        margin-bottom: 5px;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 20px;
+    }
+
+    .action-button {
+        background-color: #ccc; 
+        color: black;
+        padding: 10px 20px;
+        border: 2px solid #000; 
+        border-radius: 5px;
+        margin: 0 10px;
+        cursor: pointer;
+    }
+
+    .action-button:hover {
+        background-color: #999; /* Darker Grey */
+    }
+
+    .action-button:focus {
+        outline: none;
     }
 
 	img {

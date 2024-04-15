@@ -7,11 +7,12 @@ async function fetchZipcodeAndUpdate(zipcode, userId) {
 	const url = `https://api.openweathermap.org/geo/1.0/zip?zip=${zipcode},us&appid=${apiKey}`;
 
 	const reply = await fetch(url);
-	if (reply.message) {
+	json = await reply.json();
+	if (json.message) {
 		return null;
 	}
-	const latitude = reply.lat;
-	const longitude = reply.lon;
+	const latitude = json.lat;
+	const longitude = json.lon;
 
 	const sql = `
 		INSERT INTO
@@ -31,6 +32,7 @@ async function fetchZipcodeAndUpdate(zipcode, userId) {
 		;`;
 
 	const params = [userId, latitude, longitude];
+	console.log(`inserting ${userId}, ${latitude}, ${longitude}`);
 	
 	const databaseResult = await db.executeSQL(sql, params);
 
@@ -166,8 +168,10 @@ router.put("/edit", async (req, res) => {
     const zip = req.body.zip;
     const preferredLanguage = req.body.preferredLanguage;
     const birthDate = req.body.birthDate;
-  
-	if (fetchZipcodeAndUpdate(zip, userId) == null) {
+  	
+	const zipupdate = await fetchZipcodeAndUpdate(zip, userId);
+	console.log(zipupdate);
+	if (zipupdate == null) {
 		res.json({
 			"accountUpdated": false,
 			"message": "Invalid zip code"

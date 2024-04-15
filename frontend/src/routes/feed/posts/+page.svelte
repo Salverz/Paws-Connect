@@ -1,19 +1,30 @@
 <script>
+	import { onMount } from "svelte";
+	import NavBar from "$lib/components/NavBar.svelte";
     import SiteHeader from "$lib/components/SiteHeader.svelte";
-    let postPicture;
+    let userId, postPicture, textContent, visibility, language;
 
+	async function getUserPets() {
+		const response = await fetch(`http://localhost:3000/pet/pets/${userId}`);
+		const json = await response.json();
+		console.log(json);
+		connections = [];
+		connections = json;
+		selectedConnections = [];
+	}
 
     let connections = [
-        { id: 'conn1', name: 'Buddy', logo: 'path/to/buddy/logo.jpg' },
-        { id: 'conn2', name: 'Daisy', logo: 'path/to/daisy/logo.jpg' },
-        { id: 'conn3', name: 'Rocky', logo: 'path/to/rocky/logo.jpg' },
+        { id: 1, name: 'Buddy', logo: 'path/to/buddy/logo.jpg' },
+        { id: 2, name: 'Daisy', logo: 'path/to/daisy/logo.jpg' },
+        { id: 3, name: 'Rocky', logo: 'path/to/rocky/logo.jpg' },
     ];
 
     let selectedConnections = [];
 
     let showConnectionsList = false;
 
-    function handleUserIDChange(event) {
+    async function handleUserIDChange(event) {
+		await getUserPets();
         if (event.target.value !== '') {
             showConnectionsList = true;
         } else {
@@ -27,21 +38,48 @@
         } else {
             selectedConnections = selectedConnections.filter(id => id !== connectionId);
         }
+		console.log(selectedConnections);
     }
+
+	async function createPost() {
+		const databaseResult = await fetch(`http://localhost:3000/post/create`, {
+			method: "POST",
+			body: JSON.stringify({
+				"petsToTag": selectedConnections,
+				"userID": userId,
+				"text_content": textContent,
+				"post_photo_link": postPicture,
+				"visibility": visibility,
+				"post_language": language
+			}),
+			headers: {
+				"Content-type": "application/json; charset=UTF-8"
+			}
+		});
+
+		const json = await databaseResult.json();
+
+		console.log(json);
+		if (json.profileCreated) {
+			alert("Profile created successfully!");
+		} else {
+			alert(json.message)
+		}
+	}
 </script>
 
 <SiteHeader />
+<NavBar/>
 <h1>Create a post</h1>
-
-<form method="POST" action="http://localhost:3000/post/create">
+	<input type="hidden" id="petsToTag" name="petsToTag" bind:value={selectedConnections}>
     <div class="input-section">
-        <label for="userID">User ID</label>
-        <input id="userID" name="userID" on:input={handleUserIDChange}>
+        <label for="userId">User ID</label>
+        <input id="userId" name="userId" bind:value={userId} on:input={handleUserIDChange}>
     </div>
 
     <div class="input-section">
         <label for="text_content">Caption</label>
-        <textarea id="text_content" name="text_content" rows="4" cols="50"></textarea>
+        <textarea id="text_content" name="text_content" bind:value={textContent} rows="4" cols="50"></textarea>
     </div>
     <div class="input-section">
         <label for="post_photo_link">Picture</label>
@@ -49,32 +87,30 @@
     </div>
     <div class="input-section">
         <label for="visibility">Visibility</label>
-        <input id="visibility" name="visibility">
+        <input id="visibility" name="visibility" bind:value={visibility}>
     </div>
     <div class="input-section">
         <label for="post_language">Post language</label>
-        <input id="post_language" name="post_language">
+        <input id="post_language" name="post_language"bind:value={language}>
     </div>
-    <button type="submit">Create post</button>
+	{#if showConnectionsList}
+	<div class="connections-section">
+		<h2>Tag Connections</h2>
+		{#each connections as connection}
+		<div class="connection-item">
+			<input
+				type="checkbox"
+				value={connection.id}
+				on:change={event => handleCheckboxChange(event, connection.id)}
+			/>
+			<img src={connection.profile_picture} alt={connection.name} class="connection-logo">
+			<span class="connection-name">{connection.name}</span>
+		</div>
+		{/each}
+	</div>
+	{/if}
+    <button on:click={createPost}>Create post</button>
     <img src={postPicture} alt="Post Picture" />
-</form>
-
-{#if showConnectionsList}
-<div class="connections-section">
-    <h2>Tag Connections</h2>
-    {#each connections as connection}
-    <div class="connection-item">
-        <input
-            type="checkbox"
-            value={connection.id}
-            on:change={event => handleCheckboxChange(event, connection.id)}
-        />
-        <img src={connection.logo} alt={connection.name} class="connection-logo">
-        <span class="connection-name">{connection.name}</span>
-    </div>
-    {/each}
-</div>
-{/if}
 
 <style>
     form {

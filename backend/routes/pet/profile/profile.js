@@ -37,13 +37,14 @@ router.get('/:petId', async (req, res) => {
     const sql =
     `
     SELECT
-		user_profile.display_name,
 		pet.name,
 		pet.profile_picture,
 		pet.species,
+		pet.bio,
 		pet.breed,
 		pet.color,
-		DATE_FORMAT(pet.birth_date, "%Y-%m-%d") "birth_date"
+		DATE_FORMAT(pet.birth_date, "%Y-%m-%d") "birth_date",
+		user_profile.display_name
     FROM
 		pet_profile pet
 	JOIN
@@ -65,6 +66,7 @@ router.get('/:petId', async (req, res) => {
 		"exists": true,
 		"owner": rows[0].display_name,
         "name": rows[0].name,
+		"bio": rows[0].bio,
         "profilePicture": rows[0].profile_picture,
         "species": rows[0].species,
         "breed": rows[0].breed,
@@ -82,6 +84,7 @@ router.patch('/edit', async (req, res) => {
 	const breed = req.body.breed;
 	const color = req.body.color;
 	const birthDate = req.body.birthDate;
+	const bio = req.body.bio;
 
     const sql = `
 	UPDATE
@@ -92,12 +95,13 @@ router.patch('/edit', async (req, res) => {
     	species = ?,
     	breed = ?,
     	color = ?,
+		bio = ?,
     	birth_date = STR_TO_DATE(?, '%Y-%m-%d')
 	WHERE
 		pet_id = ?
 	`;
 
-    const rows = await db.executeSQL(sql, [name, profilePictureImage, species, breed, color, birthDate, petId]);
+    const rows = await db.executeSQL(sql, [name, profilePictureImage, species, breed, color, bio, birthDate, petId]);
     console.log(rows);
 
 	if (rows.length == 0) {
