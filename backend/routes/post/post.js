@@ -5,6 +5,23 @@ const router = require("express").Router();
 
 // Create a new post
 // (accessed at [POST] http://localhost:3000/post/create)
+
+
+const translateClient = new TextTranslationClient(endpoint, { key: apiKey, region });
+
+// Helper function to translate text
+async function translatePostText(text, targetLanguage) {
+    const response = await translateClient.path("/translate").post({
+        queryParameters: { "api-version": "3.0", to: [targetLanguage] },
+        body: [{ Text: text }]
+    });
+    if (response.status !== 200) {
+        throw new Error(`Translation service returned status code ${response.status}`);
+    }
+    return response.body[0].translations[0].text;
+}
+
+
 router.post("/create", async (req, res) => {
   const { userID, text_content, post_photo_link, visibility, post_language} = req.body;
   console.log(req.body);
