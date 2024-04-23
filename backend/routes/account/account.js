@@ -4,9 +4,11 @@ const bcrypt = require("bcrypt");
 
 // Router files
 const profileRoute = require('./profile/profile');
+const loginRoute = require('./login/login');
 
 // Routers
 router.use('/profile', profileRoute);
+router.use('/login', loginRoute);
 
 // Authenticate a user
 router.post('/login', async (req, res) => {
