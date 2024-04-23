@@ -1,9 +1,3 @@
-const TextTranslationClient = require("@azure-rest/ai-translation-text").default
-
-const apiKey = "33c87f6c1f934fd39aeed7778868101b";
-const endpoint = "https://api.cognitive.microsofttranslator.com/";
-const region = "westus2";
-
 const db = require("../../../helper_files/database");
 const router = require("express").Router();
 
