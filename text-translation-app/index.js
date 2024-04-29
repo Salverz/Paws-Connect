@@ -1,6 +1,6 @@
 const TextTranslationClient = require("@azure-rest/ai-translation-text").default;
 
-const apiKey = process.env.AZURE_API_KEY;
+const apiKey = "8b0eab61f028479c9b5cba0086961032";
 const endpoint = "https://api.cognitive.microsofttranslator.com/";
 const region = "global";
 

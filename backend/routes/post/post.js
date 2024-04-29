@@ -14,12 +14,14 @@ const region = "global";
 const translateClient = new TextTranslationClient(endpoint, { key: apiKey, region });
 
 // Helper function to translate text
-async function translatePostText(text, targetLanguage) {
+async function translatePostText(text, targetLanguage, postLanguage) {
+  console.log(targetLanguage);
+  console.log(postLanguage);
     const response = await translateClient.path("/translate").post({
-        queryParameters: { "api-version": "3.0", to: [targetLanguage] },
-        body: [{ Text: text }]
+        queryParameters: {to: targetLanguage, from : postLanguage },
+        body: [{ text: text }]
     });
-    if (response.status !== 200) {
+    if (response.status != 200) {
         throw new Error(`Translation service returned status code ${response.status}`);
     }
     return response.body[0].translations[0].text;
@@ -133,13 +135,17 @@ router.get("/get/:username", async (req, res) => {
 		p.created_at DESC
 	`, [userID]);
   const translatedPosts = await Promise.all(posts.map(async (post) => {
+
     if (post.post_language != userPreferredLanguage) {
-        post.text_content = await translatePostText(post.text_content, userPreferredLanguage);
-        post.translated = true; // Indicate that this post has been translated
+        post.text_content = await translatePostText(post.text_content, userPreferredLanguage, post.post_language);
+        post.translatedFrom = post.post_language; // Indicate that this post has been translated
+
+    }else{
+        post.translatedFrom = null;
     }
     return post;
   }));
-    res.json({ success: true, posts: translatedPosts });
+    res.json({ success: true, posts: translatedPosts});
   } catch (error) {
     console.error("Error retrieving posts:", error);
     res.status(500).json({ success: false, message: 'An error occurred while retrieving posts' });
