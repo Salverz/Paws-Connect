@@ -6,7 +6,7 @@
 
 	async function getPets() {
 		console.log("calling user: " + userId);
-		const response = await fetch(`http://localhost:3000/pet/pets/${userId}`);
+		const response = await fetch(`http://localhost:3000/pet/pets/${req.session.userId}`);
 		pets = await response.json();
 	}
 
