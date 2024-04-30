@@ -32,7 +32,6 @@
 </script>
 
 <SiteHeader/>
-<h1>Feed</h1>
 <NavBar/>
 <div class="feed">
     {#each posts as post}
@@ -41,16 +40,13 @@
                 <img class="poster-profile-picture" src={post.poster_profile_picture}>
                 <a href="/user/profile/{post.poster_user_id}"><h1>{post.poster_username}</h1></a>
             </div>
-            <p class="post-text">{post.text_content}</p>
-            <img class="post-photo" src="{post.post_photo_link}">
-
-
 			<p>Tagged pets:</p>
 			{#each post.tags as taggedPet}
 				<img class="tagged-pet-profile-picture" src={taggedPet.profile_picture}>
 				<a href="/pets/profile/{taggedPet.tagged_pet_id}">{taggedPet.name}</a>
 			{/each}
-
+            <img class="post-photo" src="{post.post_photo_link}">
+            <p class="post-text">{post.text_content}</p>
             <div class="post-information-section">
                 <p class="likes">{post.likes} likes</p>
                 <p>Posted on {post.created_at.split("T")[0]} at {post.created_at.split("T")[1]}</p>
@@ -94,7 +90,8 @@
 
     .post-photo {
         width: 90%;
-        padding: 10px 5%;
+        margin: 10px 5%;
+		border-style: solid;
     }
 
     .post-information-section {
