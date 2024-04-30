@@ -107,7 +107,7 @@ router.post('/create', async (req, res) => {
       	res.json({
 			"accountCreated": true,
         	"response": "Account created successfully"
-    	});
+		});
 		return;
 	}
 
@@ -117,5 +117,14 @@ router.post('/create', async (req, res) => {
         "response": "Account creation failure: username already exists"
 	});
 });
+
+router.get('/loggedIn', (req, res) => {
+	if (req.session.userId == null) {
+		res.send(false);
+	} else {
+		res.send(true);
+	}
+});
+
 
 module.exports = router;

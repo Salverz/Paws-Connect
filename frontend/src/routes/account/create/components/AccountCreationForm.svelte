@@ -72,7 +72,7 @@
 		<img class="google-logo-icon" alt="Sign in with google icon" src="/images/Google_G_logo.svg">
 	</div>
 	<div class="sign-in-link">
-		Already have an account? <a href="./edit">Sign in</a>
+		Already have an account? <a href="./login">Sign in</a>
 	</div>
 </div>
 

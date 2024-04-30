@@ -6,35 +6,35 @@
 	let tags = [];
 
     async function getPosts() {
-    try { 
-        let response = await fetch ("http://localhost:3000/post/get/dave");
-        if (response.status === 401) {
-            console.error("Unauthorized")
-            window.location.href = 'account/create';
-            return
-        }
-  
-        let json = await response.json();
-        console.log(json.posts);
-		console.log(json.tags);
-        posts = json.posts;
-		tags = json.tags;
+		try { 
+			const response = await fetch ("http://localhost:3000/post/get");
+			if (response.status === 401) {
+				console.error("Unauthorized")
+				window.location.href = 'account/create';
+				return
+			}
+	  
+			let json = await response.json();
+			console.log(json.posts);
+			console.log(json.tags);
+			posts = json.posts;
+			tags = json.tags;
 
-		for (let i = 0; i < tags.length; i++) {
-			for (let j = 0; j < posts.length; j++) {
-				if (!posts[j].tags) {
-					posts[j].tags = [];
-				}
-				if (tags[i].tagged_post_id == posts[j].post_id) {
-					posts[j].tags.push(tags[i]);
+			for (let i = 0; i < tags.length; i++) {
+				for (let j = 0; j < posts.length; j++) {
+					if (!posts[j].tags) {
+						posts[j].tags = [];
+					}
+					if (tags[i].tagged_post_id == posts[j].post_id) {
+						posts[j].tags.push(tags[i]);
+					}
 				}
 			}
-		}
-		console.log(posts);
+			console.log(posts);
 
-    } catch (error) {
-        console.error('Error getting post', error);
-    }
+		} catch (error) {
+			console.error('Error getting post', error);
+		}
     }
 
     onMount(async () => {
