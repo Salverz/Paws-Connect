@@ -5,7 +5,7 @@
     let userId, postPicture, textContent, visibility, language;
 
 	async function getUserPets() {
-		const response = await fetch(`http://localhost:3000/pet/pets/${userId}`);
+		const response = await fetch(`http://localhost:3000/pet/pets/${req.session.userId}`);
 		const json = await response.json();
 		console.log(json);
 		connections = [];

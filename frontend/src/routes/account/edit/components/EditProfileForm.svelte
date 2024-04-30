@@ -3,7 +3,7 @@ let userId, accountInfo;
 
 async function getAccountInfo() {
     // Fetch the data from the backend (/account/info/[userId] in this case, put the user's userId, in the [userId] slot)
-    let databaseResult = await fetch(`http://localhost:3000/account/profile/${userId}`);
+    let databaseResult = await fetch(`http://localhost:3000/account/profile/${req.session.userId}`);
 
     // Format the data into json
     let json = await databaseResult.json();
