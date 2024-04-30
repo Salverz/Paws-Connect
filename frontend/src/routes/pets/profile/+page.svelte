@@ -90,7 +90,7 @@
         background-color: #7b68ee; /* Dark Lavender */
         color: #fff;
         padding: 10px 20px;
-        border: 2px solid #000; /* Added border */
+        border: 2px solid #000;
         border-radius: 5px;
         cursor: pointer;
         transition: background-color 0.3s ease; /* Smooth Transition */
