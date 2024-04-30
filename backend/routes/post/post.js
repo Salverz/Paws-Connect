@@ -5,6 +5,44 @@ const router = require("express").Router();
 
 // Create a new post
 // (accessed at [POST] http://localhost:3000/post/create)
+const TextTranslationClient = require("@azure-rest/ai-translation-text").default
+
+const apiKey = "8b0eab61f028479c9b5cba0086961032"; //change into a ENVIRONMENTAL KEY 
+const endpoint = "https://api.cognitive.microsofttranslator.com/";
+const region = "global";
+
+const translateClient = new TextTranslationClient(endpoint, { key: apiKey, region });
+
+// Helper function to translate text
+async function translatePostText(text, targetLanguage, postLanguage) {
+  const languagesPreferred = await db.executeSQL(`
+      SELECT language.language_code 
+      FROM language
+      WHERE language.language = ?
+    `, [targetLanguage]);
+  const languageCodedPreferred = languagesPreferred[0].language_code; 
+  
+  const languagePost = await db.executeSQL(`
+    SELECT language.language_code 
+    FROM language
+    WHERE language.language = ?
+  `, [postLanguage]);
+
+  const languageCodedPost = languagePost[0].language_code;
+
+  console.log(targetLanguage);
+  console.log(postLanguage);
+    const response = await translateClient.path("/translate").post({
+        queryParameters: {to: languageCodedPreferred, from : languageCodedPost},
+        body: [{ text: text }]
+    });
+    if (response.status != 200) {
+        throw new Error(`Translation service returned status code ${response.status}`);
+    }
+    return response.body[0].translations[0].text;
+}
+
+
 router.post("/create", async (req, res) => {
   const { userID, text_content, post_photo_link, visibility, post_language, petsToTag } = req.body;
   console.log(req.body);
@@ -81,92 +119,28 @@ router.post("/create", async (req, res) => {
   }
 });
 
-//   console.log("Received request to create a new post:", req.body);
-//   const { post_id, poster_username, poster_profile_picture, , text_content, visibility, post_language, post_photo_link, likes} = req.body;
-
-//   // Check if userID is provided
-//   if (!userID) {
-//     console.error("userID is null or undefined.");
-//     return res.status(400).json({ success: false, message: 'userID is required.' });
-//   }
-
-//   try {
-//     // Insert the post into the post table
-//     const postResult = await db.executeSQL(`
-//       INSERT INTO post (poster_user_id, text_content, visibility)
-//       VALUES (?, ?, ?)
-//     `, [userID, text_content, visibility]);
-//     const postId = postResult.insertId;
-
-//     // If a post image is provided, insert it into the post_photo table
-//     if (post_photo_link) {
-//       await db.executeSQL(`
-//         INSERT INTO post_photo (attached_to_post_id, photo_link)
-//         VALUES (?, ?)
-//       `, [postId, post_photo_link]);
-//     }
-
-//     res.json({ success: true, message: 'Post created successfully', postId: postId });
-//   } catch (error) {
-//     console.error("Error creating post:", error);
-//     res.status(500).json({ success: false, message: 'An error occurred while creating the post' });
-//   }
-// });
-
-
-// Get all the posts to display on the user's feed (given the user's username)
-// (accessed at http://localhost:3000/post/get/[username])
-// router.get("/get/:username", async (req, res) => {
-//   console.log(`Fetching posts for user: ${req.params.username}`);
-//   const username = req.params.username;
-
-//   try {
-//     // Get the user ID for the provided username
-//     const userResult = await db.executeSQL(`
-//       SELECT user_id
-//       FROM user_account
-//       WHERE username = ?
-//     `, [username]);
-
-//     if (userResult.length === 0) {
-//       return res.status(404).json({ success: false, message: "User not found" });
-//     }
-
-//     const userID = userResult[0].user_id;
-
-//     // Retrieve all posts that this user is allowed to see
-//     // Initially, this will just retrieve all posts made by the user
-//     const posts = await db.executeSQL(`
-//       SELECT p.*, pp.photo_link
-//       FROM post p
-//       LEFT JOIN post_photo pp ON p.post_id = pp.attached_to_post_id
-//       WHERE p.poster_user_id = ?
-//       ORDER BY p.created_at DESC
-//     `, [userID]);
-
-//     res.json({ success: true, posts });
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ success: false, message: 'An error occurred while retrieving posts' });
-//   }
-// });
 
 router.get("/get/:username", async (req, res) => {
   const username = req.params.username;
-
+  
   try {
     const userResult = await db.executeSQL(`
-      SELECT user_id
-      FROM user_account
-      WHERE username = ?
+      SELECT u.user_id, p.preferred_language
+      FROM user_account u
+      JOIN user_profile p ON u.user_id = p.user_id
+      WHERE u.username = ?
     `, [username]);
 
     if (userResult.length === 0) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
 
-    const userID = userResult[0].user_id;
 
+    //where userid is located and what the poster id is
+
+
+    const userID = userResult[0].user_id;
+    const userPreferredLanguage = userResult[0].preferred_language;
     const posts = await db.executeSQL(`
 		SELECT
 			p.post_id,
@@ -196,9 +170,25 @@ router.get("/get/:username", async (req, res) => {
 			post_photo pp ON p.post_id = pp.attached_to_post_id
 		WHERE
 			p.visibility = 'public' OR p.poster_user_id = ?
+        OR (p.visibility = 'private' AND p.poster_user_id IN (
+            SELECT user_2_id FROM connection WHERE user_1_id = ?
+            UNION
+            SELECT user_1_id FROM connection WHERE user_2_id = ?
+        ))
 		ORDER BY
 		p.created_at DESC
-	`, [userID]);
+	`, [userID, userID, userID]);
+  const translatedPosts = await Promise.all(posts.map(async (post) => {
+  
+    if (post.post_language != userPreferredLanguage) {
+        post.text_content = await translatePostText(post.text_content, userPreferredLanguage, post.post_language);
+        post.translatedFrom = post.post_language; // Indicate that this post has been translated
+
+    }else{
+        post.translatedFrom = null;
+    }
+    return post;
+  }));
 	  
 	  const tags = await db.executeSQL(`
 			SELECT *

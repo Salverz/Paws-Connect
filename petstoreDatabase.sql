@@ -22,7 +22,9 @@ DROP TABLE IF EXISTS pet_type;
 DROP TABLE IF EXISTS transfer_pet_log;
 
 CREATE TABLE language (
-    language VARCHAR(64) UNIQUE NOT NULL PRIMARY KEY
+    language_code VARCHAR(16) UNIQUE NOT NULL PRIMARY KEY,
+    language VARCHAR(64) UNIQUE NOT NULL
+    
 );
 
 CREATE TABLE user_account (
