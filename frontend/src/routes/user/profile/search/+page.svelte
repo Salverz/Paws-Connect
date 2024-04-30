@@ -26,6 +26,7 @@
         window.location.href = profileURL;
     }
 
+    
 </script>
 
 <h1>Profile Search</h1>
@@ -37,7 +38,7 @@
             <option value="user">User Profile</option>
             <option value="pet">Pet Profile</option>
         </select>
-    </div>
+    </div> 
 
     <div class="input-section">
         <label for="searchTerm">Search Term:</label>
