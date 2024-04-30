@@ -42,21 +42,22 @@
 <style>
     body {
         font-family: Arial, sans-serif;
-        background-color: #fafafa;
+        background-color: #f4f4f4; /* Light Grey */
         margin: 0;
         padding: 0;
     }
 
     .pet-container {
-        max-width: 800px;
-        margin: 20px auto;
+        max-width: 400px;
+        margin: 20px;
         padding: 20px;
-        background-color: #87CEEB; /* Blue background color */
+        background-color: #e6e6fa; /* Lavender */
         border-radius: 12px;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         display: flex;
-        flex-direction: column;
-        align-items: flex-start;
+        flex-direction: row; /* Changed to row */
+        align-items: flex-start; /* Changed to flex-start */
+        border: 3px solid #000;
     }
 
     .dropdown-list {
@@ -69,6 +70,7 @@
         z-index: 1;
         width: 100%;
         left: 0;
+        top: 150px; /* Position below the profile header */
     }
 
     .dropdown-item {
@@ -77,36 +79,56 @@
 
     .action-buttons {
         display: flex;
-        justify-content: space-around;
-        margin-top: 20px;
+        flex-direction: column; /* Changed to column */
+        justify-content: flex-start; /* Changed to flex-start */
+        margin-top: 10px;
+        margin-left: 50px;
+        margin-right: 10px;
     }
 
     .action-button {
-        background-color: #ccc; 
-        color: black;
+        background-color: #7b68ee; /* Dark Lavender */
+        color: #fff; /* White Text */
         padding: 10px 20px;
-        border: 2px solid #000; 
+        border: 2px solid #000; /* Added border */
         border-radius: 5px;
-        margin: 0 10px;
         cursor: pointer;
+        transition: background-color 0.3s ease; /* Smooth Transition */
+        margin-bottom: 10px; /* Added margin-bottom */
     }
 
     .action-button:hover {
-        background-color: #999; /* Darker Grey */
+        background-color: #6a5acd; /* Darker Lavender */
     }
 
     .action-button:focus {
         outline: none;
     }
+    h1 {
+        font-size: 30px;
+        margin: 20px;
+        font-weight: bold;
+        margin-top: 0px;
+        margin-left: 8px;
+   
+    }
+    div {
+        font-size: 16px;
+        margin: 5;
+        margin-top: 30px;
+        margin-left: -87px;
+    }
 </style>
 
 <div class="pet-container">
     <h1>{petInfo.name}</h1>
-    <p>Species: {petInfo.species}</p>
-    <p>Breed: {petInfo.breed}</p>
-    <p>Color: {petInfo.color}</p>
-    <p>Birth Date: {petInfo.birthDate}</p>
-    <p>Owner: {petInfo.owner}</p>
+    <div>
+        <p>Species: {petInfo.species}</p>
+        <p>Breed: {petInfo.breed}</p>
+        <p>Color: {petInfo.color}</p>
+        <p>Birth Date: {petInfo.birthDate}</p>
+        <p>Owner: {petInfo.owner}</p>
+    </div>
 
     <div class="action-buttons">
         <button class="action-button" on:click={toggleConnections}>Connections</button>
@@ -134,4 +156,3 @@
         {/if}
     </div>
 </div>
-

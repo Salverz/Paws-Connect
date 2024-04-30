@@ -84,7 +84,7 @@
     }
 
     h1 {
-        font-size: 24px;
+        font-size: 30px;
         margin: 20px;
         font-weight: bold;
         margin-top: 110px;
