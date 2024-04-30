@@ -3,8 +3,8 @@ const router = require("express").Router();
 
 const session = require("express-session");
 
-const googleClientId = "";
-const googleClientSecret = "";
+const googleClientId = process.env.GOOGLE_CLIENT_ID;
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
 
 router.use(session({
 	resave: false,
@@ -30,7 +30,7 @@ router.get("/success", (req, res) => res.send(userProfile));
 router.get("/error", (req, res) => res.send("error logging in"));
 
 const googleStrategy = require("passport-google-oauth").OAuth2Strategy;
-passport.use(new googleStrategy({
+/* passport.use(new googleStrategy({
 		clientID: googleClientId,
 		clientSecret: googleClientSecret,
 		callbackURL: "http://localhost:3000/account/login/google/callback"
@@ -39,7 +39,7 @@ passport.use(new googleStrategy({
 		userProfile = profile;
 		return done(null, userProfile);
 	}
-));
+)); */
 
 
 router.get('/google',
