@@ -7,7 +7,7 @@ const router = require("express").Router();
 // (accessed at [POST] http://localhost:3000/post/create)
 const TextTranslationClient = require("@azure-rest/ai-translation-text").default
 
-const apiKey = "8b0eab61f028479c9b5cba0086961032";
+const apiKey = "8b0eab61f028479c9b5cba0086961032"; //change into a ENVIRONMENTAL KEY 
 const endpoint = "https://api.cognitive.microsofttranslator.com/";
 const region = "global";
 
@@ -16,7 +16,7 @@ const translateClient = new TextTranslationClient(endpoint, { key: apiKey, regio
 // Helper function to translate text
 async function translatePostText(text, targetLanguage, postLanguage) {
   const languagesPreferred = await db.executeSQL(`
-      SELECT language.language, language.language_code 
+      SELECT language.language_code 
       FROM language
       WHERE language.language = ?
     `, [targetLanguage]);
@@ -114,6 +114,10 @@ router.get("/get/:username", async (req, res) => {
     if (userResult.length === 0) {
       return res.status(404).json({ success: false, message: "User not found" });
     }
+
+
+    //where userid is located and what the poster id is
+
 
     const userID = userResult[0].user_id;
     const userPreferredLanguage = userResult[0].preferred_language;
