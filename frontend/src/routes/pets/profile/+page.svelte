@@ -88,7 +88,7 @@
 
     .action-button {
         background-color: #7b68ee; /* Dark Lavender */
-        color: #fff; /* White Text */
+        color: #fff;
         padding: 10px 20px;
         border: 2px solid #000; /* Added border */
         border-radius: 5px;
