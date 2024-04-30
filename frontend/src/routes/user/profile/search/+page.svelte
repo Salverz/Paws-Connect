@@ -1,5 +1,6 @@
 <script>
 	import NavBar from "$lib/components/NavBar.svelte";
+	import SiteHeader from "../../../../lib/components/SiteHeader.svelte";
     import { onMount } from 'svelte';
 
     let searchType = 'user';
@@ -9,23 +10,11 @@
 
     let searchResults = [];
 
-    function handleSearch() {
-        searchResults = [
-            { id: '1', name: 'Rahul', type: 'user', location: 'New York', profilePicture: 'path/to/rahul/profile.jpg' },
-            { id: '2', name: 'Fluffy', type: 'pet', location: 'San Francisco', profilePicture: 'path/to/fluffy/profile.jpg' }
-        ];
-    }
-
     function clearSearch() {
         searchType = 'user';
         searchTerm = '';
         locationRange = 0;
         searchResults = [];
-    }
-
-    function goToProfile(id) {
-        const profileURL = `http://localhost:3000/profile/${id}`;
-        window.location.href = profileURL;
     }
 
 	async function doSearch() {
@@ -55,6 +44,7 @@
 
 </script>
 
+<SiteHeader/>
 <NavBar/>
 <h1>Profile Search</h1>
 

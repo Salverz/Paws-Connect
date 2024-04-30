@@ -3,21 +3,15 @@ import NavBar from "$lib/components/NavBar.svelte";
 import EditProfileForm from "./components/EditProfileForm.svelte";
 import SiteHeader from "$lib/components/SiteHeader.svelte";
 
-let username;
 </script>
 
 <SiteHeader/>
 <div class="page-layout">
-    <EditProfileForm/>
     <NavBar/>
+    <EditProfileForm/>
 </div>
 
 <style>
-    .page-layout {
-        /* Flexbox */
-        display: flex;
-        justify-content: right;
-    }
 </style>
 
 <!-- TYPE "npm run dev" IN THE CONSOLE TO RUN THE WEBSITE -->
