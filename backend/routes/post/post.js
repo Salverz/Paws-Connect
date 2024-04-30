@@ -104,38 +104,44 @@ router.get("/get/:username", async (req, res) => {
     const userPreferredLanguage = userResult[0].preferred_language;
     const posts = await db.executeSQL(`
 		SELECT
-			p.post_id,
-			p.poster_user_id,
-			ua.username AS poster_username,
-			up.profile_picture AS poster_profile_picture,
-			p.text_content,
-			p.visibility,
-			p.created_at,
-			p.post_language, 
-			pp.photo_link AS post_photo_link, 
-			(
-				SELECT
-					COUNT(*)
-				FROM
-					post_like
-				WHERE
-					liked_post_id = p.post_id
-			) AS likes
-		FROM
-			post p
-		JOIN
-			user_account ua ON p.poster_user_id = ua.user_id
-		JOIN
-			user_profile up ON ua.user_id = up.user_id
-		LEFT JOIN
-			post_photo pp ON p.post_id = pp.attached_to_post_id
-		WHERE
-			p.visibility = 'public' OR p.poster_user_id = ?
-		ORDER BY
-		p.created_at DESC
-	`, [userID]);
+        p.post_id,
+        p.poster_user_id,
+        ua.username AS poster_username,
+        up.profile_picture AS poster_profile_picture,
+        p.text_content,
+        p.visibility,
+        p.created_at,
+        p.post_language, 
+        pp.photo_link AS post_photo_link, 
+        (
+            SELECT
+                COUNT(*)
+            FROM
+                post_like
+            WHERE
+                liked_post_id = p.post_id
+        ) AS likes
+    FROM
+        post p
+    JOIN
+        user_account ua ON p.poster_user_id = ua.user_id
+    JOIN
+        user_profile up ON ua.user_id = up.user_id
+    LEFT JOIN
+        post_photo pp ON p.post_id = pp.attached_to_post_id
+    WHERE
+        p.visibility = 'public' 
+        OR p.poster_user_id = ?
+        OR (p.visibility = 'friend' AND p.poster_user_id IN (
+            SELECT user_2_id FROM connection WHERE user_1_id = ?
+            UNION
+            SELECT user_1_id FROM connection WHERE user_2_id = ?
+        ))
+    ORDER BY
+        p.created_at DESC
+`, [userID]);
   const translatedPosts = await Promise.all(posts.map(async (post) => {
-
+  
     if (post.post_language != userPreferredLanguage) {
         post.text_content = await translatePostText(post.text_content, userPreferredLanguage, post.post_language);
         post.translatedFrom = post.post_language; // Indicate that this post has been translated
