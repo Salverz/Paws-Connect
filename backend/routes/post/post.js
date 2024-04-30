@@ -120,27 +120,22 @@ router.post("/create", async (req, res) => {
 });
 
 
-router.get("/get/:username", async (req, res) => {
-  const username = req.params.username;
-  
-  try {
-    const userResult = await db.executeSQL(`
-      SELECT u.user_id, p.preferred_language
-      FROM user_account u
-      JOIN user_profile p ON u.user_id = p.user_id
-      WHERE u.username = ?
-    `, [username]);
+router.get("/get", async (req, res) => {
+	console.log("getting session");
+    const userID = req.session.userId;
+	console.log(req.session);
 
-    if (userResult.length === 0) {
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
+	const userPreferredLanguage = await db.executeSQL(`
+		SELECT preferred_language
+		FROM user_profile
+		WHERE user_id=?
+	`, [userID]);
 
+	console.log(userPreferredLanguage);
 
-    //where userid is located and what the poster id is
+	try {
 
-
-    const userID = userResult[0].user_id;
-    const userPreferredLanguage = userResult[0].preferred_language;
+    // const userPreferredLanguage = userResult[0].preferred_language;
     const posts = await db.executeSQL(`
 		SELECT
 			p.post_id,

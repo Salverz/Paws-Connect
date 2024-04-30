@@ -15,17 +15,29 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 // Ignore all this ^ (unless you get an error)
 
+app.set('trust proxy', 1);
 
 // More session stuff
 app.use(session({
   secret: "EpicKey12jkldakajuiowncx",
   resave: false,
-  saveUninitialized: true,
-  cookie: { maxAge: 60000 * 60 },
+  saveUninitialized: false,
+  cookie: {
+	  secure: false,
+	  maxAge: 60000 * 60
+  },
 }));
 
+app.use(function(req, res, next) {
+	if (!req.session.userId) {
+		req.session.userId = 0;
+	}
+	next();
+});
+
+
 function authenticator (req, res, next) {
-  if (req.session.userId == null) {
+  if (req.session.userId != null) {
     const usableRoutes = ['/account/create', '/account/login'];
     if (usableRoutes.includes(req.path)) {
       next();
@@ -80,7 +92,7 @@ const petRoute = require('./routes/pet/pet')
 const postRoute = require('./routes/post/post')
 const searchRoute = require('./routes/search/search');
 
-app.use(authenticator);
+// app.use(authenticator);
 app.use('/account', accountRoute)
 app.use('/pet', petRoute)
 app.use('/post', postRoute)

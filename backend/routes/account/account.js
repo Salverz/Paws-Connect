@@ -39,7 +39,9 @@ router.post('/login', async (req, res) => {
 
     if (match) {
       // session stuff
+		console.log("set sessionId to " + rows[0].user_id);
       req.session.userId  = rows[0].user_id;
+		console.log(req.session);
 
       res.json({
           "login": true,
