@@ -3,7 +3,7 @@ const router = require("express").Router();
 
 const session = require("express-session");
 
-const googleClientIdclientId = "";
+const googleClientId = "";
 const googleClientSecret = "";
 
 router.use(session({
