@@ -6,7 +6,14 @@
 	let tags = [];
 
     async function getPosts() {
-        let response = await fetch("http://localhost:3000/post/get/dave");
+    try { 
+        let response = await fetch ("http://localhost:3000/post/get/dave");
+        if (response.status === 401) {
+            console.error("Unauthorized")
+            window.location.href = 'account/create';
+            return
+        }
+  
         let json = await response.json();
         console.log(json.posts);
 		console.log(json.tags);
@@ -24,6 +31,10 @@
 			}
 		}
 		console.log(posts);
+
+    } catch (error) {
+        console.error('Error getting post', error);
+    }
     }
 
     onMount(async () => {

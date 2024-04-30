@@ -2,6 +2,8 @@
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql');
+// Session stuff
+const session = require('express-session');
 
 // Create an Express application
 const app = express();
@@ -14,6 +16,29 @@ app.use(express.json());
 // Ignore all this ^ (unless you get an error)
 
 
+// More session stuff
+app.use(session({
+  secret: "EpicKey12jkldakajuiowncx",
+  resave: false,
+  saveUninitialized: true,
+  cookie: { maxAge: 60000 * 60 },
+}));
+
+function authenticator (req, res, next) {
+  if (req.session.userId == null) {
+    const usableRoutes = ['/account/create', '/account/login'];
+    if (usableRoutes.includes(req.path)) {
+      next();
+    } else {
+      res.status(401).json ({
+        message: "please log in"
+      });
+    }
+  } else {
+    next();
+  }
+}
+
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TYPE "node index.js" TO START THE BACKEND SERVER | YOU MUST RESTART THE SERVER WHEN YOU MAKE CHANGES //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -23,6 +48,10 @@ app.use(express.json());
 // app.get is a GET method. This means when the front end calls "/test", it is
 // REQUESTING DATA FROM THE BACKEND
 app.get('/', async (req, res) => {
+  // Even more Session stuff
+  console.log(req.session);
+  console.log(req.session.id);
+  req.session.visited = true;
 
   // Create an SQL query
   let sql = `SELECT *
@@ -49,8 +78,9 @@ app.get('/', async (req, res) => {
 const accountRoute = require('./routes/account/account')
 const petRoute = require('./routes/pet/pet')
 const postRoute = require('./routes/post/post')
-const searchRoute = require('./routes/search/search')
+const searchRoute = require('./routes/search/search');
 
+app.use(authenticator);
 app.use('/account', accountRoute)
 app.use('/pet', petRoute)
 app.use('/post', postRoute)
