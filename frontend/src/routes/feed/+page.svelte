@@ -3,12 +3,38 @@
 	import NavBar from "../../lib/components/NavBar.svelte";
 	import { onMount } from "svelte";
     let posts = [];
+	let tags = [];
 
     async function getPosts() {
-        let response = await fetch("http://localhost:3000/post/get/dave");
+    try { 
+        let response = await fetch ("http://localhost:3000/post/get/dave");
+        if (response.status === 401) {
+            console.error("Unauthorized")
+            window.location.href = 'account/create';
+            return
+        }
+  
         let json = await response.json();
         console.log(json.posts);
+		console.log(json.tags);
         posts = json.posts;
+		tags = json.tags;
+
+		for (let i = 0; i < tags.length; i++) {
+			for (let j = 0; j < posts.length; j++) {
+				if (!posts[j].tags) {
+					posts[j].tags = [];
+				}
+				if (tags[i].tagged_post_id == posts[j].post_id) {
+					posts[j].tags.push(tags[i]);
+				}
+			}
+		}
+		console.log(posts);
+
+    } catch (error) {
+        console.error('Error getting post', error);
+    }
     }
 
     onMount(async () => {
@@ -17,7 +43,6 @@
 </script>
 
 <SiteHeader/>
-<h1>Feed</h1>
 <NavBar/>
 <div class="feed">
     {#each posts as post}
@@ -26,8 +51,13 @@
                 <img class="poster-profile-picture" src={post.poster_profile_picture}>
                 <a href="/user/profile/{post.poster_user_id}"><h1>{post.poster_username}</h1></a>
             </div>
-            <p class="post-text">{post.text_content}</p>
+			<p>Tagged pets:</p>
+			{#each post.tags as taggedPet}
+				<img class="tagged-pet-profile-picture" src={taggedPet.profile_picture}>
+				<a href="/pets/profile/{taggedPet.tagged_pet_id}">{taggedPet.name}</a>
+			{/each}
             <img class="post-photo" src="{post.post_photo_link}">
+            <p class="post-text">{post.text_content}</p>
             <div class="post-information-section">
                 <p class="likes">{post.likes} likes</p>
                 <p>Posted on {post.created_at.split("T")[0]} at {post.created_at.split("T")[1]}</p>
@@ -71,7 +101,8 @@
 
     .post-photo {
         width: 90%;
-        padding: 10px 5%;
+        margin: 10px 5%;
+		border-style: solid;
     }
 
     .post-information-section {
@@ -83,4 +114,8 @@
     .likes {
         margin: 0px 10px;
     }
+
+	.tagged-pet-profile-picture {
+		width: 100px;
+	}
 </style>

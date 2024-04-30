@@ -13,6 +13,7 @@
 
 <section>
     <SiteHeader/>
+	<NavBar/>
 	<!-- <a href="/account/edit">Edit an existing account</a> -->
     <div class="login-box">
 		{#if currentComponent}
@@ -37,6 +38,3 @@
 		/* margin: 50px; */
     }
 </style>
-
-<!-- TYPE "npm run dev" IN THE CONSOLE TO RUN THE WEBSITE -->
-<!-- WHEN YOU SAVE A FILE, YOUR CHANGES SHOULD SHOW ON THE WEBSITE -->

@@ -103,12 +103,14 @@
 <button on:click={getPets}>View your pets</button>
 <div class="pet-list">
 <h2>Your pets</h2>
-<a href="/pets/add">Add a new pet</a>
+<a class="add-pet-button" href="/pets/add">Add a new pet</a>
 	{#each pets as pet, index}
 		<div class="pet-entry">
 			<input type="hidden" value={index}/>
 			<img class="profile-picture" src={pet.profile_picture}>
 			{pet.name}
+			{pet.breed}
+			{pet.species}
 			<a href="/pets/profile/{pet.id}">Profile</a>
 			{#if pet.new_owner == userId}
 				<button on:click={() => { respondToTransfer(index, true) }}>Accept Transfer</button>
@@ -135,6 +137,8 @@
 		/* Flexbox */
 		display: flex;
 		flex-direction:column;
+		gap: 10px;
+		align-items: center;
 
 		margin: 0px 50px;
 		font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -150,10 +154,25 @@
 		padding: 20px;
 		outline-width: 1px;
 		outline-style: solid;
+		border-radius: 5px;
+		width: 1000px;
 	}
 
 	.profile-picture {
 		max-height: 100px;
 		max-width: 100px;
+	}
+
+	.add-pet-button {
+		text-decoration: none;
+		color: black;
+		background-color: rgb(30, 220, 227);
+		padding: 10px;
+		border-radius: 5px;
+		align-self: left;
+	}
+
+	.add-pet-button:hover {
+		background-color: rgb(21, 143, 148);
 	}
 </style>

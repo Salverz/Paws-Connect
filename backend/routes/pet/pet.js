@@ -18,6 +18,7 @@ router.post("/create", async (req, res) => {
   const breed = req.body.breed;
   const color = req.body.color;
   const birthDate = req.body.birthDate;
+  const bio = req.body.bio;
 
   //check if there is a user that has the id that was provided
   let sql = `SELECT COUNT(*) "exists" 
@@ -35,9 +36,9 @@ router.post("/create", async (req, res) => {
   }
   //add pet into database
   sql = `INSERT INTO pet_profile
-          (owner_user_id, name, profile_picture, species, breed, color, birth_date)
-          VALUES (?, ?, ?, ?, ?, ?, ?)`;
-  rows = await db.executeSQL(sql, [userId, name, profilePicture, species, breed, color, birthDate]);
+          (owner_user_id, name, profile_picture, species, breed, color, bio, birth_date)
+		  VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
+  rows = await db.executeSQL(sql, [userId, name, profilePicture, species, breed, color, bio, birthDate]);
   console.log(rows);
 
   if (rows.affectedRows > 0) {

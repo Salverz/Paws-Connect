@@ -1,18 +1,14 @@
 <script>
+	import NavBar from "$lib/components/NavBar.svelte";
+	import SiteHeader from "../../../../lib/components/SiteHeader.svelte";
     import { onMount } from 'svelte';
 
     let searchType = 'user';
     let searchTerm = '';
     let locationRange = 0;
+	let userId;
 
     let searchResults = [];
-
-    function handleSearch() {
-        searchResults = [
-            { id: '1', name: 'Rahul', type: 'user', location: 'New York', profilePicture: 'path/to/rahul/profile.jpg' },
-            { id: '2', name: 'Fluffy', type: 'pet', location: 'San Francisco', profilePicture: 'path/to/fluffy/profile.jpg' }
-        ];
-    }
 
     function clearSearch() {
         searchType = 'user';
@@ -21,15 +17,39 @@
         searchResults = [];
     }
 
-    function goToProfile(id) {
-        const profileURL = `http://localhost:3000/profile/${id}`;
-        window.location.href = profileURL;
-    }
+	async function doSearch() {
+		
+		if (searchType == "pet") {
+			const databaseResult = await fetch(`http://localhost:3000/search/pet?
+				petId=${searchTerm}&
+				petName=${searchTerm}&
+				distance=${locationRange}&
+				userId=${userId}`);
+
+			let json = await databaseResult.json();
+			console.log(json);
+			searchResults = json;
+		} else {
+			const databaseResult = await fetch(`http://localhost:3000/search/user?
+				username=${searchTerm}&
+				displayName=${searchTerm}&
+				distance=${locationRange}&
+				userId=${userId}`);
+
+			let json = await databaseResult.json();
+			console.log(json);
+			searchResults = json;
+		}
+	}
+
 </script>
 
+<SiteHeader/>
+<NavBar/>
 <h1>Profile Search</h1>
 
-<form on:submit|preventDefault={handleSearch}>
+        <label for="userId">Searcher ID</label>
+        <input type="number" id="userId" bind:value={userId}>
     <div class="input-section">
         <label for="searchType">Search for:</label>
         <select id="searchType" bind:value={searchType}>
@@ -48,9 +68,8 @@
         <input id="locationRange" name="locationRange" type="number" bind:value={locationRange} placeholder="Enter location range">
     </div>
 
-    <button type="submit">Search</button>
-    <button type="button" on:click={clearSearch}>Clear</button>
-</form>
+    <button on:click={doSearch}>Search</button>
+    <button on:click={clearSearch}>Clear</button>
 
 
 <div class="results-section">
@@ -58,21 +77,21 @@
     {#if searchResults.length}
         {#each searchResults as result}
             <div class="result-item">
-                <img src={result.profilePicture} alt={result.name} class="profile-picture">
+                <img src={result.profile_picture} alt={result.display_name} class="profile-picture">
                 
                 <div class="result-info">
                     <h3>
-                        {#if result.type === 'user'}
-                            <a href={`/user/profile/${result.id}`}>{result.name}</a> ({result.type})
-                        {:else if result.type === 'pet'}
-                            <a href={`/pets/profile/${result.id}`}>{result.name}</a> ({result.type})
+                        {#if result.user_id}
+                            <a href={`/user/profile/${result.user_id}`}>{result.display_name}</a> (user)
+						{:else}
+                            <a href={`/pets/profile/${result.pet_id}`}>{result.name}</a> (pet)
                         {/if}
                     </h3>
                     
-                    <p>Location: {result.location}</p>
+                    <p>Longitude: {result.longitude}</p>
+                    <p>Latitude: {result.latitude}</p>
                 </div>
 
-                <button on:click={() => goToProfile(result.id)}>View Profile</button>
             </div>
         {/each}
     {:else}

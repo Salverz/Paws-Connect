@@ -1,9 +1,65 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>My Posts and Pet Posts</title>
+
+<script>
+  let userPosts = [];
+  let petPosts = [];
+
+  function displayUserPosts() {
+    const userPostsDiv = document.getElementById('userPosts');
+    userpostsdiv.innerhtml = '';
+    userposts.foreach(post => {
+      const postdiv = document.createelement('div');
+      postdiv.classlist.add('post');
+      const img = document.createelement('img');
+      img.src = post.image;
+      img.alt = "user post image";
+      postdiv.appendchild(img);
+      const text = document.createelement('p');
+      text.textcontent = post.text;
+      postdiv.appendchild(text);
+      userpostsdiv.appendchild(postdiv);
+    });
+  }
+
+  function displaypetposts() {
+    const petpostsdiv = document.getelementbyid('petposts');
+    petpostsdiv.innerhtml = '';
+    petposts.foreach(post => {
+      const postdiv = document.createelement('div');
+      postdiv.classlist.add('post');
+      const img = document.createelement('img');
+      img.src = post.image;
+      img.alt = "pet post image";
+      postdiv.appendchild(img);
+      const text = document.createelement('p');
+      text.textcontent = post.text;
+      postdiv.appendchild(text);
+      petpostsdiv.appendchild(postdiv);
+    });
+  }
+
+  function adduserpost() {
+    const text = prompt('enter your post text:');
+    const image = prompt('enter image url for your post:');
+    if (text && image) {
+      userposts.push({ text: text, image: image });
+      displayuserposts();
+    }
+  }
+
+  function addpetpost() {
+    const text = prompt('enter pet post text:');
+    const image = prompt('enter image url for pet post:');
+    if (text && image) {
+      petposts.push({ text: text, image: image });
+      displaypetposts();
+    }
+  }
+
+  displayuserposts();
+  displaypetposts();
+</script>
+
 <style>
   body {
     font-family: Arial, sans-serif;
@@ -31,8 +87,6 @@
     margin-bottom: 10px;
   }
 </style>
-</head>
-<body>
 <div class="container">
   <h1>My Posts</h1>
   <div id="userPosts" class="post-container">
@@ -46,66 +100,4 @@
   </div>
   <button onclick="addPetPost()">Add New Pet Post</button>
 </div>
-
-<script>
-  let userPosts = [];
-  let petPosts = [];
-
-  function displayUserPosts() {
-    const userPostsDiv = document.getElementById('userPosts');
-    userPostsDiv.innerHTML = '';
-    userPosts.forEach(post => {
-      const postDiv = document.createElement('div');
-      postDiv.classList.add('post');
-      const img = document.createElement('img');
-      img.src = post.image;
-      img.alt = "User Post Image";
-      postDiv.appendChild(img);
-      const text = document.createElement('p');
-      text.textContent = post.text;
-      postDiv.appendChild(text);
-      userPostsDiv.appendChild(postDiv);
-    });
-  }
-
-  function displayPetPosts() {
-    const petPostsDiv = document.getElementById('petPosts');
-    petPostsDiv.innerHTML = '';
-    petPosts.forEach(post => {
-      const postDiv = document.createElement('div');
-      postDiv.classList.add('post');
-      const img = document.createElement('img');
-      img.src = post.image;
-      img.alt = "Pet Post Image";
-      postDiv.appendChild(img);
-      const text = document.createElement('p');
-      text.textContent = post.text;
-      postDiv.appendChild(text);
-      petPostsDiv.appendChild(postDiv);
-    });
-  }
-
-  function addUserPost() {
-    const text = prompt('Enter your post text:');
-    const image = prompt('Enter image URL for your post:');
-    if (text && image) {
-      userPosts.push({ text: text, image: image });
-      displayUserPosts();
-    }
-  }
-
-  function addPetPost() {
-    const text = prompt('Enter pet post text:');
-    const image = prompt('Enter image URL for pet post:');
-    if (text && image) {
-      petPosts.push({ text: text, image: image });
-      displayPetPosts();
-    }
-  }
-
-  displayUserPosts();
-  displayPetPosts();
-</script>
-</body>
-</html>
 

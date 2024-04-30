@@ -44,7 +44,7 @@ async function translatePostText(text, targetLanguage, postLanguage) {
 
 
 router.post("/create", async (req, res) => {
-  const { userID, text_content, post_photo_link, visibility, post_language} = req.body;
+  const { userID, text_content, post_photo_link, visibility, post_language, petsToTag } = req.body;
   console.log(req.body);
 
   if (!userID) {
@@ -79,7 +79,27 @@ router.post("/create", async (req, res) => {
         VALUES (?, ?)
       `, [postId, post_photo_link]);
     }
-    // Constructing the new post object
+
+    // Tagged friends and pets logic goes here if needed
+        // Insert tagged friends
+    // if (taggedFriends && taggedFriends.length) {
+    //   for (const friendId of taggedFriends) {
+    //     await db.executeSQL(`
+    //       INSERT INTO tagged_friend (tagged_post_id, tagged_friend_user_id)
+    //       VALUES (?, ?)
+    //     `, [postId, friendId]);
+    //   }
+    // }
+
+	// Insert tagged pets
+	 for (let i = 0; i < petsToTag.length; i++) {
+	 await db.executeSQL(`
+	   INSERT INTO tagged_pet (tagged_post_id, tagged_pet_id)
+	   VALUES (?, ?)
+	 `, [postId, petsToTag[i]]);
+   }
+
+	// Constructing the new post object
     const newPost = {
       post_id: postId,
       poster_username: poster_username,
@@ -169,7 +189,14 @@ router.get("/get/:username", async (req, res) => {
     }
     return post;
   }));
-    res.json({ success: true, posts: translatedPosts});
+	  
+	  const tags = await db.executeSQL(`
+			SELECT *
+			FROM tagged_pet tag
+			JOIN pet_profile pet ON (tag.tagged_pet_id = pet.pet_id);
+		`)
+
+    res.json({ success: true, posts: posts, tags: tags });
   } catch (error) {
     console.error("Error retrieving posts:", error);
     res.status(500).json({ success: false, message: 'An error occurred while retrieving posts' });

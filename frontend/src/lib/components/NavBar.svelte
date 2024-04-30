@@ -1,52 +1,33 @@
 <div class="nav-bar">
-    <a class="nav-link" href="/">Home</a>
-    <a class="nav-link" href="/feed">Feed</a>
+    <a class="nav-link" href="/feed">Home</a>
 	<a class="nav-link" href="/pets/dashboard">View pets</a>
     <a class="nav-link" href="/account/edit">Edit profile</a>
     <a class="nav-link" href="/account/create">Create an account</a>
-	<a class="nav-link" href="/feed/post">Create a new post</a>
-	<a class="nav-link" href="/search">Search for users and pets</a>
+	<a class="nav-link" href="/feed/posts">Create a new post</a>
+	<a class="nav-link" href="/user/profile/search">Search for users and pets</a>
 </div>
 
 <style>
-    .nav-bar {
-        /* Flexbox */
-        display: flex;
-        flex-direction: column;
+	.nav-bar {
+		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		display: flex;
+		align-items: center;
+		background-color: lightgray;
+		height: 50px;
+		padding: 0 20px;
+		margin-bottom: 20px;
+	}
 
-        width: 300px;
-        margin-left: 50px;
-    }
+	.nav-link {
+		display: flex;
+		text-decoration: none;
+		color: black;
+		height: 100%;
+		padding: 0px 10px;
+		align-items: center;
+	}
 
-    .nav-link {
-        background-color: rgb(221, 221, 221);
-        padding-left: 20px;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        outline-style: solid;
-        outline-width: 1px;
-        /* border-top-left-radius: 10px;
-        border-bottom-left-radius: 10px; */
-
-        /* Text styles */
-        text-decoration: none;
-        font-family: 'Segoe UI';
-        color: black;
-
-        /* Animation */
-        transition: transform .2s ease,
-                    background-color .2s ease;
-                    /* margin-top .5s ease, */
-                    /* margin-bottom .5s ease; */
-    }
-
-    .nav-link:hover {
-        background-color: rgb(168, 168, 168);
-        transform: translateX(-20px);
-        background-color: rgb(175, 175, 175);
-        /* padding-bottom: 15px;
-        padding-top: 15px; */
-        /* margin-top: 10px; */
-        /* margin-bottom: 10px; */
-    }
+	.nav-link:hover {
+		background-color: gray;
+	}
 </style>
