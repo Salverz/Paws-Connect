@@ -36,6 +36,9 @@ router.post('/login', async (req, res) => {
     const match = await bcrypt.compare(password, rows[0].password);
 
     if (match) {
+      // session stuff
+      req.session.userId  = rows[0].user_id;
+
       res.json({
           "login": true,
           "message": "Logged in!",
