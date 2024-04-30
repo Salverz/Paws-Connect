@@ -15,10 +15,25 @@ const translateClient = new TextTranslationClient(endpoint, { key: apiKey, regio
 
 // Helper function to translate text
 async function translatePostText(text, targetLanguage, postLanguage) {
+  const languagesPreferred = await db.executeSQL(`
+      SELECT language.language, language.language_code 
+      FROM language
+      WHERE language.language = ?
+    `, [targetLanguage]);
+  const languageCodedPreferred = languagesPreferred[0].language_code; 
+  
+  const languagePost = await db.executeSQL(`
+    SELECT language.language_code 
+    FROM language
+    WHERE language.language = ?
+  `, [postLanguage]);
+
+  const languageCodedPost = languagePost[0].language_code;
+
   console.log(targetLanguage);
   console.log(postLanguage);
     const response = await translateClient.path("/translate").post({
-        queryParameters: {to: targetLanguage, from : postLanguage },
+        queryParameters: {to: languageCodedPreferred, from : languageCodedPost},
         body: [{ text: text }]
     });
     if (response.status != 200) {
