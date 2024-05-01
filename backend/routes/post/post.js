@@ -16,25 +16,8 @@ const translateClient = new TextTranslationClient(endpoint, { key: apiKey, regio
 
 // Helper function to translate text
 async function translatePostText(text, targetLanguage, postLanguage) {
-  const languagesPreferred = await db.executeSQL(`
-      SELECT language.language_code 
-      FROM language
-      WHERE language.language = ?
-    `, [targetLanguage]);
-  const languageCodedPreferred = languagesPreferred[0].language_code; 
-  
-  const languagePost = await db.executeSQL(`
-    SELECT language.language_code 
-    FROM language
-    WHERE language.language = ?
-  `, [postLanguage]);
-
-  const languageCodedPost = languagePost[0].language_code;
-
-  console.log(targetLanguage);
-  console.log(postLanguage);
     const response = await translateClient.path("/translate").post({
-        queryParameters: {to: languageCodedPreferred, from : languageCodedPost},
+        queryParameters: {to: targetLanguage, from : postLanguage},
         body: [{ text: text }]
     });
     if (response.status != 200) {
@@ -120,7 +103,6 @@ router.post("/create", async (req, res) => {
   }
 });
 
-
 router.get("/get", async (req, res) => {
 	console.log("getting session");
 	const token = req.headers.authorization.split(' ')[1];
@@ -135,6 +117,8 @@ router.get("/get", async (req, res) => {
 		WHERE user_id=?
 	`, [userID]);
 
+    const userID = userResult[0].user_id;
+    const userPreferredLanguage = userResult[0].language_code;
 	console.log(userPreferredLanguage);
 
 	try {
@@ -150,6 +134,7 @@ router.get("/get", async (req, res) => {
 			p.visibility,
 			p.created_at,
 			p.post_language, 
+   			l.language_code,
 			pp.photo_link AS post_photo_link, 
 			(
 				SELECT
@@ -165,6 +150,8 @@ router.get("/get", async (req, res) => {
 			user_account ua ON p.poster_user_id = ua.user_id
 		JOIN
 			user_profile up ON ua.user_id = up.user_id
+   		JOIN
+      			language l ON p.post_language = l.language
 		LEFT JOIN
 			post_photo pp ON p.post_id = pp.attached_to_post_id
 		WHERE
@@ -179,9 +166,9 @@ router.get("/get", async (req, res) => {
 	`, [userID, userID, userID]);
   const translatedPosts = await Promise.all(posts.map(async (post) => {
   
-    if (post.post_language != userPreferredLanguage) {
-        post.text_content = await translatePostText(post.text_content, userPreferredLanguage, post.post_language);
-        post.translatedFrom = post.post_language; // Indicate that this post has been translated
+    if (post.language_code != userPreferredLanguage) {
+        post.text_content = await translatePostText(post.text_content, userPreferredLanguage, post.language_code);
+        post.translatedFrom = post.language_code; // Indicate that this post has been translated
 
     }else{
         post.translatedFrom = null;
