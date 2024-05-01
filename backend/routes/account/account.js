@@ -1,14 +1,16 @@
 const db = require("../../helper_files/database");
 const router = require("express").Router();
 const bcrypt = require("bcrypt");
+const jwt = require("../../helper_files/jwt.js");
 
 // Router files
 const profileRoute = require('./profile/profile');
-const loginRoute = require('./login/login');
+// const loginRoute = require('./login/login');
 
 // Routers
 router.use('/profile', profileRoute);
-router.use('/login', loginRoute);
+// router.use('/login', loginRoute);
+
 
 // Authenticate a user
 router.post('/login', async (req, res) => {
@@ -39,17 +41,23 @@ router.post('/login', async (req, res) => {
 
     if (match) {
       // session stuff
+		console.log("set sessionId to " + rows[0].user_id);
       req.session.userId  = rows[0].user_id;
+		console.log(req.session);
+		const token = jwt.generateToken(rows[0].user_id);
+		console.log("token: " + token);
 
       res.json({
           "login": true,
           "message": "Logged in!",
-          "userId": rows[0].user_id
+          "userId": rows[0].user_id,
+		  "token": token
       });
     } else {
       res.json({
           "login": false,
-          "message": "Incorrect password"
+          "message": "Incorrect password",
+		  "token": null
       });
     }
 });

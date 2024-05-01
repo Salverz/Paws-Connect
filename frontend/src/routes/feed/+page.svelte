@@ -5,15 +5,13 @@
     let posts = [];
 	let tags = [];
 
-    async function getPosts() {
-		try { 
-			const response = await fetch ("http://localhost:3000/post/get");
-			if (response.status === 401) {
-				console.error("Unauthorized")
-				window.location.href = 'account/create';
-				return
-			}
-	  
+	const token = localStorage.getItem('token');
+	console.log(token);
+
+	async function getPosts() {
+		const token = localStorage.getItem("token");
+		const response = await fetch("http://localhost:3000/post/get",
+			{ headers: { 'Authorization': `Bearer ${token}` }});
 			let json = await response.json();
 			console.log(json.posts);
 			console.log(json.tags);
@@ -32,10 +30,7 @@
 			}
 			console.log(posts);
 
-		} catch (error) {
-			console.error('Error getting post', error);
-		}
-    }
+	}
 
     onMount(async () => {
         await getPosts();
