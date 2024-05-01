@@ -1,4 +1,5 @@
 const db = require("../../helper_files/database");
+const jwt = require("../../helper_files/jwt");
 const router = require("express").Router();
 
 // USE "db.executeSQL()" TO RUN SQL
@@ -122,8 +123,11 @@ router.post("/create", async (req, res) => {
 
 router.get("/get", async (req, res) => {
 	console.log("getting session");
-    const userID = req.session.userId;
-	console.log(req.session);
+	const token = req.headers.authorization.split(' ')[1];
+	console.log(token);
+	const decoded = jwt.verifyToken(token);
+	console.log(decoded);
+	const userID = decoded.userId;
 
 	const userPreferredLanguage = await db.executeSQL(`
 		SELECT preferred_language

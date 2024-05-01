@@ -17,6 +17,8 @@
 		});
 
 		let json = await databaseResult.json();
+		console.log("token: " + json.token);
+		localStorage.setItem("token", json.token);
 		console.log(json);
 	}
 </script>
