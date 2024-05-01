@@ -1,31 +1,50 @@
-// Import required modules
+// Imports
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql');
+const jwt = require('jsonwebtoken');
 // Session stuff
 const session = require('express-session');
+const passport = require("passport");
+const localStrategy = require('passport-local');
 
-// Create an Express application
+// Express setup ----------------------------------------------------
 const app = express();
 const port = 3000;
-app.use(cors({origin: 'http://localhost:5173'})); // This should be the url for your front end server (the URL you go to to see the website)
+app.use(cors({origin: 'http://localhost:5173', credentials: true })); // This should be the url for your front end server (the URL you go to to see the website)
 
 const pool = dbConnection();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-// Ignore all this ^ (unless you get an error)
 
+app.set('trust proxy', 1);
 
-// More session stuff
+// Sessions -----------------------------------
 app.use(session({
   secret: "EpicKey12jkldakajuiowncx",
   resave: false,
-  saveUninitialized: true,
-  cookie: { maxAge: 60000 * 60 },
+  saveUninitialized: false,
+  cookie: {
+	  secure: false,
+	  maxAge: 60000 * 60,
+	  httpOnly: true
+  },
 }));
 
+app.use(function(req, res, next) {
+	if (!req.session.userId) {
+		req.session.userId = 0;
+	}
+	next();
+});
+
+// Google authentication --------------------------
+const googleClientId = process.env.GOOGLE_CLIENT_ID;
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
+
+
 function authenticator (req, res, next) {
-  if (req.session.userId == null) {
+  if (req.session.userId != null) {
     const usableRoutes = ['/account/create', '/account/login'];
     if (usableRoutes.includes(req.path)) {
       next();
@@ -38,6 +57,45 @@ function authenticator (req, res, next) {
     next();
   }
 }
+
+
+let userProfile;
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.serializeUser(function(user, cb) {
+	cb(null, user);
+});
+
+passport.deserializeUser(function(obj, cb) {
+	cb(null, obj);
+});
+
+app.get("/success", (req, res) => res.send(userProfile));
+app.get("/error", (req, res) => res.send("error logging in"));
+
+const googleStrategy = require("passport-google-oauth").OAuth2Strategy;
+passport.use(new googleStrategy({
+		clientID: googleClientId,
+		clientSecret: googleClientSecret,
+		callbackURL: "http://localhost:3000/google/callback"
+	},
+	function(accessToken, refreshToken, profile, done) {
+		userProfile = profile;
+		return done(null, userProfile);
+	}
+));
+
+
+app.get('/google',
+	passport.authenticate("google", { scope: ["profile", "email"] }));
+
+app.get('/google/callback',
+	passport.authenticate("google", { failureRedirect: '/error' }),
+	function(req, res) {
+		res.redirect("/success");
+});
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////
 // TYPE "node index.js" TO START THE BACKEND SERVER | YOU MUST RESTART THE SERVER WHEN YOU MAKE CHANGES //
@@ -80,7 +138,7 @@ const petRoute = require('./routes/pet/pet')
 const postRoute = require('./routes/post/post')
 const searchRoute = require('./routes/search/search');
 
-app.use(authenticator);
+// app.use(authenticator);
 app.use('/account', accountRoute)
 app.use('/pet', petRoute)
 app.use('/post', postRoute)

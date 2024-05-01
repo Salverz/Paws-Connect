@@ -1,4 +1,5 @@
 const db = require("../../helper_files/database");
+const jwt = require("../../helper_files/jwt");
 const router = require("express").Router();
 
 // USE "db.executeSQL()" TO RUN SQL
@@ -102,30 +103,27 @@ router.post("/create", async (req, res) => {
   }
 });
 
+router.get("/get", async (req, res) => {
+	console.log("getting session");
+	const token = req.headers.authorization.split(' ')[1];
+	console.log(token);
+	const decoded = jwt.verifyToken(token);
+	console.log(decoded);
+	const userID = decoded.userId;
 
-router.get("/get/:username", async (req, res) => {
-  const username = req.params.username;
-  
-  try {
-    const userResult = await db.executeSQL(`
-      SELECT u.user_id, p.preferred_language, l.language_code
-      FROM user_account u
-      JOIN user_profile p ON u.user_id = p.user_id
-      JOIN language l ON p.preferred_language = l.language 
-      WHERE u.username = ?
-    `, [username]);
-
-    if (userResult.length === 0) {
-      return res.status(404).json({ success: false, message: "User not found" });
-    }
-
-
-    //where userid is located and what the poster id is
-	  
-	//req.session.userID;
+	const userPreferredLanguage = await db.executeSQL(`
+		SELECT preferred_language
+		FROM user_profile
+		WHERE user_id=?
+	`, [userID]);
 
     const userID = userResult[0].user_id;
     const userPreferredLanguage = userResult[0].language_code;
+	console.log(userPreferredLanguage);
+
+	try {
+
+    // const userPreferredLanguage = userResult[0].preferred_language;
     const posts = await db.executeSQL(`
 		SELECT
 			p.post_id,

@@ -1,3 +1,4 @@
+/*
 const db = require("../../../helper_files/database");
 const router = require("express").Router();
 
@@ -30,7 +31,7 @@ router.get("/success", (req, res) => res.send(userProfile));
 router.get("/error", (req, res) => res.send("error logging in"));
 
 const googleStrategy = require("passport-google-oauth").OAuth2Strategy;
-/* passport.use(new googleStrategy({
+passport.use(new googleStrategy({
 		clientID: googleClientId,
 		clientSecret: googleClientSecret,
 		callbackURL: "http://localhost:3000/account/login/google/callback"
@@ -39,7 +40,7 @@ const googleStrategy = require("passport-google-oauth").OAuth2Strategy;
 		userProfile = profile;
 		return done(null, userProfile);
 	}
-)); */
+));
 
 
 router.get('/google',
@@ -52,3 +53,4 @@ router.get('/google/callback',
 });
 
 module.exports = router;
+*/
