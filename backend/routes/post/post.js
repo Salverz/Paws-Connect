@@ -1,11 +1,9 @@
 const db = require("../../helper_files/database");
 const jwt = require("../../helper_files/jwt");
+const { checkAuthenticated } = require("../../helper_files/jwt");
 const router = require("express").Router();
 
-// USE "db.executeSQL()" TO RUN SQL
-
 // Create a new post
-// (accessed at [POST] http://localhost:3000/post/create)
 const TextTranslationClient = require("@azure-rest/ai-translation-text").default
 
 const apiKey = "8b0eab61f028479c9b5cba0086961032"; //change into a ENVIRONMENTAL KEY 
@@ -26,14 +24,9 @@ async function translatePostText(text, targetLanguage, postLanguage) {
     return response.body[0].translations[0].text;
 }
 
-
-router.post("/create", async (req, res) => {
-  const { userID, text_content, post_photo_link, visibility, post_language, petsToTag } = req.body;
-  console.log(req.body);
-
-  if (!userID) {
-    return res.status(400).json({ success: false, message: 'userID is required.' });
-  }
+// Create a new post
+router.post("/create", checkAuthenticated, async (req, res) => {
+  const { text_content, post_photo_link, visibility, post_language, petsToTag } = req.body;
 
   try {
     const userProfile = await db.executeSQL(`
@@ -41,7 +34,7 @@ router.post("/create", async (req, res) => {
       FROM user_profile p
       JOIN user_account a ON (a.user_id = p.user_id)
       WHERE a.user_id = ?
-    `, [userID]);
+    `, [req.userId]);
 
     if (userProfile.length === 0) {
       return res.status(404).json({ success: false, message: "User profile not found" });
@@ -53,7 +46,7 @@ router.post("/create", async (req, res) => {
     const postResult = await db.executeSQL(`
       INSERT INTO post (poster_user_id, text_content, visibility, post_language)
       VALUES (?, ?, ?, ?)
-    `, [userID, text_content, visibility, post_language]);
+    `, [req.userId, text_content, visibility, post_language]);
 
     const postId = postResult.insertId;
 
@@ -103,7 +96,7 @@ router.post("/create", async (req, res) => {
   }
 });
 
-router.get("/get", async (req, res) => {
+router.get("/get", jwt.checkAuthenticated, async (req, res) => {
 	console.log("getting session");
 	const token = req.headers.authorization.split(' ')[1];
 	console.log(token);
@@ -111,14 +104,14 @@ router.get("/get", async (req, res) => {
 	console.log(decoded);
 	const userID = decoded.userId;
 
-	const userPreferredLanguage = await db.executeSQL(`
-		SELECT preferred_language
+	const result = await db.executeSQL(`
+		SELECT language.language_code
 		FROM user_profile
+		JOIN language ON (user_profile.preferred_language = language.language)
 		WHERE user_id=?
 	`, [userID]);
 
-    const userID = userResult[0].user_id;
-    const userPreferredLanguage = userResult[0].language_code;
+	const userPreferredLanguage = result[0].language_code;
 	console.log(userPreferredLanguage);
 
 	try {

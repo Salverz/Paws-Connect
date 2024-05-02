@@ -1,4 +1,5 @@
 const db = require("../../../helper_files/database");
+const { checkAuthenticated } = require("../../../helper_files/jwt");
 const router = require("express").Router();
 
 //route with pet name for getPetData function in svelte
@@ -76,7 +77,7 @@ router.get('/:petId', async (req, res) => {
 });
 
 
-router.patch('/edit', async (req, res) => {
+router.patch('/edit', checkAuthenticated, async (req, res) => {
 	const petId = req.body.petId;
 	const name = req.body.name;
 	const profilePictureImage = req.body.profilePictureImage;
@@ -90,6 +91,7 @@ router.patch('/edit', async (req, res) => {
 	UPDATE
 		pet_profile
 	SET 
+		owner_user_id = owner_user_id,
     	name = ?,
     	profile_picture = ?,
     	species = ?,
@@ -99,12 +101,15 @@ router.patch('/edit', async (req, res) => {
     	birth_date = STR_TO_DATE(?, '%Y-%m-%d')
 	WHERE
 		pet_id = ?
+			AND
+		owner_user_id = ?
+		
 	`;
 
-    const rows = await db.executeSQL(sql, [name, profilePictureImage, species, breed, color, bio, birthDate, petId]);
+    const rows = await db.executeSQL(sql, [name, profilePictureImage, species, breed, color, bio, birthDate, petId, req.userId]);
     console.log(rows);
 
-	if (rows.length == 0) {
+	if (rows.affectedRows == 0) {
 		res.json({
 			"updated": false
 		});

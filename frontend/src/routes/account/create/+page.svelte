@@ -3,6 +3,12 @@
 	import ProfileCreationForm from "./components/ProfileCreationForm.svelte";
     import NavBar from "$lib/components/NavBar.svelte";
     import SiteHeader from "$lib/components/SiteHeader.svelte";
+	import { checkNotAuthenticated } from "$lib/functions/authentication"
+    import { onMount } from 'svelte';
+
+	onMount(async () => {
+		await checkNotAuthenticated();
+	});
 
 	// Switch from create account view to create profile view
 	let currentComponent = AccountCreationForm;

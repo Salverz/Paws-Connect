@@ -1,6 +1,6 @@
 const db = require("../../../helper_files/database");
 const router = require("express").Router();
-
+const { checkAuthenticated } = require("../../../helper_files/jwt");
 
 async function fetchZipcodeAndUpdate(zipcode, userId) {
 	const apiKey = 'e700389f30b100907f2332b17bfea4c9';
@@ -125,7 +125,7 @@ router.post("/create", async (req, res) => {
 	});
 });
 
-// Retrieve a user's profile data
+// Retrieve a user's profile data to display on their profile
 router.get("/:userId", async (req, res) => {
     const userId = req.params.userId;
 
@@ -160,9 +160,43 @@ router.get("/:userId", async (req, res) => {
     });
 });
   
+// Retrieve a user's profile data for editing
+router.get("/", checkAuthenticated, async (req, res) => {
+    const userId = req.userId;
+
+    // Run an SQL query to get profile data of the user
+    const sql = `
+    SELECT p.display_name, p.profile_picture, p.zip, p.preferred_language, DATE_FORMAT(p.birth_date, "%Y-%m-%d") "birth_date"
+    FROM user_profile p
+    JOIN user_account a ON (p.user_id = a.user_id)
+    WHERE a.user_id=?
+    `;
+    const rows = await db.executeSQL(sql, [userId]);
+
+    console.log(rows);
+    // Check that the user exists
+    if (rows.length == 0) { 
+      res.json({
+		  accountFound: false,
+		  message: `User with user ID ${userId} does not have a profile`
+	  });
+      return;
+    }
+
+    // Send the user's profile data back to the frontend
+    res.json({
+		"accountFound": true,
+		"displayName": rows[0].display_name,
+		"profilePicture": rows[0].profile_picture,
+		"zip": rows[0].zip,
+		"preferredLanguage": rows[0].preferred_language,
+		"birthDate": rows[0].birth_date
+    });
+});
+
 // Edit the user's profile with their input information
-router.put("/edit", async (req, res) => {
-    const userId = req.body.userId;
+router.put("/edit", checkAuthenticated, async (req, res) => {
+    const userId = req.userId;
     const displayName = req.body.displayName;
     const profilePicture = req.body.profilePicture;
     const zip = req.body.zip;

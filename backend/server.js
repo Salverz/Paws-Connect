@@ -2,7 +2,7 @@
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql');
-const jwt = require('jsonwebtoken');
+const jwt = require('./helper_files/jwt');
 // Session stuff
 const session = require('express-session');
 const passport = require("passport");
@@ -31,33 +31,9 @@ app.use(session({
   },
 }));
 
-app.use(function(req, res, next) {
-	if (!req.session.userId) {
-		req.session.userId = 0;
-	}
-	next();
-});
-
 // Google authentication --------------------------
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
-
-
-function authenticator (req, res, next) {
-  if (req.session.userId != null) {
-    const usableRoutes = ['/account/create', '/account/login'];
-    if (usableRoutes.includes(req.path)) {
-      next();
-    } else {
-      res.status(401).json ({
-        message: "please log in"
-      });
-    }
-  } else {
-    next();
-  }
-}
-
 
 let userProfile;
 

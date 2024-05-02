@@ -1,8 +1,17 @@
 <script>
 	import NavBar from "$lib/components/NavBar.svelte";
 	import SiteHeader from "$lib/components/SiteHeader.svelte";
+	import { checkAuthenticated } from "$lib/functions/authentication"
+	import { onMount } from "svelte";
+	import { goto } from "$app/navigation";
+
+	let token;
 
 	let userId, name, profilePictureImage, species, breed, color, bio, birthDate;
+
+	onMount(async () => {
+		token = await checkAuthenticated();
+	});
 
 	async function createNewPet() {
 		let databaseResult = await fetch(`http://localhost:3000/pet/create`, {
@@ -18,7 +27,8 @@
 				"birthDate": birthDate
 			}),
 			headers: {
-				"Content-type": "application/json; charset=UTF-8"
+				"Content-type": "application/json; charset=UTF-8",
+				'Authorization': `Bearer ${token}`
 			}
 		});
 
@@ -27,6 +37,7 @@
 
 		if (json.created) {
 			alert("Pet created successfully!");
+			goto('/pets/dashboard');
 		} else {
 			alert("Pet creation failed");
 		}
