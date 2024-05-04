@@ -2,6 +2,7 @@
     import { page } from "$app/stores";
 	import { onMount } from "svelte";
 	import NavBar from "$lib/components/NavBar.svelte";
+	import SiteHeader from "$lib/components/SiteHeader.svelte";
 
     let petId = $page.params.petId;
     console.log(petId);
@@ -14,7 +15,9 @@
     let breed;
     let color;
 	let bio;
-    let birthDate;
+	let birthDate;
+	let ownerUserId;
+	let ownerProfilePicture;
 
     async function getPetData() {
         console.log("running");
@@ -29,6 +32,8 @@
         breed = json.breed;
         color = json.color;
         birthDate = json.birthDate;
+		ownerUserId = json.userId;
+		ownerProfilePicture = json.ownerProfilePicture;
     }
 
     onMount(async () => {
@@ -36,22 +41,61 @@
     });
 </script>
 
+<SiteHeader/>
 <NavBar/>
 <div class="pet-container">
-    <h1>{petName}</h1>
-    <img src = {profilePicture}>
+	<div class="header-section">
+		<img src = {profilePicture}>
+		<div class="pet-info">
+			<h1>{petName}</h1>
+			<a rel="external" href="/user/profile/{ownerUserId}">
+				<div class="owner-section">
+					<img class="owner-profile-picture" src="{ownerProfilePicture}">
+					<p class="owner-text">{owner}</p>
+				</div>
+			</a>
+		</div>
+	</div>
+	<!--
 	<p>Owner: {owner}</p>
-    <p>Species: {species}</p>
+    <p>Species {species}</p>
     <p>Breed: {breed}</p>
     <p>Color: {color}</p>
     <p>Birth Date: {birthDate}</p>
 	<p>Bio: {bio}</p>
-
+	-->
 </div>
 
 <style>
+	.header-section {
+		display: flex;
+	}
+
+	.owner-section {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		padding: 10px;
+	}
+
+	a {
+		text-decoration: none;
+	}
+
+	.owner-section:hover {
+		background-color: gray;
+	}
+
+	.owner-profile-picture {
+		width: 30px;
+		height: 30px;
+		object-fit: cover;
+	}
+
     .pet-container {
-        max-width: 800px;
+		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		width: 500px;
         margin: 20px auto;
         padding: 20px;
         background-color: #87CEEB; /* Blue background color */
@@ -103,6 +147,11 @@
     }
 
 	img {
-		width: 500px;
+		border: 3px solid #000;
+		border-radius: 50%;
+		width: 120px;
+		height: 120px;
+		margin-right: 20px;
+		object-fit: cover;
 	}
 </style>

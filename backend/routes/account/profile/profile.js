@@ -27,8 +27,8 @@ async function fetchZipcodeAndUpdate(zipcode, userId) {
 			?
 		)
 		ON DUPLICATE KEY UPDATE
-    		latitude = VALUES(latitude),
-    		longitude = VALUES(longitude)
+			latitude = VALUES(latitude),
+			longitude = VALUES(longitude)
 		;`;
 
 	const params = [userId, latitude, longitude];
@@ -148,6 +148,46 @@ router.get("/:userId", async (req, res) => {
       return;
     }
 
+	// Get the user's friends
+	const friends = await db.executeSQL(`
+		SELECT
+			user_profile.user_id,
+			user_profile.birth_date,
+			user_profile.display_name,
+			user_profile.profile_picture,
+			user_profile.zip,
+			user_profile.preferred_language
+		FROM (
+			SELECT
+				user_1_id,
+				user_2_id
+			FROM
+				connection
+			WHERE
+				user_1_id = ?
+					OR
+				user_2_id = ?
+		) AS connections
+		JOIN
+			user_profile
+		ON
+			(user_profile.user_id = user_1_id OR user_profile.user_id = user_2_id)
+		WHERE
+			user_profile.user_id != ?
+		`, [userId, userId, userId]);
+
+	// Get the user's pets
+	const pets = await db.executeSQL(`
+		SELECT
+			pet_id,
+			name,
+			profile_picture
+		FROM
+			pet_profile
+		WHERE
+			owner_user_id = ?
+		`, [userId]);
+
     // Send the user's profile data back to the frontend
     res.json({
 		"accountFound": true,
@@ -156,7 +196,9 @@ router.get("/:userId", async (req, res) => {
 		"profilePicture": rows[0].profile_picture,
 		"zip": rows[0].zip,
 		"preferredLanguage": rows[0].preferred_language,
-		"birthDate": rows[0].birth_date
+		"birthDate": rows[0].birth_date,
+		"friends": friends,
+		"pets": pets
     });
 });
   

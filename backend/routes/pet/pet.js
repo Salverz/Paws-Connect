@@ -72,7 +72,7 @@ router.get("/pets", checkAuthenticated, async (req, res) => {
 		LEFT JOIN
 			pet_transfer_request transfer ON (pet.pet_id = transfer.pet_id)
 		WHERE
-			pet.owner_user_id=?
+			transfer.new_owner=?
 
 		UNION
 
@@ -90,7 +90,7 @@ router.get("/pets", checkAuthenticated, async (req, res) => {
 		LEFT JOIN
 			pet_transfer_request transfer ON (pet.pet_id = transfer.pet_id)
 		WHERE
-			transfer.new_owner=?
+			pet.owner_user_id=?
 	`;
 	const rows = await db.executeSQL(sql, [req.userId, req.userId]);
 	rows.forEach(row => {
