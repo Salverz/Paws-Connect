@@ -1,7 +1,14 @@
 <script>
 	import NavBar from "$lib/components/NavBar.svelte";
 	import SiteHeader from "../../../../lib/components/SiteHeader.svelte";
+	import { checkAuthenticated } from "$lib/functions/authentication"
     import { onMount } from 'svelte';
+
+	let token;
+
+	onMount(async () => {
+		token = await checkAuthenticated();
+	});
 
     let searchType = 'user';
     let searchTerm = '';
@@ -18,13 +25,13 @@
     }
 
 	async function doSearch() {
-		
 		if (searchType == "pet") {
 			const databaseResult = await fetch(`http://localhost:3000/search/pet?
 				petId=${searchTerm}&
 				petName=${searchTerm}&
 				distance=${locationRange}&
-				userId=${userId}`);
+				userId=${userId}`,
+				{ headers: { 'Authorization': `Bearer ${token}` }});
 
 			let json = await databaseResult.json();
 			console.log(json);
@@ -34,7 +41,8 @@
 				username=${searchTerm}&
 				displayName=${searchTerm}&
 				distance=${locationRange}&
-				userId=${userId}`);
+				userId=${userId}`,
+				{ headers: { 'Authorization': `Bearer ${token}` }});
 
 			let json = await databaseResult.json();
 			console.log(json);

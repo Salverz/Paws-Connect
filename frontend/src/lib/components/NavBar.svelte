@@ -1,3 +1,10 @@
+<script>
+	function logOut() {
+		localStorage.setItem("token", null);
+		console.log("logged out");
+	}
+</script>
+
 <div class="nav-bar">
     <a class="nav-link" href="/feed">Home</a>
 	<a class="nav-link" href="/pets/dashboard">View pets</a>
@@ -5,6 +12,7 @@
     <a class="nav-link" href="/account/create">Create an account</a>
 	<a class="nav-link" href="/feed/posts">Create a new post</a>
 	<a class="nav-link" href="/user/profile/search">Search for users and pets</a>
+	<a class="nav-link" on:click={logOut} href="/account/login">Log out</a>
 </div>
 
 <style>

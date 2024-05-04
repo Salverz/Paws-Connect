@@ -11,6 +11,10 @@ const profileRoute = require('./profile/profile');
 router.use('/profile', profileRoute);
 // router.use('/login', loginRoute);
 
+// Return whether a user's JSON Web Token is valid (signed in)
+router.get('/auth', jwt.checkAuthenticated, (req, res) => {
+	res.sendStatus(200);
+});
 
 // Authenticate a user
 router.post('/login', async (req, res) => {
@@ -125,14 +129,5 @@ router.post('/create', async (req, res) => {
         "response": "Account creation failure: username already exists"
 	});
 });
-
-router.get('/loggedIn', (req, res) => {
-	if (req.session.userId == null) {
-		res.send(false);
-	} else {
-		res.send(true);
-	}
-});
-
 
 module.exports = router;

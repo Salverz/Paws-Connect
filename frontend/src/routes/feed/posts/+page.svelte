@@ -2,6 +2,14 @@
 	import { onMount } from "svelte";
 	import NavBar from "$lib/components/NavBar.svelte";
     import SiteHeader from "$lib/components/SiteHeader.svelte";
+	import { checkAuthenticated } from "$lib/functions/authentication"
+
+	let token;
+
+	onMount(async () => {
+		token = await checkAuthenticated();
+	});
+
     let userId, postPicture, textContent, visibility, language;
 
 	async function getUserPets() {
@@ -23,15 +31,6 @@
 
     let showConnectionsList = false;
 
-    async function handleUserIDChange(event) {
-		await getUserPets();
-        if (event.target.value !== '') {
-            showConnectionsList = true;
-        } else {
-            showConnectionsList = false;
-        }
-    }
-
     function handleCheckboxChange(event, connectionId) {
         if (event.target.checked) {
             selectedConnections.push(connectionId);
@@ -46,14 +45,14 @@
 			method: "POST",
 			body: JSON.stringify({
 				"petsToTag": selectedConnections,
-				"userID": userId,
 				"text_content": textContent,
 				"post_photo_link": postPicture,
 				"visibility": visibility,
 				"post_language": language
 			}),
 			headers: {
-				"Content-type": "application/json; charset=UTF-8"
+				"Content-type": "application/json; charset=UTF-8",
+				"Authorization": `Bearer ${token}` 
 			}
 		});
 
@@ -72,11 +71,6 @@
 <NavBar/>
 <h1>Create a post</h1>
 	<input type="hidden" id="petsToTag" name="petsToTag" bind:value={selectedConnections}>
-    <div class="input-section">
-        <label for="userId">User ID</label>
-        <input id="userId" name="userId" bind:value={userId} on:input={handleUserIDChange}>
-    </div>
-
     <div class="input-section">
         <label for="text_content">Caption</label>
         <textarea id="text_content" name="text_content" bind:value={textContent} rows="4" cols="50"></textarea>

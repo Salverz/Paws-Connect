@@ -1,10 +1,20 @@
 <script>
+import { checkAuthenticated } from "$lib/functions/authentication"
+import { onMount } from "svelte";
+
+let token;
+
+onMount(async () => {
+	token = await checkAuthenticated();
+	await getAccountInfo();
+});
+
 let userId, accountInfo;
-	let displayName, profilePicture, zip, preferredLanguage, birthDate;
+let displayName, profilePicture, zip, preferredLanguage, birthDate;
 
 async function getAccountInfo() {
-    // Fetch the data from the backend (/account/info/[userId] in this case, put the user's userId, in the [userId] slot)
-    let databaseResult = await fetch(`http://localhost:3000/account/profile/${userId}`);
+    let databaseResult = await fetch(`http://localhost:3000/account/profile`,
+		{ headers: { 'Authorization': `Bearer ${token}` }});
 
     // Format the data into json
     let json = await databaseResult.json();
@@ -18,13 +28,13 @@ async function getAccountInfo() {
 	profilePicture = json.profilePicture;
 	zip = json.zip;
 	birthDate = json.birthDate;
+	preferredLanguage = json.preferredLanguage;
 }
 
 async function updateAccountInfo() {
 	let databaseResult = await fetch(`http://localhost:3000/account/profile/edit`, {
         method: "PUT",
         body: JSON.stringify({
-            "userId": userId,
             "displayName": displayName,
             "profilePicture": profilePicture,
             "zip": zip,
@@ -32,7 +42,8 @@ async function updateAccountInfo() {
             "birthDate": birthDate
         }),
         headers: {
-            "Content-type": "application/json; charset=UTF-8"
+            "Content-type": "application/json; charset=UTF-8",
+			'Authorization': `Bearer ${token}`
         }
     });
     let json = await databaseResult.json();
@@ -65,7 +76,7 @@ async function updateAccountInfo() {
 			</div>
 			<div class="input-row">
 				<div class="input-block">
-					<label for="zip">Password</label>
+					<label for="zip">Zip Code</label>
 					<input type="number" id="zip" name="zip" bind:value={zip}>
 				</div>
 				<div class="input-block">

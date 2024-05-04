@@ -2,11 +2,11 @@
 const express = require('express');
 const cors = require('cors');
 const mysql = require('mysql');
-const jwt = require('jsonwebtoken');
+require('dotenv').config();
+
 // Session stuff
 const session = require('express-session');
 const passport = require("passport");
-const localStrategy = require('passport-local');
 
 // Express setup ----------------------------------------------------
 const app = express();
@@ -31,33 +31,9 @@ app.use(session({
   },
 }));
 
-app.use(function(req, res, next) {
-	if (!req.session.userId) {
-		req.session.userId = 0;
-	}
-	next();
-});
-
 // Google authentication --------------------------
 const googleClientId = process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
-
-
-function authenticator (req, res, next) {
-  if (req.session.userId != null) {
-    const usableRoutes = ['/account/create', '/account/login'];
-    if (usableRoutes.includes(req.path)) {
-      next();
-    } else {
-      res.status(401).json ({
-        message: "please log in"
-      });
-    }
-  } else {
-    next();
-  }
-}
-
 
 let userProfile;
 
@@ -137,12 +113,14 @@ const accountRoute = require('./routes/account/account')
 const petRoute = require('./routes/pet/pet')
 const postRoute = require('./routes/post/post')
 const searchRoute = require('./routes/search/search');
+const connectionRoute = require('./routes/connection/connection');
 
 // app.use(authenticator);
 app.use('/account', accountRoute)
 app.use('/pet', petRoute)
 app.use('/post', postRoute)
 app.use('/search', searchRoute)
+app.use('/connection', connectionRoute)
 
 // Use this to execute your SQL queries
 async function executeSQL(sql, params) {

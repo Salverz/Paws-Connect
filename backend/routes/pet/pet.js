@@ -1,4 +1,5 @@
 const db = require("../../helper_files/database");
+const { checkAuthenticated } = require("../../helper_files/jwt");
 const router = require('express').Router();
 
 // Router files
@@ -7,11 +8,7 @@ const profileRoute = require('./profile/profile');
 // Routers
 router.use('/profile', profileRoute);
 
-// USE "db.executeSQL()" TO RUN SQL
-// Create a new pet
-// (accessed at [POST] http://localhost:3000/pet/create)
-router.post("/create", async (req, res) => {
-  const userId = req.body.userId;
+router.post("/create", checkAuthenticated, async (req, res) => {
   const name = req.body.name;
   const profilePicture = req.body.profilePicture;
   const species = req.body.species;
@@ -20,26 +17,11 @@ router.post("/create", async (req, res) => {
   const birthDate = req.body.birthDate;
   const bio = req.body.bio;
 
-  //check if there is a user that has the id that was provided
-  let sql = `SELECT COUNT(*) "exists" 
-              FROM user_account 
-              WHERE user_id=?`;
-  //if there is not then give a error that says the id does not exist 
-  let rows = await db.executeSQL(sql, [userId]);
-  console.log(rows);
-  if (rows[0].exists == 0) {
-    res.json({
-      "created": false,
-      "message": "There is no account with that User ID"
-    });
-  return;
-  }
-  //add pet into database
+  // Add pet into database
   sql = `INSERT INTO pet_profile
           (owner_user_id, name, profile_picture, species, breed, color, bio, birth_date)
 		  VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
-  rows = await db.executeSQL(sql, [userId, name, profilePicture, species, breed, color, bio, birthDate]);
-  console.log(rows);
+  rows = await db.executeSQL(sql, [req.userId, name, profilePicture, species, breed, color, bio, birthDate]);
 
   if (rows.affectedRows > 0) {
     res.json({
@@ -54,29 +36,12 @@ router.post("/create", async (req, res) => {
     "created": false,
     "response": "Pet profile creation failure: Pet already exists"
   });
-
 });
 
 // Remove a pet
-// (accessed at [DELETE] http://localhost:3000/pet/remove)
-router.delete("/remove", async (req, res) => {
+router.delete("/remove", checkAuthenticated, async (req, res) => {
     const petId = req.body.petId;
 	  console.log(`removing pet ${petId}`);
-
-    // Check if the pet to delete exists
-    let sql = `SELECT COUNT(*) "exists"
-                FROM pet_profile
-                WHERE pet_id = ?`;
-    let rows = await db.executeSQL(sql, [petId]);
-
-    //gives error
-    if (rows[0].exists == 0) {
-      res.json ({
-			  "deleted": false,
-        "message": "There is no pet with matching Pet ID"
-      });
-      return;
-    }
 
     // Delete the pet
     sql = `DELETE FROM pet_profile
@@ -90,7 +55,8 @@ router.delete("/remove", async (req, res) => {
 });
 
 // Get all the pets that a user has
-router.get("/pets/:userId", async (req, res) => {
+router.get("/pets", checkAuthenticated, async (req, res) => {
+	console.log("getting pets for " + req.userId);
 	const sql =`
 		SELECT
 			pet.pet_id AS id,
@@ -126,15 +92,25 @@ router.get("/pets/:userId", async (req, res) => {
 		WHERE
 			transfer.new_owner=?
 	`;
-	const rows = await db.executeSQL(sql, [req.params.userId, req.params.userId]);
+	const rows = await db.executeSQL(sql, [req.userId, req.userId]);
+	rows.forEach(row => {
+		if (row.new_owner == null) {
+			row.pending_transfer = false;
+		} else if (row.new_owner != req.userId) {
+			row.pending_transfer = true;
+		} else {
+			row.pending_transfer = false;
+		}
+	});
+
+	console.log(rows);
 	res.send(rows);
 });
 
 
-// http://localhost:3000/pet/transfer 
-router.put("/transfer", async (req, res) => {
+// Respond to a transfer request
+router.put("/transfer", checkAuthenticated, async (req, res) => {
     const petId = req.body.petId;
-    const newOwnerId = req.body.newOwnerId;
     const doTransfer = req.body.doTransfer;
 
     sql = `SELECT COUNT(*) "exists"
@@ -153,11 +129,11 @@ router.put("/transfer", async (req, res) => {
       sql = `UPDATE pet_profile
               SET owner_user_id=?
               WHERE pet_id=?`;
-      rows = await db.executeSQL(sql, [newOwnerId, petId]);
+      rows = await db.executeSQL(sql, [req.userId, petId]);
       console.log(rows);
     }
 
-    let sqlDelete = `DELETE FROM pet_transfer_request
+    const sqlDelete = `DELETE FROM pet_transfer_request
                       WHERE pet_id=?`;
 	await db.executeSQL(sqlDelete, [petId]);
     res.json ({
@@ -167,8 +143,8 @@ router.put("/transfer", async (req, res) => {
 
 });
 
-//http://localhost:3000/pet/createTransferRequest
-router.post("/createTransferRequest", async (req, res) => {
+// Create a pet profile transfer request
+router.post("/createTransferRequest", checkAuthenticated, async (req, res) => {
     const petId = req.body.petId;
     const newOwnerUsername = req.body.newOwnerUsername;
 
@@ -214,6 +190,18 @@ router.post("/createTransferRequest", async (req, res) => {
       });
     }
   
+});
+
+// Cancel a transfer request
+router.delete("/cancelTransfer", checkAuthenticated, async (req, res) => {
+    const petId = req.body.petId;
+
+    const sqlDelete = `DELETE FROM pet_transfer_request
+                      WHERE pet_id=?`;
+	await db.executeSQL(sqlDelete, [petId]);
+    res.json ({
+      "success": true
+    })
 });
 
 module.exports = router;

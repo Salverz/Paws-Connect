@@ -1,17 +1,14 @@
 const db = require("../../helper_files/database");
 const router = require("express").Router();
 const geolib = require('geolib');
+const { checkAuthenticated } = require("../../helper_files/jwt");
 
 // Search pet profiles
-router.get("/pet", async (req, res) => {
+router.get("/pet", checkAuthenticated, async (req, res) => {
     const { petId = "", petName = "", distance = ""} = req.query;
 
-    const searcherID = req.query.userId;
+    const searcherID = req.userId;
     
-    if (!searcherID) {
-        return res.status(400).send("User ID is required for searching pet profiles.");
-    }
-
     try {
         // Fetch the searcher's location from the database.
         const [searcherLocation] = await db.executeSQL(
@@ -52,14 +49,9 @@ router.get("/pet", async (req, res) => {
     }
 });
 // Search user profiles
-router.get("/user", async (req, res) => {
-    const { username = "", displayName = "", distance = ""} = req.query;
-    const searcherID = req.query.userId; // Using user_id from query parameters
-
-    // Ensure that a searcher ID is provided
-    if (!searcherID) {
-        return res.status(400).send("User ID is required for searching user profiles.");
-    }
+router.get("/user", checkAuthenticated, async (req, res) => {
+    const { username = "", distance = ""} = req.query;
+    const searcherID = req.userId; // Using user_id from query parameters
 
     try {
         // Fetch the searcher's location from the location_lat_long table

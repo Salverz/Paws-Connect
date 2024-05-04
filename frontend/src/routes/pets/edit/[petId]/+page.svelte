@@ -2,6 +2,15 @@
 	import NavBar from "$lib/components/NavBar.svelte";
     import { page } from "$app/stores";
 	import { onMount } from "svelte";
+	import { checkAuthenticated } from "$lib/functions/authentication"
+	import { goto } from "$app/navigation";
+
+	let token;
+
+	onMount(async () => {
+		token = await checkAuthenticated();
+		await getPetInfo();
+	});
 
   	const petId = $page.params.petId;
 	let name, profilePictureImage, species, breed, color, bio, birthDate;
@@ -20,7 +29,8 @@
 				"birthDate": birthDate
 			}),
 			headers: {
-				"Content-type": "application/json; charset=UTF-8"
+				"Content-type": "application/json; charset=UTF-8",
+				'Authorization': `Bearer ${token}`
 			}
 		});
 
@@ -28,6 +38,7 @@
 
 		if (json.updated) {
 			alert(`Updated ${name}'s profile successfully`);
+			goto('/pets/dashboard');
 		} else {
 			alert(`Failed to update ${name}'s profile`);
 		}
@@ -51,10 +62,6 @@
 		color = json.color;
 		birthDate = json.birthDate;
 	}
-
-	onMount(async () => {
-		await getPetInfo();
-	});
 </script>
 
 <NavBar/>

@@ -1,7 +1,9 @@
 <script>
     import SiteHeader from "$lib/components/SiteHeader.svelte";
 	import NavBar from "../../lib/components/NavBar.svelte";
+	import { checkAuthenticated } from "$lib/functions/authentication"
 	import { onMount } from "svelte";
+
     let posts = [];
 	let tags = [];
 
@@ -33,6 +35,7 @@
 	}
 
     onMount(async () => {
+		await checkAuthenticated();
         await getPosts();
     });
 </script>

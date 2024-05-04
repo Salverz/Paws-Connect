@@ -1,12 +1,21 @@
 <script>
 	import NavBar from "$lib/components/NavBar.svelte";
 	import SiteHeader from "$lib/components/SiteHeader.svelte";
+	import { checkAuthenticated } from "$lib/functions/authentication"
+	import { onMount } from "svelte";
 
-	let userId;
+	let token;
+
+	onMount(async () => {
+		token = await checkAuthenticated();
+		await getPets();
+	});
 
 	async function getPets() {
-		console.log("calling user: " + userId);
-		const response = await fetch(`http://localhost:3000/pet/pets/${userId}`);
+		const token = localStorage.getItem("token");
+
+		const response = await fetch("http://localhost:3000/pet/pets",
+			{ headers: { 'Authorization': `Bearer ${token}` }});
 		pets = await response.json();
 	}
 
@@ -24,7 +33,8 @@
 				"petId": pets[petIndex].id
 			}),
 			headers: {
-				"Content-type": "application/json; charset=UTF-8"
+				"Content-type": "application/json; charset=UTF-8",
+				'Authorization': `Bearer ${token}`
 			}
 		});
 		const json = await response.json();
@@ -49,7 +59,8 @@
 				"newOwnerUsername": pets[petIndex].transferTo
 			}),
 			headers: {
-				"Content-type": "application/json; charset=UTF-8"
+				"Content-type": "application/json; charset=UTF-8",
+				"Authorization": `Bearer ${token}` 
 			}
 		});
 		const json = await response.json();
@@ -62,6 +73,8 @@
 		alert(`Transfer request created successfully! When the recipient accepts it, ${pets[petIndex].name} will be transfered.`);
 		pets[petIndex].transfer = false;
 		pets[petIndex].new_owner = pets[petIndex].transferTo;
+		pets[petIndex].pending_transfer = true;
+		console.log(pets);
 	}
 
 	async function respondToTransfer(petIndex, doTransfer) {
@@ -69,11 +82,11 @@
 			method: "PUT",
 			body: JSON.stringify({
 				"petId": pets[petIndex].id,
-				"newOwnerId": userId,
 				"doTransfer": doTransfer
 			}),
 			headers: {
-				"Content-type": "application/json; charset=UTF-8"
+				"Content-type": "application/json; charset=UTF-8",
+				'Authorization': `Bearer ${token}`
 			}
 		});
 		const json = await response.json();
@@ -94,42 +107,60 @@
 		}
 		console.log(JSON.stringify(pets));
 	}
+
+	async function cancelTransfer(petIndex) {
+		const response = await fetch(`http://localhost:3000/pet/cancelTransfer`, {
+			method: "DELETE",
+			body: JSON.stringify({
+				"petId": pets[petIndex].id,
+			}),
+			headers: {
+				"Content-type": "application/json; charset=UTF-8",
+				'Authorization': `Bearer ${token}`
+			}
+		});
+		const json = await response.json();
+		console.log(JSON.stringify(json));
+
+		alert(`Transfer closed. ${pets[petIndex].name} was not transfered.`);
+		pets[petIndex].new_owner = null;
+		pets[petIndex].pending_transfer = false;
+		pets = pets;
+	}
 </script>
 
 <SiteHeader/>
 <NavBar/>
-<label for="userId">Enter your user ID: </label>
-<input type="text" id="userId" bind:value={userId}>
-<button on:click={getPets}>View your pets</button>
 <div class="pet-list">
 <h2>Your pets</h2>
-<a class="add-pet-button" href="/pets/add">Add a new pet</a>
 	{#each pets as pet, index}
 		<div class="pet-entry">
-			<input type="hidden" value={index}/>
 			<img class="profile-picture" src={pet.profile_picture}>
 			{pet.name}
 			{pet.breed}
 			{pet.species}
 			<a href="/pets/profile/{pet.id}">Profile</a>
-			{#if pet.new_owner == userId}
+			{#if pet.new_owner != null && !pet.pending_transfer}
 				<button on:click={() => { respondToTransfer(index, true) }}>Accept Transfer</button>
 				<button on:click={() => { respondToTransfer(index, false) }}>Refuse Transfer</button>
 			{:else}
 				<a href="/pets/edit/{pet.id}">Edit</a>
 				<button on:click={() => { deletePet(index) }}>Delete</button>
-				<button on:click={() => { pets[index].transfer = !pets[index].transfer; }}>Transfer Pet</button>
 			{/if}
 
-			{#if pet.new_owner}
+			{#if pet.pending_transfer}
+				<button on:click={() => { cancelTransfer(index) }}>Cancel Transfer Request</button>
 				<p>Pending transfer</p>
 			{:else if pet.transfer}
 				<label for="newOwnerUsername">Who would you like to transfer {pet.name} to? </label>
 				<input type="text" id="newOwnerUsername" name="newOwnerUsername" bind:value={pets[index].transferTo}>
 				<button on:click={() => { transferPet(index) }}>Send Request</button>
+			{:else if pet.new_owner == null}
+				<button on:click={() => { pets[index].transfer = !pets[index].transfer; }}>Transfer Pet</button>
 			{/if}
 		</div>
 	{/each}
+	<a class="add-pet-button" href="/pets/add">Add a new pet</a>
 </div>
 
 <style>

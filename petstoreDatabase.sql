@@ -66,6 +66,14 @@ CREATE TABLE connection (
     FOREIGN KEY (user_2_id) REFERENCES user_account(user_id)
 );
 
+CREATE TABLE connection_request (
+	sender_user_id INT NOT NULL,
+    receiver_user_id INT NOT NULL,
+    UNIQUE (sender_user_id, receiver_user_id),
+    FOREIGN KEY (sender_user_id) REFERENCES user_account(user_id),
+    FOREIGN KEY (receiver_user_id) REFERENCES user_account(user_id)
+);
+
 CREATE TABLE post (
     post_id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
     poster_user_id INT NOT NULL,
@@ -117,6 +125,7 @@ CREATE TABLE comment (
     FOREIGN KEY (commented_post_id) REFERENCES post(post_id),
     FOREIGN KEY (commenter_user_id) REFERENCES user_account(user_id)
 );
+
 CREATE TABLE transfer_pet(
     pet_id INT,
     previous_owner INT,
@@ -125,6 +134,7 @@ CREATE TABLE transfer_pet(
     FOREIGN KEY (previous_owner) REFERENCES user_account(user_id),
     FOREIGN KEY (new_owner) REFERENCES user_account(user_id)
 ); 
+
 CREATE TABLE location_lat_long(
     user_id INT,
     latitude DECIMAL(9,6),
