@@ -105,7 +105,7 @@ router.get("/get", jwt.checkAuthenticated, async (req, res) => {
 	const userID = decoded.userId;
 
 	const result = await db.executeSQL(`
-		SELECT language.language_code
+		SELECT language.language_code, language.language
 		FROM user_profile
 		JOIN language ON (user_profile.preferred_language = language.language)
 		WHERE user_id=?
@@ -121,14 +121,15 @@ router.get("/get", jwt.checkAuthenticated, async (req, res) => {
 		SELECT
 			p.post_id,
 			p.poster_user_id,
-			ua.username AS poster_username,
-			up.profile_picture AS poster_profile_picture,
+			ua.username "poster_username",
+			up.profile_picture "poster_profile_picture",
 			p.text_content,
 			p.visibility,
 			p.created_at,
 			p.post_language, 
-   			l.language_code,
-			pp.photo_link AS post_photo_link, 
+			l.language_code,
+			? AS "preferred_language",
+			pp.photo_link "post_photo_link",
 			(
 				SELECT
 					COUNT(*)
@@ -143,28 +144,47 @@ router.get("/get", jwt.checkAuthenticated, async (req, res) => {
 			user_account ua ON p.poster_user_id = ua.user_id
 		JOIN
 			user_profile up ON ua.user_id = up.user_id
-   		JOIN
-      			language l ON p.post_language = l.language
+		JOIN
+			language l ON p.post_language = l.language
 		LEFT JOIN
 			post_photo pp ON p.post_id = pp.attached_to_post_id
 		WHERE
-			p.visibility = 'public' OR p.poster_user_id = ?
-        OR (p.visibility = 'private' AND p.poster_user_id IN (
-            SELECT user_2_id FROM connection WHERE user_1_id = ?
-            UNION
-            SELECT user_1_id FROM connection WHERE user_2_id = ?
-        ))
+			p.visibility = 'public'
+				OR
+			p.poster_user_id = 2
+				OR (
+					p.visibility = 'private'
+						AND
+					p.poster_user_id IN (
+						SELECT
+							user_2_id
+						FROM
+							connection
+						WHERE
+							user_1_id = 5
+						
+						UNION
+						
+						SELECT
+							user_1_id
+						FROM
+							connection
+						WHERE
+							user_2_id = 5
+					)
+				)
 		ORDER BY
-		p.created_at DESC
-	`, [userID, userID, userID]);
+			p.created_at DESC
+		`, [result[0].language, userID, userID, userID]);
   const translatedPosts = await Promise.all(posts.map(async (post) => {
+	  post.translated = false;
   
     if (post.language_code != userPreferredLanguage) {
-        post.text_content = await translatePostText(post.text_content, userPreferredLanguage, post.language_code);
-        post.translatedFrom = post.language_code; // Indicate that this post has been translated
+        post.translated_text = await translatePostText(post.text_content, userPreferredLanguage, post.language_code);
+        post.translated_from = post.language_code; // Indicate that this post has been translated
 
     }else{
-        post.translatedFrom = null;
+        post.translated_from = null;
     }
     return post;
   }));

@@ -1,248 +1,315 @@
 <script>
-    import { page } from "$app/stores";
+	import { page } from "$app/stores";
 	import { onMount } from "svelte";
 	import NavBar from "$lib/components/NavBar.svelte";
-  let name = "Jake";
-  let profile_picture = "https://hips.hearstapps.com/hmg-prod/images/dog-puppy-on-garden-royalty-free-image-1586966191.jpg?crop=1xw:0.74975xh;center,top&resize=1200:*";
-  let bio = "A pet who enjoys spending";
-  let zip, preferred_language, username, birthDate;
+	import SiteHeader from "$lib/components/SiteHeader.svelte";
+	import { checkAuthenticated } from "$lib/functions/authentication"
 
-  let friends = 520;
-  let posts = 121;
-  let connections = [
-      { name: "Rahul", profile_picture: "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500" },
-      { name: "David", profile_picture: "https://i.pinimg.com/236x/39/f8/f1/39f8f15525a9d4727728aa214bae0ddf.jpg" },
-      { name: "Kim", profile_picture: "https://variety.com/wp-content/uploads/2024/01/Kim-Kardashian.jpg" },
-      { name: "Jeff", profile_picture: "https://media.gettyimages.com/id/143071480/photo/student-standing-on-steps-outdoors.jpg?s=612x612&w=gi&k=20&c=UbOAUe8a6nWfpfMbej3a7J8awOhBdVnNSc65rXmfV7A=" },
-      { name: "Chase", profile_picture: "https://pics.craiyon.com/2023-07-07/7fc64a9b0eb141689af167796b348537.webp" },
-  ];
+	let name = "Loading...";
+	let profile_picture = "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg";
+	let bio = "Loading...";
+	let zip, preferred_language, username, birthDate;
 
-  let showConnections = false;
+	let friends = [], pets = [];
+	let posts = 121;
+	let connections = [
+		{ name: "Rahul", profile_picture: "https://images.pexels.com/photos/2379004/pexels-photo-2379004.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=500" },
+		{ name: "David", profile_picture: "https://i.pinimg.com/236x/39/f8/f1/39f8f15525a9d4727728aa214bae0ddf.jpg" },
+		{ name: "Kim", profile_picture: "https://variety.com/wp-content/uploads/2024/01/Kim-Kardashian.jpg" },
+		{ name: "Jeff", profile_picture: "https://media.gettyimages.com/id/143071480/photo/student-standing-on-steps-outdoors.jpg?s=612x612&w=gi&k=20&c=UbOAUe8a6nWfpfMbej3a7J8awOhBdVnNSc65rXmfV7A=" },
+		{ name: "Chase", profile_picture: "https://pics.craiyon.com/2023-07-07/7fc64a9b0eb141689af167796b348537.webp" },
+	];
 
-  function toggleConnections() {
-      showConnections = !showConnections;
-  }
-  let similarProfiles = [
-      { name: "Isabella", profile_picture: "https://m.media-amazon.com/images/M/MV5BZDQxNGNmZDctODI3ZC00ZDNjLWE2YjctZjhhOTkzMmM1MGM1XkEyXkFqcGdeQXVyMzQ2Njc1OTY@._V1_.jpg" },
-      { name: "Mike", profile_picture: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRiyAi_e7nPeAB-jWMUT0-YsBEUhZUBcAGqxg&usqp=CAU" },
-      { name: "Jack", profile_picture: "https://images.mubicdn.net/images/cast_member/24202/cache-207702-1489464067/image-w856.jpg?size=800x" },
-      { name: "Noah", profile_picture: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkC9a9mZGJvcvFlXXR9VutCVx4TJGeVHuh4A&usqp=CAU" }
-  ];
+	let showConnections = false;
 
-  let showSimilarProfiles = false;
+	function toggleConnections() {
+		showConnections = !showConnections;
+	}
+	let similarProfiles = [
+		{ name: "Isabella", profile_picture: "https://m.media-amazon.com/images/M/MV5BZDQxNGNmZDctODI3ZC00ZDNjLWE2YjctZjhhOTkzMmM1MGM1XkEyXkFqcGdeQXVyMzQ2Njc1OTY@._V1_.jpg" },
+		{ name: "Mike", profile_picture: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRiyAi_e7nPeAB-jWMUT0-YsBEUhZUBcAGqxg&usqp=CAU" },
+		{ name: "Jack", profile_picture: "https://images.mubicdn.net/images/cast_member/24202/cache-207702-1489464067/image-w856.jpg?size=800x" },
+		{ name: "Noah", profile_picture: "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkC9a9mZGJvcvFlXXR9VutCVx4TJGeVHuh4A&usqp=CAU" }
+	];
 
-  function toggleSimilarProfiles() {
-      showSimilarProfiles = !showSimilarProfiles;
-  }
+	let showSimilarProfiles = false;
 
-  const userId = $page.params.userId;
-  console.log(userId);
+	function toggleSimilarProfiles() {
+		showSimilarProfiles = !showSimilarProfiles;
+	}
 
-  async function getProfileData() {
-    let data = await fetch(`http://localhost:3000/account/profile/${userId}`);
-    let json = await data.json();
-    console.log(json);
-	username = json.username;
-    name = json.displayName;
-    profile_picture = json.profilePicture;
-	zip = json.zip;
-    preferred_language = json.preferredLanguage;
-	birthDate = json.birthDate;
-  }
+	const userId = $page.params.userId;
+	console.log(userId);
+
+	async function getProfileData() {
+		let data = await fetch(`http://localhost:3000/account/profile/${userId}`);
+		let json = await data.json();
+		console.log(json);
+		username = json.username;
+		name = json.displayName;
+		profile_picture = json.profilePicture;
+		zip = json.zip;
+		preferred_language = json.preferredLanguage;
+		birthDate = json.birthDate;
+		friends = json.friends;
+		pets = json.pets;
+	}
 
 
-//   getProfileData();
-  onMount(async () => {
-    await getProfileData();
-  });
+	//   getProfileData();
+	onMount(async () => {
+		await checkAuthenticated();
+		await getProfileData();
+	});
 
 </script>
 
+<SiteHeader/>
+<NavBar/>
+<div class="profile-page">
+	<div class="container">
+		<div class="profile-header">
+			<img class="profile-picture" src="{profile_picture}" alt="Profile Picture">
+			<div class="profile-info">
+				<h1>{name}</h1>
+				<!--
+				<div class="stats">
+					<p>Username: {username}</p>
+					<p>Zip code: {zip}</p>
+					<p>Birthday: {birthDate}</p>
+					<p>Preferred language: {preferred_language}</p>
+				</div>
+				-->
+			</div>
+			<div class="friend-list pets-list">
+				{#each pets as pet}
+					<a rel="external" href="http://localhost:5173/pets/profile/{pet.pet_id}">
+						<div class="friend">
+							<img class="friend-profile-picture" src={pet.profile_picture}>
+							<p class="friend-name">{pet.name}</p>
+						</div>
+					</a>
+				{/each}
+			</div>
+		</div>
+		<br>
+		Friends
+		<div class="friend-list">
+			{#each friends as friend}
+				<a rel="external" href="http://localhost:5173/user/profile/{friend.user_id}">
+					<div class="friend">
+						<img class="friend-profile-picture" src={friend.profile_picture}>
+						<p class="friend-name">{friend.display_name}</p>
+					</div>
+				</a>
+			{/each}
+		</div>
+
+	<!--
+		<div class="action-buttons">
+		  <button class="action-button" on:click={toggleConnections}>Connections</button>
+		  <button class="action-button similar-profiles-button" on:click={toggleSimilarProfiles}>Similar Profiles</button>
+	  </div>
+	  {#if showConnections}
+	  <div class="connection-list">
+		  {#each connections as connection}
+		  <div class="connection">
+			  <img src="{connection.profile_picture}" alt="{connection.name}'s Profile Picture">
+			  <span>{connection.name}</span>
+		  </div>
+		  {/each}
+	  </div>
+	  {/if}
+	  {#if showSimilarProfiles}
+	  <div class="profile-list">
+		  {#each similarProfiles as profile}
+		  <div class="profile">
+			  <img src="{profile.profile_picture}" alt="{profile.name}'s Profile Picture">
+			  <span>{profile.name}</span>
+		  </div>
+		  {/each}
+	  </div>
+	  {/if}
+	  -->
+	</div>
+</div>
+
 <style>
-  body {
-      font-family: Arial, sans-serif;
-      background-color: #fafafa;
-      margin: 0;
-      padding: 0;
-  }
+	.profile-page {
+		display: flex;
+		justify-content: center;
+	}
 
-  .container {
-      max-width: 400px;
-      margin: 20px;
-      padding: 20px;
-      background-color: rgba(194, 237, 156, 0.941);
-      border-radius: 12px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-  }
+	.container {
+		font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		background-color: #fafafa;
+		width: 1000px;
+		margin: 20px;
+		padding: 20px;
+		background-color: rgba(194, 237, 156, 0.941);
+		border-radius: 12px;
+		box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+	}
 
-  .profile-header {
-      display: flex;
-      align-items: flex-start;
-      margin-bottom: 20px;
-  }
+	.profile-header {
+		display: flex;
+		align-items: flex-start;
+		margin-bottom: 20px;
+	}
 
-  .profile-picture {
-      border: 3px solid #000;
-      border-radius: 50%;
-      width: 120px;
-      height: 120px;
-      margin-right: 20px;
-      object-fit: cover;
-      transform: translateY(-5%);
-  }
+	.profile-picture {
+		border: 3px solid #000;
+		border-radius: 50%;
+		width: 120px;
+		height: 120px;
+		margin-right: 20px;
+		object-fit: cover;
+		transform: translateY(-5%);
+	}
 
-  .profile-info {
-      flex: 1;
-  }
+	.profile-info {
+		flex: 1;
+	}
 
-  h1 {
-      font-size: 32px;
-      margin: 0;
-      font-weight: bold;
-  }
+	.pets-list {
+		margin-left: 20px;
+	}
 
-  .bio {
-      font-size: 16px;
-      margin: 0;
-  }
+	h1 {
+		font-size: 32px;
+		margin: 0;
+		font-weight: bold;
+	}
 
-  .stats {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-  }
+	.bio {
+		font-size: 16px;
+		margin: 0;
+	}
 
-  .stats p {
-      margin: 5px 0;
-  }
+	.stats {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+	}
 
-  .action-buttons {
-      display: flex;
-      justify-content: center;
-      margin-top: 20px;
-  }
+	.stats p {
+		margin: 5px 0;
+	}
 
-  .action-button {
-      background-color: #ccc; 
-      color: black;
-      padding: 10px 20px;
-      border: 2px solid #000; 
-      border-radius: 5px;
-      margin: 0 10px;
-      cursor: pointer;
-  }
+	.friend-list {
+		margin-top: 20px;
+		display: flex;
+		gap: 20px;
+		flex-wrap: wrap;
+	}
 
-  .action-button:hover {
-      background-color: #999; /* Darker Grey */
-  }
+	.friend {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	}
 
-  .action-button:focus {
-      outline: none;
-  }
+	.friend:hover {
+		background-color: gray;
+	}
 
-  .connection-list {
-      position: absolute;
-      background-color: #fff;
-      border: 1px solid #000;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-      padding: 10px;
-      z-index: 1;
-      margin-top: 220px;
-      width: 100%;
-      left: 0;
-  }
+	a {
+		text-decoration: none;
+	}
 
-  .connection {
-      display: flex;
-      align-items: center;
-      margin-bottom: 5px;
-  }
+	.friend-profile-picture {
+		border-radius: 100px;
+		width: 50px;
+		height: 50px;
+		object-fit: cover;
+		border-style: solid;
+	}
 
-  .connection img {
-      border-radius: 50%;
-      margin-right: 10px;
-      width: 30px;
-      height: 30px;
-      object-fit: cover;
-  }
+	.action-buttons {
+		display: flex;
+		justify-content: center;
+		margin-top: 20px;
+	}
 
-  .similar-profiles-button {
-      margin-left: auto;
-  }
+	.action-button {
+		background-color: #ccc; 
+		color: black;
+		padding: 10px 20px;
+		border: 2px solid #000; 
+		border-radius: 5px;
+		margin: 0 10px;
+		cursor: pointer;
+	}
 
-  .profile-list{
-      position: absolute;
-      background-color: #fff;
-      border: 1px solid #000;
-      border-radius: 5px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-      padding: 10px;
-      z-index: 1;
-      margin-top: 220px;
-      width: 100%;
-      left: 0;
-  }
+	.action-button:hover {
+		background-color: #999; /* Darker Grey */
+	}
 
-  .profile {
-      display: flex;
-      align-items: center;
-      margin-bottom: 5px;
-  }
+	.action-button:focus {
+		outline: none;
+	}
 
-  .profile img {
-      border-radius: 50%;
-      margin-right: 10px;
-      width: 30px;
-      height: 30px;
-      object-fit: cover;
-  }
+	.connection-list {
+		position: absolute;
+		background-color: #fff;
+		border: 1px solid #000;
+		border-radius: 5px;
+		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+		padding: 10px;
+		z-index: 1;
+		margin-top: 220px;
+		width: 100%;
+		left: 0;
+	}
+
+	.connection {
+		display: flex;
+		align-items: center;
+		margin-bottom: 5px;
+	}
+
+	.connection img {
+		border-radius: 50%;
+		margin-right: 10px;
+		width: 30px;
+		height: 30px;
+		object-fit: cover;
+	}
+
+	.similar-profiles-button {
+		margin-left: auto;
+	}
+
+	.profile-list{
+		position: absolute;
+		background-color: #fff;
+		border: 1px solid #000;
+		border-radius: 5px;
+		box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+		padding: 10px;
+		z-index: 1;
+		margin-top: 220px;
+		width: 100%;
+		left: 0;
+	}
+
+	.profile {
+		display: flex;
+		align-items: center;
+		margin-bottom: 5px;
+	}
+
+	.profile img {
+		border-radius: 50%;
+		margin-right: 10px;
+		width: 30px;
+		height: 30px;
+		object-fit: cover;
+	}
 
 
 </style>
-<NavBar/>
-<div class="container">
-  <div class="profile-header">
-      <img class="profile-picture" src="{profile_picture}" alt="Profile Picture">
-      <div class="profile-info">
-        <h1>{name}</h1>
-          <div class="stats">
-              <p>Username: {username}</p>
-              <p>Zip code: {zip}</p>
-              <p>Birthday: {birthDate}</p>
-              <p>Preferred language: {preferred_language}</p>
-          </div>
-      </div>
-  </div>
-  <!--
-  <div class="action-buttons">
-      <button class="action-button" on:click={toggleConnections}>Connections</button>
-      <button class="action-button similar-profiles-button" on:click={toggleSimilarProfiles}>Similar Profiles</button>
-  </div>
-  {#if showConnections}
-  <div class="connection-list">
-      {#each connections as connection}
-      <div class="connection">
-          <img src="{connection.profile_picture}" alt="{connection.name}'s Profile Picture">
-          <span>{connection.name}</span>
-      </div>
-      {/each}
-  </div>
-  {/if}
-  {#if showSimilarProfiles}
-  <div class="profile-list">
-      {#each similarProfiles as profile}
-      <div class="profile">
-          <img src="{profile.profile_picture}" alt="{profile.name}'s Profile Picture">
-          <span>{profile.name}</span>
-      </div>
-      {/each}
-  </div>
-  {/if}
-  -->
-</div>
-
-

@@ -7,8 +7,7 @@
     let posts = [];
 	let tags = [];
 
-	const token = localStorage.getItem('token');
-	console.log(token);
+	let token;
 
 	async function getPosts() {
 		const token = localStorage.getItem("token");
@@ -34,8 +33,18 @@
 
 	}
 
+	function swapLanguages(index) {
+		console.log(index);
+		console.log(posts[index]);
+
+		const temp = posts[index].text_content;
+		posts[index].text_content = posts[index].translated_text;
+		posts[index].translated_text = temp;
+		posts[index].translated = !posts[index].translated;
+	}
+
     onMount(async () => {
-		await checkAuthenticated();
+		token = await checkAuthenticated();
         await getPosts();
     });
 </script>
@@ -43,21 +52,34 @@
 <SiteHeader/>
 <NavBar/>
 <div class="feed">
-    {#each posts as post}
+    {#each posts as post, index}
         <div class="post">
-            <div class="poster-profile-section">
-                <img class="poster-profile-picture" src={post.poster_profile_picture}>
-                <a href="/user/profile/{post.poster_user_id}"><h1>{post.poster_username}</h1></a>
-            </div>
-			<p>Tagged pets:</p>
-			{#each post.tags as taggedPet}
-				<img class="tagged-pet-profile-picture" src={taggedPet.profile_picture}>
-				<a href="/pets/profile/{taggedPet.tagged_pet_id}">{taggedPet.name}</a>
-			{/each}
+			<a class="poster-profile-section" href="/user/profile/{post.poster_user_id}">
+				<img class="poster-profile-picture" src={post.poster_profile_picture}>
+				<h1>{post.poster_username}</h1>
+			</a>
+			<p class="tagged-pet-label">Tagged pets:</p>
+			<div class="tagged-pets">
+				{#each post.tags as taggedPet}
+					<a class="tagged-pet" href="/pets/profile/{taggedPet.tagged_pet_id}">
+						<img class="tagged-pet-profile-picture" src={taggedPet.profile_picture}>
+						{taggedPet.name}
+					</a>
+				{/each}
+			</div>
             <img class="post-photo" src="{post.post_photo_link}">
             <p class="post-text">{post.text_content}</p>
+			{#if post.post_language != post.preferred_language}
+				<div class="translate-post">
+					{#if !post.translated}
+						<button on:click={ () => swapLanguages(index) }>Translate this post to {post.preferred_language.charAt(0).toUpperCase() + post.preferred_language.slice(1).toLowerCase()}</button>
+					{:else}
+						<button on:click={ () => swapLanguages(index) }>View original</button>
+					{/if}
+				</div>
+			{/if}
             <div class="post-information-section">
-                <p class="likes">{post.likes} likes</p>
+				<!-- <p class="likes">{post.likes} likes</p> -->
                 <p>Posted on {post.created_at.split("T")[0]} at {post.created_at.split("T")[1]}</p>
             </div>
         </div>
@@ -75,18 +97,30 @@
     .post {
         border-style: solid;
         border-radius: 10px;
-        padding: 10px;
+        padding: 10px 5%;
         width: 50%;
         margin: 10px 0px;
+		background-color: lightgray;
     }
+
+	a {
+		height: 100%;
+		text-decoration: none;
+	}
 
     .poster-profile-section {
         display: flex;
-        align-items: center;
+		width: auto;
     }
+
+	.poster-profile-section:hover {
+		background-color: gray;
+	}
 
     .poster-profile-picture {
         height: 50px;
+		width: 50px;
+		object-fit: cover;
         border-radius: 100px;
         border-style: solid;
         border-width: 2px;
@@ -94,26 +128,52 @@
     }
 
     .post-text {
-        margin: 0 5%;
     }
 
     .post-photo {
-        width: 90%;
-        margin: 10px 5%;
+        margin: 10px 0%;
+		max-width: 100%;
 		border-style: solid;
     }
 
     .post-information-section {
         display: flex;
         align-items: center;
-        margin: 0 5%;
     }
 
     .likes {
         margin: 0px 10px;
     }
 
+	.tagged-pet-label {
+		margin: 0 0 10px 0;
+	}
+
+	.tagged-pets {
+		display: flex;
+		gap: 20px;
+	}
+
+	.tagged-pet {
+		padding: 10px;
+		display: flex;
+		flex-direction: column;
+	}
+
+	.tagged-pet:hover {
+		background-color: gray;
+	}
+
 	.tagged-pet-profile-picture {
-		width: 100px;
+		width: 50px;
+		height: 50px;
+		object-fit: cover;
+		border-style: solid;
+		border-width: 1px;
+		border-radius: 50%;
+	}
+
+	.translate-post {
+		margin-top: 20px;
 	}
 </style>

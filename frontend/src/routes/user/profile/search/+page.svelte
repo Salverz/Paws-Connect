@@ -55,9 +55,6 @@
 <SiteHeader/>
 <NavBar/>
 <h1>Profile Search</h1>
-
-        <label for="userId">Searcher ID</label>
-        <input type="number" id="userId" bind:value={userId}>
     <div class="input-section">
         <label for="searchType">Search for:</label>
         <select id="searchType" bind:value={searchType}>

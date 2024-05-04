@@ -9,13 +9,13 @@ router.get('/', checkAuthenticated, getFriends);
 router.delete('/', checkAuthenticated, removeConnection);
 
 // Create a connection request
-router.post('/request/create', createConnectionRequest);
+router.post('/request/create', checkAuthenticated, createConnectionRequest);
 
 // Respond to a connection request
-router.post('/request/respond');
+router.post('/request/respond', respondToConnectionRequest);
 
 // Cancel a connection request
-router.delete('/request');
+router.delete('/request', checkAuthenticated, cancelConnectionRequest);
 
 async function getFriends(req, res) {
 	const friends = await db.executeSQL(`
@@ -24,25 +24,55 @@ async function getFriends(req, res) {
 			user_profile.display_name,
 			user_profile.profile_picture,
 			user_profile.zip,
-			user_profile.preferred_language
-		FROM
-		(
+			user_profile.preferred_language,
+			null "sender_user_id",
+			null "receiver_user_id"
+		FROM (
 			SELECT
 				user_1_id,
 				user_2_id
 			FROM
 				connection
 			WHERE
-				user_1_id = 1
+				user_1_id = ?
 					OR
-				user_2_id = 1
+				user_2_id = ?
 		) AS connections
 		JOIN
 			user_profile
 		ON
 			(user_profile.user_id = user_1_id OR user_profile.user_id = user_2_id)
 		WHERE
-			user_profile.user_id != 1`, [req.userId, req.userId]);
+			user_profile.user_id != ?
+
+		UNION
+
+		SELECT
+			user_profile.birth_date,
+			user_profile.display_name,
+			user_profile.profile_picture,
+			user_profile.zip,
+			user_profile.preferred_language,
+			connection_requests.sender_user_id,
+			connection_requests.receiver_user_id
+		FROM (
+			SELECT
+				sender_user_id,
+				receiver_user_id
+			FROM
+				connection_request
+			WHERE
+				sender_user_id = ?
+					OR
+				receiver_user_id = ?
+		) AS connection_requests
+		JOIN
+			user_profile
+		ON
+			(user_profile.user_id = sender_user_id OR user_profile.user_id = receiver_user_id)
+		WHERE
+			user_profile.user_id != ?
+		`, [req.userId, req.userId, req.userId, req.userId, req.userId, req.userId]);
 	console.log(friends);
 
 	res.json(friends);
@@ -79,9 +109,9 @@ async function createConnectionRequest(req, res) {
 					sender_user_id,
 					receiver_user_id
 				) VALUES (
-					1,
-					4
-				)`, []);
+					?,
+					?
+				)`, [req.userId, req.body.connection_receiver]);
 	} catch (error) {
 		console.log(error);
 		res.json({
@@ -105,4 +135,92 @@ async function createConnectionRequest(req, res) {
 		"message": "Successfully created a connection"
 	});
 }
+
+// The user that made the connection request cancels it
+async function cancelConnectionRequest(req, res) {
+	let response;
+	try {
+		response = await db.executeSQL(`
+			DELETE FROM
+				connection_request
+			WHERE
+				sender_user_id = ?
+					AND
+				receiver_user_id = ?
+				`, [req.userId, req.body.connection_receiver]);
+	} catch (error) {
+		console.log(error);
+		res.json({
+			"success": "false",
+			"message": "There is no connection request pending for this user"
+		});
+		return;
+	}
+
+	console.log(response);
+
+	if (response.affectedRows == 0) {
+		res.json({
+			"success": "false",
+			"message": "The connection request could not be canceled"
+		});
+		return;
+	}
+	res.json({
+		"success": "true",
+		"message": "Connection request canceled"
+	});
+}
+
+// The receiver accepts or denies a connection request
+async function respondToConnectionRequest(req, res) {
+	let response = await db.executeSQL(`
+			DELETE FROM
+				connection_request
+			WHERE
+				sender_user_id = ?
+					AND
+				receiver_user_id = ?
+				`, [req.body.senderId, req.userId]);
+
+	if (!req.body.doAccept) {
+		if (response.affectedRows == 0) {
+			res.json({
+				"success": "false",
+				"message": "The connection could not be denied"
+			});
+			return;
+		}
+
+		res.json({
+			"success": true,
+			"message": "Successfully denied the connection request"
+		});
+		return;
+	}
+
+	response = await db.executeSQL(`
+		INSERT INTO
+			connection (
+				user_1_id,
+				user_2_id
+			)
+		VALUES (
+			?,
+			?
+		)`, [req.body.senderId, req.userId]);
+	
+	if (response.affectedRows == 0) {
+		res.json({
+			"success": "false",
+			"message": "The connection could not be accepted"
+		});
+		return;
+	}
+	res.json({
+		"success": "true",
+		"message": "Connection request accepted!"
+	});
+}
+
 module.exports = router;
