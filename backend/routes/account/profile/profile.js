@@ -1,9 +1,13 @@
 const db = require("../../../helper_files/database");
 const router = require("express").Router();
 const { checkAuthenticated } = require("../../../helper_files/jwt");
+require('dotenv').config();
+const env = process.env;
+
+
 
 async function fetchZipcodeAndUpdate(zipcode, userId) {
-	const apiKey = 'e700389f30b100907f2332b17bfea4c9';
+	const apiKey = env.ZIPCODE_API_KEY;
 	const url = `https://api.openweathermap.org/geo/1.0/zip?zip=${zipcode},us&appid=${apiKey}`;
 
 	const reply = await fetch(url);

@@ -1,8 +1,11 @@
+require('dotenv').config();
+const env = process.env;
+
 const TextTranslationClient = require("@azure-rest/ai-translation-text").default;
 
-const apiKey = "8b0eab61f028479c9b5cba0086961032"; //Change to ENVIRONMENTAL VARIABLE
-const endpoint = "https://api.cognitive.microsofttranslator.com/";
-const region = "global";
+const apiKey = env.TRANSLATION_API_KEY; //Change to ENVIRONMENTAL VARIABLE
+const endpoint = env.TRANSLATION_ENDPOINT;
+const region = env.TRANSLATION_REGION;
 
 const translateClient = new TextTranslationClient(endpoint, { key: apiKey, region });
 

@@ -2,13 +2,15 @@ const db = require("../../helper_files/database");
 const jwt = require("../../helper_files/jwt");
 const { checkAuthenticated } = require("../../helper_files/jwt");
 const router = require("express").Router();
+require('dotenv').config();
+const env = process.env;
 
 // Create a new post
 const TextTranslationClient = require("@azure-rest/ai-translation-text").default
 
-const apiKey = "8b0eab61f028479c9b5cba0086961032"; //change into a ENVIRONMENTAL KEY 
-const endpoint = "https://api.cognitive.microsofttranslator.com/";
-const region = "global";
+const apiKey = env.TRANSLATION_API_KEY; //change into a ENVIRONMENTAL KEY 
+const endpoint = env.TRANSLATION_ENDPOINT;
+const region = env.TRANSLATION_REGION;
 
 const translateClient = new TextTranslationClient(endpoint, { key: apiKey, region });
 
