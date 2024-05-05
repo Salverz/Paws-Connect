@@ -201,7 +201,55 @@ router.get("/:userId", async (req, res) => {
 		"pets": pets
     });
 });
-  
+
+router.get("/:userId/feed", async (req, res) => {
+    const userId = req.params.userId;
+
+    try {
+        // Fetch user and friends' posts
+        const posts = await db.executeSQL(`
+            SELECT
+                p.post_id,
+                p.text_content,
+                p.visibility,
+                p.created_at,
+                ua.username AS poster_username,
+                up.profile_picture AS poster_profile_picture,
+                (
+                    SELECT COUNT(*) FROM post_like WHERE liked_post_id = p.post_id
+                ) AS likes,
+                (
+                    SELECT COUNT(*) FROM comment WHERE commented_post_id = p.post_id
+                ) AS comments
+            FROM
+                post p
+            JOIN
+                user_account ua ON p.poster_user_id = ua.user_id
+            JOIN
+                user_profile up ON ua.user_id = up.user_id
+            WHERE
+                p.poster_user_id = ? OR
+                (p.visibility IN ('public', 'friend') AND p.poster_user_id IN (
+                    SELECT user_2_id FROM connection WHERE user_1_id = ?
+                    UNION
+                    SELECT user_1_id FROM connection WHERE user_2_id = ?
+                ))
+            ORDER BY
+                p.created_at DESC
+        `, [userId, userId, userId]);
+
+        res.json({
+            success: true,
+            posts: posts
+        });
+    } catch (error) {
+        console.error("Error retrieving user and friends' posts:", error);
+        res.status(500).json({ success: false, message: 'An error occurred while retrieving posts' });
+    }
+	
+});
+
+
 // Retrieve a user's profile data for editing
 router.get("/", checkAuthenticated, async (req, res) => {
     const userId = req.userId;

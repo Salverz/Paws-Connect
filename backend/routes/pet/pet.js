@@ -108,6 +108,75 @@ router.get("/pets", checkAuthenticated, async (req, res) => {
 });
 
 
+
+router.get("/feed/:petId", checkAuthenticated, async (req, res) => {
+  const petId = req.params.petId;
+
+  try {
+      // Fetch the owner of the pet
+      const ownerResult = await db.executeSQL(`
+          SELECT owner_user_id
+          FROM pet_profile
+          WHERE pet_id = ?
+      `, [petId]);
+
+      if (ownerResult.length === 0) {
+          res.status(404).json({
+              "success": false,
+              "message": "Pet not found"
+          });
+          return;
+      }
+
+      const ownerId = ownerResult[0].owner_user_id;
+
+      // Fetch posts from the owner's friends
+      const posts = await db.executeSQL(`
+          SELECT
+              post.post_id,
+              post.text_content,
+              post.visibility,
+              post.created_at,
+              user_account.username AS poster_username,
+              user_profile.profile_picture AS poster_profile_picture,
+              (
+                  SELECT COUNT(*) FROM post_like WHERE liked_post_id = post.post_id
+              ) AS likes,
+              (
+                  SELECT COUNT(*) FROM comment WHERE commented_post_id = post.post_id
+              ) AS comments
+          FROM
+              post
+          JOIN
+              user_account ON post.poster_user_id = user_account.user_id
+          JOIN
+              user_profile ON user_account.user_id = user_profile.user_id
+          WHERE
+              (post.visibility = 'friend' AND post.poster_user_id IN (
+                  SELECT user_2_id FROM connection WHERE user_1_id = ?
+                  UNION
+                  SELECT user_1_id FROM connection WHERE user_2_id = ?
+              ))
+          ORDER BY
+              post.created_at DESC
+      `, [ownerId, ownerId]);
+
+      res.json({
+          "success": true,
+          "posts": posts
+      });
+  } catch (error) {
+      console.error("Error retrieving feed for pet:", error);
+      res.status(500).json({
+          "success": false,
+          "message": "An error occurred while retrieving the feed"
+      });
+  }
+});
+
+
+
+
 // Respond to a transfer request
 router.put("/transfer", checkAuthenticated, async (req, res) => {
     const petId = req.body.petId;
