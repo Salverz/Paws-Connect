@@ -58,7 +58,6 @@
 				<img class="poster-profile-picture" src={post.poster_profile_picture}>
 				<h1>{post.poster_username}</h1>
 			</a>
-			<p class="tagged-pet-label">Tagged pets:</p>
 			<div class="tagged-pets">
 				{#each post.tags as taggedPet}
 					<a class="tagged-pet" href="/pets/profile/{taggedPet.tagged_pet_id}">
@@ -67,8 +66,13 @@
 					</a>
 				{/each}
 			</div>
-            <img class="post-photo" src="{post.post_photo_link}">
-            <p class="post-text">{post.text_content}</p>
+			<div class="post-photo-area">
+				<img class="post-photo" src="{post.post_photo_link}">
+			</div>
+			<div class="post-text-section">
+				<p class="post-text">{post.text_content}</p>
+				<p class="created-at">Posted on {post.created_at_date} at {post.created_at_time}</p>
+			</div>
 			{#if post.post_language != post.preferred_language}
 				<div class="translate-post">
 					{#if !post.translated}
@@ -80,7 +84,6 @@
 			{/if}
             <div class="post-information-section">
 				<!-- <p class="likes">{post.likes} likes</p> -->
-                <p>Posted on {post.created_at.split("T")[0]} at {post.created_at.split("T")[1]}</p>
             </div>
         </div>
     {/each}
@@ -97,7 +100,7 @@
     .post {
         border-style: solid;
         border-radius: 10px;
-        padding: 10px 5%;
+		padding: 25px 5%;
         width: 50%;
         margin: 10px 0px;
 		background-color: lightgray;
@@ -127,8 +130,19 @@
         margin-right: 10px;
     }
 
+	.post-text-section {
+		background-color: #adadad;
+		border-radius: 10px;
+		padding: 2px 15px;
+	}
+
     .post-text {
     }
+
+	.post-photo-area {
+		display:flex;
+		justify-content: center;
+	}
 
     .post-photo {
         margin: 10px 0%;
@@ -175,5 +189,9 @@
 
 	.translate-post {
 		margin-top: 20px;
+	}
+
+	.created-at {
+		font-size: 10px;
 	}
 </style>
