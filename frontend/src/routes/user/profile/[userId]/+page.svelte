@@ -5,10 +5,13 @@
 	import SiteHeader from "$lib/components/SiteHeader.svelte";
 	import { checkAuthenticated } from "$lib/functions/authentication"
 
+	let token;
+
 	let name = "Loading...";
 	let profile_picture = "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg";
 	let bio = "Loading...";
 	let zip, preferred_language, username, birthDate;
+	let connectionPath = [];
 
 	let friends = [], pets = [];
 	let posts = 121;
@@ -42,7 +45,8 @@
 	console.log(userId);
 
 	async function getProfileData() {
-		let data = await fetch(`http://localhost:3000/account/profile/${userId}`);
+		let data = await fetch(`http://localhost:3000/account/profile/${userId}`,
+			{ headers: { 'Authorization': `Bearer ${token}` }});
 		let json = await data.json();
 		console.log(json);
 		username = json.username;
@@ -55,11 +59,21 @@
 		pets = json.pets;
 	}
 
+	async function getConnectionPath() {
+		const path = await fetch(`http://localhost:3000/connection/path?end=${userId}`,
+			{ headers: { 'Authorization': `Bearer ${token}` }});
+		const json = await path.json();
+
+		connectionPath = json;
+		console.log(json);
+	}
+
 
 	//   getProfileData();
 	onMount(async () => {
-		await checkAuthenticated();
+		token = await checkAuthenticated();
 		await getProfileData();
+		await getConnectionPath();
 	});
 
 </script>
@@ -93,6 +107,36 @@
 			</div>
 		</div>
 		<br>
+		<div class="connection-path">
+			<div class="connection-path-text">
+				Connection path:
+			</div>
+			{#if connectionPath.length == 0}
+				<div class="connection-path-text">
+					No path
+				</div>
+			{:else}
+				<div class="connection-path-text">
+					<div class="you friend">
+						<img class="friend-profile-picture" src={profile_picture}>
+						<span class="friend-name">You</span>
+					</div>
+				</div>
+					{#each connectionPath as connection}
+						{#if connection != connectionPath[0]}
+							<div class="arrow">
+								&rarr;
+							</div>
+							<a rel="external" href="/user/profile/{connection[0].user_id}">
+								<div class="friend">
+									<img class="friend-profile-picture" src={connection[0].profile_picture}>
+									<span class="friend-name">{connection[0].display_name}</span>
+								</div>
+							</a>
+						{/if}
+					{/each}
+				{/if}
+		</div>
 		Friends
 		<div class="friend-list">
 			{#each friends as friend}
@@ -176,6 +220,21 @@
 
 	.pets-list {
 		margin-left: 20px;
+	}
+
+	.connection-path {
+		display: flex;
+		justify-items: center;
+		align-items: center;
+		gap: 15px;
+	}
+
+	.you:hover {
+		background-color: none;
+	}
+
+	.arrow {
+		font-size: 30px;
 	}
 
 	h1 {
