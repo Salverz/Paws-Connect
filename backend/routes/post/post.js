@@ -190,9 +190,9 @@ router.get("/get", checkAuthenticated, async (req, res) => {
 });
 
 
-router.get("/get/petProfile", async (req, res) => {
-    const petId = req.body.petId; // Pet ID obtained from the request parameter or session
-    const userId = req.body.userId;
+router.get("/pet", checkAuthenticated, async (req, res) => {
+    const petId = req.query.petId; // Pet ID obtained from the request parameter or session
+    const userId = req.userId;
 
     try {
         // Fetch the owner of the pet and their friends
@@ -296,9 +296,9 @@ router.get("/get/petProfile", async (req, res) => {
 });
 
 
-router.get("/get/userProfile", async (req, res) => {
-    const profileUserId = req.body.profileUserId; // The ID of the user whose profile is being viewed
-    const viewingUserId = req.body.viewUserId; // ID of the user who is viewing the profile, extracted from session or token
+router.get("/user", checkAuthenticated, async (req, res) => {
+    const profileUserId = req.query.profileUserId; // The ID of the user whose profile is being viewed
+    const viewingUserId = req.userId; // ID of the user who is viewing the profile, extracted from session or token
 
     try {
         // Fetch the preferred language of the viewing user
