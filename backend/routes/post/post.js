@@ -202,7 +202,8 @@ router.get("/get", checkAuthenticated, async (req, res) => {
 
 router.get("/get/petProfile", checkAuthenticated, async (req, res) => {
     const petId = req.petId; // Pet ID obtained from the request parameter or session
-	const userId = req.userId;
+    const userId = req.userId;
+
     try {
         // Fetch the owner of the pet and their friends
         const ownerInfo = await db.executeSQL(`
@@ -210,7 +211,7 @@ router.get("/get/petProfile", checkAuthenticated, async (req, res) => {
             FROM pet_profile
             WHERE pet_id = ?
         `, [petId]);
-  
+
         if (ownerInfo.length === 0) {
             res.status(404).json({
                 "success": false,
@@ -218,9 +219,9 @@ router.get("/get/petProfile", checkAuthenticated, async (req, res) => {
             });
             return;
         }
-  
+
         const ownerId = ownerInfo[0].owner_user_id;
-  
+
         // Determine if the viewer is a friend of the owner
         const isFriend = await db.executeSQL(`
             SELECT COUNT(*) AS friendCount
@@ -228,8 +229,17 @@ router.get("/get/petProfile", checkAuthenticated, async (req, res) => {
             WHERE (user_1_id = ? AND user_2_id = ?) OR (user_1_id = ? AND user_2_id = ?)
         `, [req.userId, ownerId, ownerId, req.userId]);
 
+        // Fetch the preferred language of the viewing user
+        const viewerLangResult = await db.executeSQL(`
+            SELECT up.preferred_language, lan.language_code
+            FROM user_profile up
+			JOIN language lan ON up.preferred_language = lan.language
+            WHERE user_id = ?
+        `, [req.userId]);
+        const viewerPreferredLanguage = viewerLangResult[0].language_code;
+
         // Build visibility condition based on friendship
-        let visibilityCondition = isFriend[0].friendCount > 0 ? "(p.visibility = 'friend' OR p.visibility = 'public')" : "p.visibility = 'public'";
+        let visibilityCondition = isFriend[0].friendCount > 0 ? "(p.visibility = 'private' OR p.visibility = 'public')" : "p.visibility = 'public'";
 
         // Fetch posts related to the pet by owner's posts or where the pet is tagged
         const posts = await db.executeSQL(`
@@ -240,6 +250,8 @@ router.get("/get/petProfile", checkAuthenticated, async (req, res) => {
                 p.created_at,
                 ua.username AS poster_username,
                 up.profile_picture AS poster_profile_picture,
+                p.post_language,
+				lan.language_code,
                 (
                     SELECT COUNT(*) FROM post_like WHERE liked_post_id = p.post_id
                 ) AS likes,
@@ -252,6 +264,8 @@ router.get("/get/petProfile", checkAuthenticated, async (req, res) => {
                 user_account ua ON p.poster_user_id = ua.user_id
             JOIN
                 user_profile up ON ua.user_id = up.user_id
+			JOIN
+				language lan ON up.preferred_language = lan.language
             LEFT JOIN
                 tagged_pet tp ON tp.tagged_post_id = p.post_id
             WHERE
@@ -261,9 +275,23 @@ router.get("/get/petProfile", checkAuthenticated, async (req, res) => {
                 p.created_at DESC
         `, [ownerId, petId, petId]);
 
+        // Translate posts if necessary
+        const translatedPosts = await Promise.all(posts.map(async (post) => {
+            if (post.language_code !== viewerPreferredLanguage) {
+                post.translated_text = await translatePostText(post.text_content, viewerPreferredLanguage, post.language_code);
+                post.translated = true;
+                post.translated_from = post.post_language;
+            } else {
+                post.translated_text = post.text_content;
+                post.translated = false;
+                post.translated_from = null;
+            }
+            return post;
+        }));
+
         res.json({
             "success": true,
-            "posts": posts
+            "posts": translatedPosts
         });
     } catch (error) {
         console.error("Error retrieving feed for pet:", error);
@@ -274,11 +302,26 @@ router.get("/get/petProfile", checkAuthenticated, async (req, res) => {
     }
 });
 
-router.get("/get/userProfile", async (req, res) => {
+
+router.get("/get/userProfile", checkAuthenticated, async (req, res) => {
     const profileUserId = req.params.userId; // The ID of the user whose profile is being viewed
     const viewingUserId = req.userId; // ID of the user who is viewing the profile, extracted from session or token
 
     try {
+        // Fetch the preferred language of the viewing user
+        const viewerLangResult = await db.executeSQL(`
+            SELECT preferred_language, lan.language_code
+            FROM user_profile
+			JOIN language lan ON  user_profile.preferred_language = lan.language
+            WHERE user_id = ?
+        `, [viewingUserId]);
+
+        if (viewerLangResult.length === 0) {
+            return res.status(404).json({ success: false, message: "Viewer profile not found" });
+        }
+
+        const userPreferredLanguage = viewerLangResult[0].language_code;
+
         // Check if the viewing user is a friend of the profile user
         const isFriend = await db.executeSQL(`
             SELECT COUNT(*) AS isFriend
@@ -288,7 +331,7 @@ router.get("/get/userProfile", async (req, res) => {
 
         let visibilityCondition = "p.visibility = 'public'";
         if (isFriend[0].isFriend > 0 || viewingUserId === profileUserId) {
-            visibilityCondition = "(p.visibility IN ('public', 'friend') OR p.poster_user_id = ?)";
+            visibilityCondition = "(p.visibility IN ('public', 'private') OR p.poster_user_id = ?)";
         }
 
         // Fetch posts according to the visibility rules and order by creation date descending
@@ -299,8 +342,9 @@ router.get("/get/userProfile", async (req, res) => {
                 p.visibility,
                 p.created_at,
                 ua.username AS poster_username,
-				lan.language_code,
                 up.profile_picture AS poster_profile_picture,
+                p.post_language,
+				lan.language_code,
                 (
                     SELECT COUNT(*) FROM post_like WHERE liked_post_id = p.post_id
                 ) AS likes,
@@ -314,31 +358,35 @@ router.get("/get/userProfile", async (req, res) => {
             JOIN
                 user_profile up ON ua.user_id = up.user_id
 			JOIN 
-				language lan ON u                                                                                                                                                                                 p.preferred_language = lan.language
+				language lan ON p.post_language = lan.language
             WHERE
                 p.poster_user_id = ? AND ${visibilityCondition}
             ORDER BY
-                p.created_at DESC  // Orders the posts by date from newest to oldest
-        `, [profileUserId, profileUserId]); // Ensure you pass profileUserId twice if needed
-		const translatedPosts = await Promise.all(posts.map(async (post) => {
-			post.translated = false;
-		
-		  if (post.language_code != userPreferredLanguage) {
-			  post.translated_text = await translatePostText(post.text_content, userPreferredLanguage, post.language_code);
-			  post.translated_from = post.language_code; // Indicate that this post has been translated
-	  
-		  }else{
-			  post.translated_from = null;
-		  }
-		  return post;
-		}));
+                p.created_at DESC
+        `, [profileUserId, profileUserId]);
+
+        // Translate posts if necessary
+        const translatedPosts = await Promise.all(posts.map(async (post) => {
+            if (post.language_code !== userPreferredLanguage) {
+                post.translated_text = await translatePostText(post.text_content, userPreferredLanguage, post.language_code);
+                post.translated = true;
+                post.translated_from = post.post_language;
+            } else {
+                post.translated_text = post.text_content;
+                post.translated = false;
+                post.translated_from = null;
+            }
+            return post;
+        }));
+
         res.json({
             success: true,
-            posts: posts
+            posts: translatedPosts
         });
     } catch (error) {
         console.error("Error retrieving user and friends' posts:", error);
         res.status(500).json({ success: false, message: 'An error occurred while retrieving posts' });
     }
 });
+
 module.exports = router;
