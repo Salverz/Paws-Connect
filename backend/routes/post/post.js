@@ -151,7 +151,7 @@ router.get("/get", jwt.checkAuthenticated, async (req, res) => {
 		WHERE
 			p.visibility = 'public'
 				OR
-			p.poster_user_id = 2
+			p.poster_user_id = ?
 				OR (
 					p.visibility = 'private'
 						AND
@@ -161,7 +161,7 @@ router.get("/get", jwt.checkAuthenticated, async (req, res) => {
 						FROM
 							connection
 						WHERE
-							user_1_id = 5
+							user_1_id = ?
 						
 						UNION
 						
@@ -170,7 +170,7 @@ router.get("/get", jwt.checkAuthenticated, async (req, res) => {
 						FROM
 							connection
 						WHERE
-							user_2_id = 5
+							user_2_id = ?
 					)
 				)
 		ORDER BY

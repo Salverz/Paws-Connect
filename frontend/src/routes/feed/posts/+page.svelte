@@ -8,16 +8,27 @@
 
 	onMount(async () => {
 		token = await checkAuthenticated();
+		await getUserPets();
 	});
 
     let userId, postPicture, textContent, visibility, language;
 
 	async function getUserPets() {
-		const response = await fetch(`http://localhost:3000/pet/pets/${userId}`);
+		const response = await fetch(`http://localhost:3000/pet/pets/`,
+			{ headers: { 'Authorization': `Bearer ${token}` }});
 		const json = await response.json();
 		console.log(json);
 		connections = [];
-		connections = json;
+		json.forEach(pet => {
+			connections.push({
+				"id": pet.id,
+				"name": pet.name,
+				"profile_picture": pet.profile_picture
+			});
+		});
+
+		console.log(connections);
+
 		selectedConnections = [];
 	}
 
@@ -87,7 +98,6 @@
         <label for="post_language">Post language</label>
         <input id="post_language" name="post_language"bind:value={language}>
     </div>
-	{#if showConnectionsList}
 	<div class="connections-section">
 		<h2>Tag Connections</h2>
 		{#each connections as connection}
@@ -102,7 +112,6 @@
 		</div>
 		{/each}
 	</div>
-	{/if}
     <button on:click={createPost}>Create post</button>
     <img src={postPicture} alt="Post Picture" />
 
