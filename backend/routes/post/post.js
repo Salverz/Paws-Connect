@@ -3,12 +3,15 @@ const jwt = require("../../helper_files/jwt");
 const { checkAuthenticated } = require("../../helper_files/jwt");
 const router = require("express").Router();
 
+require('dotenv').config();
+const env = process.env;
+
 // Create a new post
 const TextTranslationClient = require("@azure-rest/ai-translation-text").default
 
-const apiKey = "8b0eab61f028479c9b5cba0086961032"; //change into a ENVIRONMENTAL KEY 
-const endpoint = "https://api.cognitive.microsofttranslator.com/";
-const region = "global";
+const apiKey = env.TRANSLATION_API_KEY; //change into a ENVIRONMENTAL KEY 
+const endpoint = env.TRANSLATION_ENDPOINT;
+const region = env.TRANSLATION_REGION;
 
 const translateClient = new TextTranslationClient(endpoint, { key: apiKey, region });
 
@@ -57,17 +60,6 @@ router.post("/create", checkAuthenticated, async (req, res) => {
       `, [postId, post_photo_link]);
     }
 
-    // Tagged friends and pets logic goes here if needed
-        // Insert tagged friends
-    // if (taggedFriends && taggedFriends.length) {
-    //   for (const friendId of taggedFriends) {
-    //     await db.executeSQL(`
-    //       INSERT INTO tagged_friend (tagged_post_id, tagged_friend_user_id)
-    //       VALUES (?, ?)
-    //     `, [postId, friendId]);
-    //   }
-    // }
-
 	// Insert tagged pets
 	 for (let i = 0; i < petsToTag.length; i++) {
 	 await db.executeSQL(`
@@ -96,13 +88,8 @@ router.post("/create", checkAuthenticated, async (req, res) => {
   }
 });
 
-router.get("/get", jwt.checkAuthenticated, async (req, res) => {
-	console.log("getting session");
-	const token = req.headers.authorization.split(' ')[1];
-	console.log(token);
-	const decoded = jwt.verifyToken(token);
-	console.log(decoded);
-	const userID = decoded.userId;
+router.get("/get", checkAuthenticated, async (req, res) => {
+	const userID = req.userId;
 
 	const result = await db.executeSQL(`
 		SELECT language.language_code, language.language
@@ -151,7 +138,7 @@ router.get("/get", jwt.checkAuthenticated, async (req, res) => {
 		WHERE
 			p.visibility = 'public'
 				OR
-			p.poster_user_id = 2
+			p.poster_user_id = ?
 				OR (
 					p.visibility = 'private'
 						AND
@@ -161,7 +148,7 @@ router.get("/get", jwt.checkAuthenticated, async (req, res) => {
 						FROM
 							connection
 						WHERE
-							user_1_id = 5
+							user_1_id = ?
 						
 						UNION
 						
@@ -170,7 +157,7 @@ router.get("/get", jwt.checkAuthenticated, async (req, res) => {
 						FROM
 							connection
 						WHERE
-							user_2_id = 5
+							user_2_id = ?
 					)
 				)
 		ORDER BY
@@ -201,4 +188,199 @@ router.get("/get", jwt.checkAuthenticated, async (req, res) => {
     res.status(500).json({ success: false, message: 'An error occurred while retrieving posts' });
   }
 });
+
+
+router.get("/pet", checkAuthenticated, async (req, res) => {
+    const petId = req.query.petId; // Pet ID obtained from the request parameter or session
+    const userId = req.userId;
+
+    try {
+        // Fetch the owner of the pet and their friends
+        const ownerInfo = await db.executeSQL(`
+            SELECT owner_user_id
+            FROM pet_profile
+            WHERE pet_id = ?
+        `, [petId]);
+
+        if (ownerInfo.length === 0) {
+            res.status(404).json({
+                "success": false,
+                "message": "Pet not found"
+            });
+            return;
+        }
+
+        const ownerId = ownerInfo[0].owner_user_id;
+
+         // Check if the viewing user is a friend of the profile user
+		 const isFriend = await db.executeSQL(`
+			SELECT COUNT(*) AS isFriend
+			FROM connection
+			WHERE (user_1_id = ? AND user_2_id = ?) OR (user_1_id = ? AND user_2_id = ?)
+		`, [userId, ownerId, ownerId, userId]);
+
+		let visibilityCondition = "p.visibility = 'public'";
+		if (isFriend[0].isFriend > 0 || userId == ownerId) {
+			visibilityCondition = "(p.visibility IN ('public', 'private') OR p.poster_user_id = ?)";
+		}
+
+
+        // Fetch the preferred language of the viewing user
+        const viewerLangResult = await db.executeSQL(`
+            SELECT up.preferred_language, lan.language_code
+            FROM user_profile up
+			JOIN language lan ON up.preferred_language = lan.language
+            WHERE user_id = ?
+        `, [userId]);
+        const viewerPreferredLanguage = viewerLangResult[0].language_code;
+
+        // Fetch posts related to the pet by owner's posts or where the pet is tagged
+        const posts = await db.executeSQL(`
+            SELECT DISTINCT
+                p.post_id,
+                p.text_content,
+                p.visibility,
+                p.created_at,
+                ua.username AS poster_username,
+                up.profile_picture AS poster_profile_picture,
+                p.post_language,
+				lan.language_code,
+				? AS "preferred_language",
+                (
+                    SELECT COUNT(*) FROM post_like WHERE liked_post_id = p.post_id
+                ) AS likes,
+                (
+                    SELECT COUNT(*) FROM comment WHERE commented_post_id = p.post_id
+                ) AS comments
+            FROM
+                post p
+            JOIN
+                user_account ua ON p.poster_user_id = ua.user_id
+            JOIN
+                user_profile up ON ua.user_id = up.user_id
+			JOIN
+				language lan ON p.post_language = lan.language
+            LEFT JOIN
+                tagged_pet tp ON tp.tagged_post_id = p.post_id
+            WHERE
+                (p.poster_user_id = ? AND tp.tagged_pet_id = ? AND ${visibilityCondition})
+            ORDER BY
+                p.created_at DESC
+        `, [viewerLangResult[0].language, ownerId, petId, petId]);
+
+        // Translate posts if necessary
+        const translatedPosts = await Promise.all(posts.map(async (post) => {
+            if (post.language_code != viewerPreferredLanguage) {
+                post.translated_text = await translatePostText(post.text_content, viewerPreferredLanguage, post.language_code);
+                post.translated = true;
+                post.translated_from = post.post_language;
+            } else {
+                post.translated_text = post.text_content;
+                post.translated = false;
+                post.translated_from = null;
+            }
+            return post;
+        }));
+
+        res.json({
+            "success": true,
+            "posts": translatedPosts
+        });
+    } catch (error) {
+        console.error("Error retrieving feed for pet:", error);
+        res.status(500).json({
+            "success": false,
+            "message": "An error occurred while retrieving the feed"
+        });
+    }
+});
+
+
+router.get("/user", checkAuthenticated, async (req, res) => {
+    const profileUserId = req.query.profileUserId; // The ID of the user whose profile is being viewed
+    const viewingUserId = req.userId; // ID of the user who is viewing the profile, extracted from session or token
+
+    try {
+        // Fetch the preferred language of the viewing user
+        const viewerLangResult = await db.executeSQL(`
+            SELECT preferred_language, lan.language_code
+            FROM user_profile
+			JOIN language lan ON  user_profile.preferred_language = lan.language
+            WHERE user_id = ?
+        `, [viewingUserId]);
+
+        if (viewerLangResult.length === 0) {
+            return res.status(404).json({ success: false, message: "Viewer profile not found" });
+        }
+
+        const userPreferredLanguage = viewerLangResult[0].language_code;
+
+        // Check if the viewing user is a friend of the profile user
+        const isFriend = await db.executeSQL(`
+            SELECT COUNT(*) AS isFriend
+            FROM connection
+            WHERE (user_1_id = ? AND user_2_id = ?) OR (user_1_id = ? AND user_2_id = ?)
+        `, [viewingUserId, profileUserId, profileUserId, viewingUserId]);
+
+        let visibilityCondition = "p.visibility = 'public'";
+        if (isFriend[0].isFriend > 0 || viewingUserId === profileUserId) {
+            visibilityCondition = "(p.visibility IN ('public', 'private') OR p.poster_user_id = ?)";
+        }
+
+        // Fetch posts according to the visibility rules and order by creation date descending
+        const posts = await db.executeSQL(`
+            SELECT
+                p.post_id,
+                p.text_content,
+                p.visibility,
+                p.created_at,
+                ua.username AS poster_username,
+                up.profile_picture AS poster_profile_picture,
+                p.post_language,
+				lan.language_code,
+				? AS "preferred_language",
+                (
+                    SELECT COUNT(*) FROM post_like WHERE liked_post_id = p.post_id
+                ) AS likes,
+                (
+                    SELECT COUNT(*) FROM comment WHERE commented_post_id = p.post_id
+                ) AS comments
+            FROM
+                post p
+            JOIN
+                user_account ua ON p.poster_user_id = ua.user_id
+            JOIN
+                user_profile up ON ua.user_id = up.user_id
+			JOIN 
+				language lan ON p.post_language = lan.language
+            WHERE
+                p.poster_user_id = ? AND ${visibilityCondition}
+            ORDER BY
+                p.created_at DESC
+        `, [viewerLangResult[0].language, profileUserId, profileUserId]);
+
+        // Translate posts if necessary
+        const translatedPosts = await Promise.all(posts.map(async (post) => {
+            if (post.language_code !== userPreferredLanguage) {
+                post.translated_text = await translatePostText(post.text_content, userPreferredLanguage, post.language_code);
+                post.translated = true;
+                post.translated_from = post.post_language;
+            } else {
+                post.translated_text = post.text_content;
+                post.translated = false;
+                post.translated_from = null;
+            }
+            return post;
+        }));
+
+        res.json({
+            success: true,
+            posts: translatedPosts
+        });
+    } catch (error) {
+        console.error("Error retrieving user and friends' posts:", error);
+        res.status(500).json({ success: false, message: 'An error occurred while retrieving posts' });
+    }
+});
+
 module.exports = router;

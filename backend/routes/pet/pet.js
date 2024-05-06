@@ -107,7 +107,6 @@ router.get("/pets", checkAuthenticated, async (req, res) => {
 	res.send(rows);
 });
 
-
 // Respond to a transfer request
 router.put("/transfer", checkAuthenticated, async (req, res) => {
     const petId = req.body.petId;
