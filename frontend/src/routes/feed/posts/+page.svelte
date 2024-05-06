@@ -201,12 +201,13 @@
 	.small-checkbox {
 		transform: scale(0.55); /* Makes the checkbox smaller */
 		margin-left: auto; 
-   		margin-right: 5px;
+   		margin-right: 1000px;
 	}
 	button {
 		margin-top: 20px;
 		background-color: rgb(19, 13, 212);
-		width: 100%;
+		width: 20%;
+		margin-right: 1000px;
 		height: 50px;
 		color: white;
 		border-radius: 5px;

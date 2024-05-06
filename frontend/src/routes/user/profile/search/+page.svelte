@@ -97,8 +97,6 @@
                         {/if}
                     </h3>
                     
-                    <p>Longitude: {result.longitude}</p>
-                    <p>Latitude: {result.latitude}</p>
                 </div>
 
             </div>
@@ -114,89 +112,103 @@
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		width: 50%;
+		width: 80%; 
 		background-color: rgb(240,240,250);
-		padding: 60px;
+		padding: 40px;
 		margin: 20px auto;
 		border-radius: 15px;
+		box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* subtle shadow */
 	}
 
 	.card-header-section {
 		width: 100%;
+		text-align: center; 
 	}
 
 	.card-header-text {
-		font-size: 40px;
-		font-weight: 450;
-		margin: 0;
+		font-size: 32px; 
+		font-weight: 500;
+		color: #333; 
+		margin-bottom: 20px;
 	}
 
 	.form-input-area {
-		display: flex;
-		flex-direction: column;
 		width: 100%;
-		margin: 20px 0px;
 	}
 
 	.input-row {
 		display: flex;
-		justify-content: center;
-		gap: 20px;
-		width: 100%;
+		justify-content: space-between; 
+		gap: 10px;
 	}
 
 	.input-block {
+		flex-grow: 1; 
 		display: flex;
 		flex-direction: column;
-		width: 100%;
 	}
 
 	label {
-		font-size: 15px;
-		color: rgb(76, 76, 76);
-		margin-bottom: 3px;
+		font-size: 16px;
+		color: rgb(50, 50, 50); 
+		margin-bottom: 5px;
 	}
 
-	.text-input {
+	.text-input, select {
 		height: 40px;
 		border-radius: 5px;
-		border-style: solid;
-		border-width: 1px;
-		padding: 0px 10px;
+		border: 1px solid #ccc;
+		padding: 0 10px;
 	}
 
 	.results-section {
-		margin-top: 30px;
+		width: 80%; 
+		margin: 20px auto; 
+		display: flex; 
+		flex-direction: column;
+		align-items: center;
 	}
 
 	.result-item {
+		background-color: #fff; 
+		border-radius: 10px;
+		padding: 15px;
+		margin-bottom: 10px;
 		display: flex;
 		align-items: center;
-		margin-bottom: 10px;
+		width: 20%; 
+		box-shadow: 0 1px 5px rgba(0,0,0,0.1); 
+		transition: box-shadow 0.2s ease; 
+	}
+
+	.result-item:hover {
+		box-shadow: 0 5px 15px rgba(0,0,0,0.2); 
 	}
 
 	.profile-picture {
-		width: 50px;
-		height: 50px;
-		border-radius: 50%; 
-		margin-right: 10px;
+		width: 60px; 
+		height: 60px;
+		border-radius: 50%;
+		margin-right: 20px; 
 	}
-	
-	button {
-		margin-top: 20px;
-        font-weight: 400;
-        background-color: rgb(19, 13, 212);
-        width: 100%;
-		height: 40px;
-        color: white;
-        border-radius: 5px;
-        border-style: none;
 
-		/* Animation */
-		transition: background-color 0.15s ease;
+	h2 {
+		text-align: center; 
+		width: 100%; 
 	}
-    button:hover {
-        background-color: rgb(4, 1, 97);
-        cursor: pointer;
-    }
+
+	button {
+		padding: 10px 20px;
+		margin-top: 20px;
+		background-color: #001a72; 
+		color: white;
+		border-radius: 5px;
+		border: none;
+		font-weight: 500;
+		transition: background 0.2s;
+	}
+
+	button:hover {
+		background-color: #000d48; /* Darker on hover */
+	}
 </style>
