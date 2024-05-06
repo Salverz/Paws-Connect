@@ -60,17 +60,6 @@ router.post("/create", checkAuthenticated, async (req, res) => {
       `, [postId, post_photo_link]);
     }
 
-    // Tagged friends and pets logic goes here if needed
-        // Insert tagged friends
-    // if (taggedFriends && taggedFriends.length) {
-    //   for (const friendId of taggedFriends) {
-    //     await db.executeSQL(`
-    //       INSERT INTO tagged_friend (tagged_post_id, tagged_friend_user_id)
-    //       VALUES (?, ?)
-    //     `, [postId, friendId]);
-    //   }
-    // }
-
 	// Insert tagged pets
 	 for (let i = 0; i < petsToTag.length; i++) {
 	 await db.executeSQL(`
@@ -201,9 +190,9 @@ router.get("/get", checkAuthenticated, async (req, res) => {
 });
 
 
-router.get("/get/petProfile", checkAuthenticated, async (req, res) => {
-    const petId = req.petId; // Pet ID obtained from the request parameter or session
-    const userId = req.userId;
+router.get("/get/petProfile", async (req, res) => {
+    const petId = req.body.petId; // Pet ID obtained from the request parameter or session
+    const userId = req.body.userId;
 
     try {
         // Fetch the owner of the pet and their friends
@@ -223,12 +212,18 @@ router.get("/get/petProfile", checkAuthenticated, async (req, res) => {
 
         const ownerId = ownerInfo[0].owner_user_id;
 
-        // Determine if the viewer is a friend of the owner
-        const isFriend = await db.executeSQL(`
-            SELECT COUNT(*) AS friendCount
-            FROM connection
-            WHERE (user_1_id = ? AND user_2_id = ?) OR (user_1_id = ? AND user_2_id = ?)
-        `, [req.userId, ownerId, ownerId, req.userId]);
+         // Check if the viewing user is a friend of the profile user
+		 const isFriend = await db.executeSQL(`
+			SELECT COUNT(*) AS isFriend
+			FROM connection
+			WHERE (user_1_id = ? AND user_2_id = ?) OR (user_1_id = ? AND user_2_id = ?)
+		`, [userId, ownerId, ownerId, userId]);
+
+		let visibilityCondition = "p.visibility = 'public'";
+		if (isFriend[0].isFriend > 0 || userId == ownerId) {
+			visibilityCondition = "(p.visibility IN ('public', 'private') OR p.poster_user_id = ?)";
+		}
+
 
         // Fetch the preferred language of the viewing user
         const viewerLangResult = await db.executeSQL(`
@@ -236,11 +231,8 @@ router.get("/get/petProfile", checkAuthenticated, async (req, res) => {
             FROM user_profile up
 			JOIN language lan ON up.preferred_language = lan.language
             WHERE user_id = ?
-        `, [req.userId]);
+        `, [userId]);
         const viewerPreferredLanguage = viewerLangResult[0].language_code;
-
-        // Build visibility condition based on friendship
-        let visibilityCondition = isFriend[0].friendCount > 0 ? "(p.visibility = 'private' OR p.visibility = 'public')" : "p.visibility = 'public'";
 
         // Fetch posts related to the pet by owner's posts or where the pet is tagged
         const posts = await db.executeSQL(`
@@ -253,6 +245,7 @@ router.get("/get/petProfile", checkAuthenticated, async (req, res) => {
                 up.profile_picture AS poster_profile_picture,
                 p.post_language,
 				lan.language_code,
+				? AS "preferred_language",
                 (
                     SELECT COUNT(*) FROM post_like WHERE liked_post_id = p.post_id
                 ) AS likes,
@@ -266,19 +259,18 @@ router.get("/get/petProfile", checkAuthenticated, async (req, res) => {
             JOIN
                 user_profile up ON ua.user_id = up.user_id
 			JOIN
-				language lan ON up.preferred_language = lan.language
+				language lan ON p.post_language = lan.language
             LEFT JOIN
                 tagged_pet tp ON tp.tagged_post_id = p.post_id
             WHERE
-                (p.poster_user_id = ? AND tp.tagged_pet_id = ?) OR
-                (tp.tagged_pet_id = ? AND ${visibilityCondition})
+                (p.poster_user_id = ? AND tp.tagged_pet_id = ? AND ${visibilityCondition})
             ORDER BY
                 p.created_at DESC
-        `, [ownerId, petId, petId]);
+        `, [viewerLangResult[0].language, ownerId, petId, petId]);
 
         // Translate posts if necessary
         const translatedPosts = await Promise.all(posts.map(async (post) => {
-            if (post.language_code !== viewerPreferredLanguage) {
+            if (post.language_code != viewerPreferredLanguage) {
                 post.translated_text = await translatePostText(post.text_content, viewerPreferredLanguage, post.language_code);
                 post.translated = true;
                 post.translated_from = post.post_language;
@@ -304,9 +296,9 @@ router.get("/get/petProfile", checkAuthenticated, async (req, res) => {
 });
 
 
-router.get("/get/userProfile", checkAuthenticated, async (req, res) => {
-    const profileUserId = req.params.userId; // The ID of the user whose profile is being viewed
-    const viewingUserId = req.userId; // ID of the user who is viewing the profile, extracted from session or token
+router.get("/get/userProfile", async (req, res) => {
+    const profileUserId = req.body.profileUserId; // The ID of the user whose profile is being viewed
+    const viewingUserId = req.body.viewUserId; // ID of the user who is viewing the profile, extracted from session or token
 
     try {
         // Fetch the preferred language of the viewing user
@@ -346,6 +338,7 @@ router.get("/get/userProfile", checkAuthenticated, async (req, res) => {
                 up.profile_picture AS poster_profile_picture,
                 p.post_language,
 				lan.language_code,
+				? AS "preferred_language",
                 (
                     SELECT COUNT(*) FROM post_like WHERE liked_post_id = p.post_id
                 ) AS likes,
@@ -364,7 +357,7 @@ router.get("/get/userProfile", checkAuthenticated, async (req, res) => {
                 p.poster_user_id = ? AND ${visibilityCondition}
             ORDER BY
                 p.created_at DESC
-        `, [profileUserId, profileUserId]);
+        `, [viewerLangResult[0].language, profileUserId, profileUserId]);
 
         // Translate posts if necessary
         const translatedPosts = await Promise.all(posts.map(async (post) => {
