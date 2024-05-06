@@ -182,7 +182,7 @@
 	.connection-item {
 		display: flex;
 		align-items: center;
-		justify-content: space-between;
+		justify-content: flex-start;
 		margin-bottom: 10px;
 	}
 
@@ -199,8 +199,9 @@
 		margin-left: 10px;
 	}
 	.small-checkbox {
-		transform: scale(0.75); /* Makes the checkbox smaller */
-		margin-right: 10px; /* Adds some spacing on the right */
+		transform: scale(0.55); /* Makes the checkbox smaller */
+		margin-left: auto; 
+   		margin-right: 5px;
 	}
 	button {
 		margin-top: 20px;
