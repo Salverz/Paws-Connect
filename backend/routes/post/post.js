@@ -14,14 +14,21 @@ const translateClient = new TextTranslationClient(endpoint, { key: apiKey, regio
 
 // Helper function to translate text
 async function translatePostText(text, targetLanguage, postLanguage) {
-    const response = await translateClient.path("/translate").post({
-        queryParameters: {to: targetLanguage, from : postLanguage},
-        body: [{ text: text }]
-    });
-    if (response.status != 200) {
-        throw new Error(`Translation service returned status code ${response.status}`);
-    }
-    return response.body[0].translations[0].text;
+	let translatedSuccessfully = false
+	let response;
+	while (!translatedSuccessfully) {
+		response = await translateClient.path("/translate").post({
+			queryParameters: {to: targetLanguage, from : postLanguage},
+			body: [{ text: text }]
+		});
+		if (response.status != 200) {
+			console.log("post translation api call failed. trying again...");
+			// throw new Error(`Translation service returned status code ${response.status}`);
+			continue;
+		}
+		translatedSuccessfully = true;
+	}
+	return response.body[0].translations[0].text;
 }
 
 // Create a new post
