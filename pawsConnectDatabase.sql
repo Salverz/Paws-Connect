@@ -139,6 +139,7 @@ CREATE TABLE location_lat_long(
     user_id INT,
     latitude DECIMAL(9,6),
     longitude DECIMAL(9,6),
+    town VARCHAR(64),
     FOREIGN KEY (user_id) REFERENCES user_account(user_id)
 );
 

@@ -18,26 +18,30 @@ async function fetchZipcodeAndUpdate(zipcode, userId) {
 	}
 	const latitude = json.lat;
 	const longitude = json.lon;
+	const town = json.name;
 
 	const sql = `
 		INSERT INTO
 			location_lat_long (
 				user_id,
 				latitude,
-				longitude
+				longitude,
+				town
 			)
 		VALUES (
+			?,
 			?,
 			?,
 			?
 		)
 		ON DUPLICATE KEY UPDATE
 			latitude = VALUES(latitude),
-			longitude = VALUES(longitude)
+			longitude = VALUES(longitude),
+			town = VALUES(town)
 		;`;
 
-	const params = [userId, latitude, longitude];
-	console.log(`inserting ${userId}, ${latitude}, ${longitude}`);
+	const params = [userId, latitude, longitude, town];
+	console.log(`inserting ${userId}, ${latitude}, ${longitude}, ${town}`);
 	
 	const databaseResult = await db.executeSQL(sql, params);
 
@@ -131,7 +135,7 @@ router.post("/create", async (req, res) => {
 });
 
 // Retrieve a user's profile data to display on their profile
-router.get("/:userId", checkAuthenticated, async (req, res) => {
+router.get("/:userId", async (req, res) => {
     const userId = req.params.userId;
 
     // Run an SQL query to get profile data of the user
@@ -193,60 +197,6 @@ router.get("/:userId", checkAuthenticated, async (req, res) => {
 			owner_user_id = ?
 		`, [userId]);
 
-	const userProfilePicture = await db.executeSQL(`
-		SELECT
-			profile_picture,
-			user_id
-		FROM
-			user_profile
-		WHERE
-			user_id = ?
-		`, [req.userId]);
-
-	const friendCheck = await db.executeSQL(`
-		SELECT
-			*
-		FROM
-			connection
-		WHERE ((
-			user_1_id = ?
-				AND
-			user_2_id = ?
-			)
-				OR (
-			user_1_id = ?
-				AND
-			user_2_id = ?
-			)
-		)`, [req.userId, userId, userId, req.userId]);
-
-	let friendRequestStatus = "none";
-	if (friendCheck.length == 0) {
-		const friendRequestCheck = await db.executeSQL(`
-			SELECT
-				*
-			FROM
-				connection_request
-			WHERE
-				(sender_user_id = ? AND receiver_user_id = ?)
-					OR
-				(sender_user_id = ? AND receiver_user_id = ?)
-				`, [req.userId, userId, userId, req.userId]);
-		
-		console.log("FRIEND REQUEST:");
-		console.log(friendRequestCheck);
-		
-		if (friendRequestCheck.length > 0) {
-			if (friendRequestCheck[0].sender_user_id == req.userId) {
-				friendRequestStatus = "sent";
-			} else {
-				friendRequestStatus = "received";
-			}
-		}
-	}
-	
-	console.log(req.userId);
-
     // Send the user's profile data back to the frontend
     res.json({
 		"accountFound": true,
@@ -257,11 +207,7 @@ router.get("/:userId", checkAuthenticated, async (req, res) => {
 		"preferredLanguage": rows[0].preferred_language,
 		"birthDate": rows[0].birth_date,
 		"friends": friends,
-		"pets": pets,
-		"userProfilePicture": userProfilePicture[0].profile_picture,
-		"viewerUserId": userProfilePicture[0].user_id,
-		"areFriends": friendCheck.length == 0 ? false : true,
-		"friendRequestStatus": friendRequestStatus
+		"pets": pets
     });
 });
 

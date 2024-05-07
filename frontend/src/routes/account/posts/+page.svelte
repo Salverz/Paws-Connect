@@ -87,6 +87,11 @@
     margin-bottom: 10px;
   }
 </style>
+
+
+
+
+
 <div class="container">
   <h1>My Posts</h1>
   <div id="userPosts" class="post-container">

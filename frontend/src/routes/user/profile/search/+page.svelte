@@ -54,28 +54,32 @@
 
 <SiteHeader/>
 <NavBar/>
-<h1>Profile Search</h1>
-    <div class="input-section">
-        <label for="searchType">Search for:</label>
-        <select id="searchType" bind:value={searchType}>
-            <option value="user">User Profile</option>
-            <option value="pet">Pet Profile</option>
-        </select>
-    </div>
-
-    <div class="input-section">
-        <label for="searchTerm">Search Term:</label>
-        <input id="searchTerm" name="searchTerm" bind:value={searchTerm} placeholder="Enter username, display name, or pet name">
-    </div>
-
-    <div class="input-section">
-        <label for="locationRange">Location Range (in miles):</label>
-        <input id="locationRange" name="locationRange" type="number" bind:value={locationRange} placeholder="Enter location range">
-    </div>
-
-    <button on:click={doSearch}>Search</button>
-    <button on:click={clearSearch}>Clear</button>
-
+<div class="search-card">
+	<div class="card-header-section">
+		<h1 class="card-header-text">Profile Search</h1>
+	</div>
+	<div class="form-input-area">
+		<div class="input-row">
+			<div class="input-block">
+				<label for="searchType">Search for:</label>
+				<select id="searchType" bind:value={searchType}>
+					<option value="user">User Profile</option>
+					<option value="pet">Pet Profile</option>
+				</select>
+			</div>
+			<div class="input-block">
+				<label for="searchTerm">Search Term:</label>
+				<input class="text-input" id="searchTerm" bind:value={searchTerm} placeholder="Enter username, display name, or pet name">
+			</div>
+			<div class="input-block">
+				<label for="locationRange">Location Range (in miles):</label>
+				<input class="text-input" id="locationRange" type="number" bind:value={locationRange} placeholder="Enter location range">
+			</div>
+		</div>
+		<button on:click={doSearch}>Search</button>
+		<button on:click={clearSearch}>Clear</button>
+	</div>
+</div>
 
 <div class="results-section">
     <h2>Search Results</h2>
@@ -93,8 +97,6 @@
                         {/if}
                     </h3>
                     
-                    <p>Longitude: {result.longitude}</p>
-                    <p>Latitude: {result.latitude}</p>
                 </div>
 
             </div>
@@ -105,33 +107,108 @@
 </div>
 
 <style>
-    form {
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        margin-bottom: 20px;
-    }
+	.search-card {
+		font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		width: 80%; 
+		background-color: rgb(240,240,250);
+		padding: 40px;
+		margin: 20px auto;
+		border-radius: 15px;
+		box-shadow: 0 2px 10px rgba(0,0,0,0.1); /* subtle shadow */
+	}
 
-    .input-section {
-        margin-bottom: 10px;
-    }
+	.card-header-section {
+		width: 100%;
+		text-align: center; 
+	}
 
-    .results-section {
-        margin-top: 20px;
-    }
+	.card-header-text {
+		font-size: 32px; 
+		font-weight: 500;
+		color: #333; 
+		margin-bottom: 20px;
+	}
 
-    .result-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 10px;
-    }
+	.form-input-area {
+		width: 100%;
+	}
 
-    .profile-picture {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%; 
-        margin-right: 10px;
-    }
-    
-    button {
-        margin-left: auto;
-    }
+	.input-row {
+		display: flex;
+		justify-content: space-between; 
+		gap: 10px;
+	}
+
+	.input-block {
+		flex-grow: 1; 
+		display: flex;
+		flex-direction: column;
+	}
+
+	label {
+		font-size: 16px;
+		color: rgb(50, 50, 50); 
+		margin-bottom: 5px;
+	}
+
+	.text-input, select {
+		height: 40px;
+		border-radius: 5px;
+		border: 1px solid #ccc;
+		padding: 0 10px;
+	}
+
+	.results-section {
+		width: 80%; 
+		margin: 20px auto; 
+		display: flex; 
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.result-item {
+		background-color: #fff; 
+		border-radius: 10px;
+		padding: 15px;
+		margin-bottom: 10px;
+		display: flex;
+		align-items: center;
+		width: 20%; 
+		box-shadow: 0 1px 5px rgba(0,0,0,0.1); 
+		transition: box-shadow 0.2s ease; 
+	}
+
+	.result-item:hover {
+		box-shadow: 0 5px 15px rgba(0,0,0,0.2); 
+	}
+
+	.profile-picture {
+		width: 60px; 
+		height: 60px;
+		border-radius: 50%;
+		margin-right: 20px; 
+	}
+
+	h2 {
+		text-align: center; 
+		width: 100%; 
+	}
+
+	button {
+		padding: 10px 20px;
+		margin-top: 20px;
+		background-color: #001a72; 
+		color: white;
+		border-radius: 5px;
+		border: none;
+		font-weight: 500;
+		transition: background 0.2s;
+	}
+
+	button:hover {
+		background-color: #000d48; /* Darker on hover */
+	}
 </style>
