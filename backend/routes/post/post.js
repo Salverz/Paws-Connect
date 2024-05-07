@@ -12,6 +12,7 @@ const TextTranslationClient = require("@azure-rest/ai-translation-text").default
 const apiKey = env.TRANSLATION_API_KEY; //change into a ENVIRONMENTAL KEY 
 const endpoint = env.TRANSLATION_ENDPOINT;
 const region = env.TRANSLATION_REGION;
+console.log(apiKey);
 
 const translateClient = new TextTranslationClient(endpoint, { key: apiKey, region });
 
@@ -25,6 +26,7 @@ async function translatePostText(text, targetLanguage, postLanguage) {
 			body: [{ text: text }]
 		});
 		if (response.status != 200) {
+			console.log(response);
 			console.log("post translation api call failed. trying again...");
 			// throw new Error(`Translation service returned status code ${response.status}`);
 			continue;

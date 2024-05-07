@@ -13,9 +13,9 @@ const connections = [
 function getShortestPath(connections, startNode, endNode) {
 	startNode = parseInt(startNode)
 	endNode = parseInt(endNode)
-	console.log("connections are ")
-	console.log(connections)
-	console.log(startNode, endNode)
+	// console.log("connections are ")
+	// console.log(connections)
+	// console.log(startNode, endNode)
 	// Enqueue the starting node
 	let queue = []
 	queue.push(startNode)
@@ -39,8 +39,8 @@ function getShortestPath(connections, startNode, endNode) {
 
 		graph[connection[0]].push(connection[1])
 		graph[connection[1]].push(connection[0])
-		console.log(`appending ${connection[1]} to list for ${connection[0]}`)
-		console.log(`appending ${connection[0]} to list for ${connection[1]}`)
+		//console.log(`appending ${connection[1]} to list for ${connection[0]}`)
+		// console.log(`appending ${connection[0]} to list for ${connection[1]}`)
 	})
 
 	console.log(graph)
@@ -52,22 +52,28 @@ function getShortestPath(connections, startNode, endNode) {
 		visited.push(currentNode)
 
 		// Add each node adjacent to the current node into the queue
-		graph[currentNode].forEach(node => {
-			if (!visited.includes(node) && !queue.includes(node)) {
-				queue.push(node)
-			}
+		try { // For a strange error where graph[currentNode] is undefined
+			graph[currentNode].forEach(node => {
+				if (!visited.includes(node) && !queue.includes(node)) {
+					queue.push(node)
+				}
 
-			// Mark the shortest source node to the current node
-			if (!sourceNodes[node]) {
-				sourceNodes[node] = currentNode
-			} 
-		})
+				// Mark the shortest source node to the current node
+				if (!sourceNodes[node]) {
+					sourceNodes[node] = currentNode
+				} 
+			})
+		} catch (error) {
+			console.log(error)
+			console.log(graph)
+			console.log(graph[currentNode])
+		}
 	}
 
-	console.log("done")
-	console.log(visited)
-	console.log(queue)
-	console.log(sourceNodes)
+	// console.log("done")
+	// console.log(visited)
+	// console.log(queue)
+	// console.log(sourceNodes)
 	let path = [endNode]
 
 	// Get the shortest path
@@ -81,7 +87,7 @@ function getShortestPath(connections, startNode, endNode) {
 		backwardsTraversalCurrentNode = sourceNodes[backwardsTraversalCurrentNode]
 	}
 
-	console.log(path)
+	// console.log(path)
 	return(path)
 }
 
