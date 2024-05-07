@@ -13,7 +13,7 @@ router.delete('/', checkAuthenticated, removeConnection);
 router.post('/request/create', checkAuthenticated, createConnectionRequest);
 
 // Respond to a connection request
-router.post('/request/respond', respondToConnectionRequest);
+router.post('/request/respond', checkAuthenticated, respondToConnectionRequest);
 
 // Cancel a connection request
 router.delete('/request', checkAuthenticated, cancelConnectionRequest);
@@ -24,6 +24,7 @@ router.get('/path', checkAuthenticated, connectionPath);
 async function getFriends(req, res) {
 	const friends = await db.executeSQL(`
 		SELECT
+			user_profile.user_id,
 			user_profile.birth_date,
 			user_profile.display_name,
 			user_profile.profile_picture,
@@ -52,6 +53,7 @@ async function getFriends(req, res) {
 		UNION
 
 		SELECT
+			user_profile.user_id,
 			user_profile.birth_date,
 			user_profile.display_name,
 			user_profile.profile_picture,
@@ -87,8 +89,10 @@ async function removeConnection(req, res) {
 		DELETE FROM
 			connection 
 		WHERE
-			user_1_id = ? OR user_2_id = ?;
-		`, [req.userId, req.userId]);
+			(user_1_id = ? AND user_2_id = ?)
+				OR
+			(user_2_id = ? AND user_1_id = ?)
+		`, [req.userId, req.body.friend, req.userId, req.body.friend]);
 
 	if (response.affectedRows == 0) {
 		res.json({
@@ -115,7 +119,7 @@ async function createConnectionRequest(req, res) {
 				) VALUES (
 					?,
 					?
-				)`, [req.userId, req.body.connection_receiver]);
+				)`, [req.userId, req.body.connectionReceiver]);
 	} catch (error) {
 		console.log(error);
 		res.json({
@@ -136,7 +140,7 @@ async function createConnectionRequest(req, res) {
 	}
 	res.json({
 		"success": "true",
-		"message": "Successfully created a connection"
+		"message": "Successfully created a connection request"
 	});
 }
 
@@ -151,7 +155,7 @@ async function cancelConnectionRequest(req, res) {
 				sender_user_id = ?
 					AND
 				receiver_user_id = ?
-				`, [req.userId, req.body.connection_receiver]);
+				`, [req.userId, req.body.connectionReceiver]);
 	} catch (error) {
 		console.log(error);
 		res.json({
@@ -186,6 +190,7 @@ async function respondToConnectionRequest(req, res) {
 					AND
 				receiver_user_id = ?
 				`, [req.body.senderId, req.userId]);
+	console.log(response);
 
 	if (!req.body.doAccept) {
 		if (response.affectedRows == 0) {

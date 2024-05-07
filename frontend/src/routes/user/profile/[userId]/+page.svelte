@@ -10,7 +10,7 @@
 	let name = "Loading...";
 	let profile_picture = "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg";
 	let bio = "Loading...";
-	let zip, preferred_language, username, birthDate;
+	let zip, preferred_language, username, birthDate, userProfilePicture, viewerUserId, areFriends, pendingRequest, friendRequestStatus;
 	let connectionPath = [];
 
 	let friends = [], pets = [];
@@ -57,6 +57,10 @@
 		birthDate = json.birthDate;
 		friends = json.friends;
 		pets = json.pets;
+		userProfilePicture = json.userProfilePicture;
+		viewerUserId = json.viewerUserId;
+		areFriends = json.areFriends;
+		friendRequestStatus = json.friendRequestStatus;
 	}
 
 	async function getConnectionPath() {
@@ -68,8 +72,100 @@
 		console.log(json);
 	}
 
+	async function removeFriend() {
+		const deleteFriend = confirm(`Are you sure you want to remove ${name} as a friend?`);
+		if (!deleteFriend) {
+			return;
+		}
 
-	//   getProfileData();
+		const response = await fetch(`http://localhost:3000/connection`, {
+			method: "DELETE",
+			body: JSON.stringify({
+				"friend": userId
+			}),
+			headers: {
+				"Content-type": "application/json; charset=UTF-8",
+				'Authorization': `Bearer ${token}`
+			}
+		});
+		const json = await response.json();
+		console.log(JSON.stringify(json));
+		if (json.success) {
+			alert(`Removed ${name} as a friend`);
+			areFriends = false;
+			await getConnectionPath();
+		}
+	}
+
+	async function createFreindRequest() {
+		const response = await fetch(`http://localhost:3000/connection/request/create`, {
+			method: "POST",
+			body: JSON.stringify({
+				"connectionReceiver": userId
+			}),
+			headers: {
+				"Content-type": "application/json; charset=UTF-8",
+				"Authorization": `Bearer ${token}` 
+			}
+		});
+		const json = await response.json();
+		console.log(JSON.stringify(json));
+		if (!json.success) {
+			alert(json.message);
+			return;
+		}
+
+		friendRequestStatus = "sent";
+		alert(json.message);
+	}
+
+	async function respondToRequest(doAccept) {
+		const response = await fetch(`http://localhost:3000/connection/request/respond`, {
+			method: "POST",
+			body: JSON.stringify({
+				"senderId": userId,
+				"doAccept": doAccept
+			}),
+			headers: {
+				"Content-type": "application/json; charset=UTF-8",
+				'Authorization': `Bearer ${token}`
+			}
+		});
+		const json = await response.json();
+		console.log(JSON.stringify(json));
+
+		if (!json.success) {
+			alert(json.message);
+			return;
+		}
+
+		if (doAccept) {
+			alert(json.message);
+			areFriends = true;
+		} else {
+			alert(json.message);
+			friendRequestStatus = "none";
+		}
+	}
+
+	async function cancelFriendRequest(petIndex) {
+		const response = await fetch(`http://localhost:3000/connection/request`, {
+			method: "DELETE",
+			body: JSON.stringify({
+				"connectionReceiver": userId
+			}),
+			headers: {
+				"Content-type": "application/json; charset=UTF-8",
+				'Authorization': `Bearer ${token}`
+			}
+		});
+		const json = await response.json();
+		console.log(JSON.stringify(json));
+
+		alert(json.message);
+		friendRequestStatus = "none";
+	}
+
 	onMount(async () => {
 		token = await checkAuthenticated();
 		await getProfileData();
@@ -86,6 +182,16 @@
 			<img class="profile-picture" src="{profile_picture}" alt="Profile Picture">
 			<div class="profile-info">
 				<h1>{name}</h1>
+				{#if areFriends}
+					<button on:click={removeFriend} class="add-friend-button">Remove friend</button>
+				{:else if friendRequestStatus == "sent"}
+					<button on:click={cancelFriendRequest} class="add-friend-button">Cancel friend request</button>
+				{:else if friendRequestStatus == "received"}
+					<button on:click={() => respondToRequest(true)} class="add-friend-button">Accept friend request</button>
+					<button on:click={() => respondToRequest(false)} class="add-friend-button">Deny friend request</button>
+				{:else}
+					<button on:click={createFreindRequest} class="add-friend-button">Send friend request</button>
+				{/if}
 				<!--
 				<div class="stats">
 					<p>Username: {username}</p>
@@ -117,10 +223,12 @@
 				</div>
 			{:else}
 				<div class="connection-path-text">
-					<div class="you friend">
-						<img class="friend-profile-picture" src={profile_picture}>
-						<span class="friend-name">You</span>
-					</div>
+					<a rel="external" href="/user/profile/{viewerUserId}">
+						<div class="you friend">
+							<img class="friend-profile-picture" src={userProfilePicture}>
+							<span class="friend-name">You</span>
+						</div>
+					</a>
 				</div>
 					{#each connectionPath as connection}
 						{#if connection != connectionPath[0]}
@@ -216,6 +324,10 @@
 
 	.profile-info {
 		flex: 1;
+	}
+
+	.add-friend-button {
+		margin-top: 20px;
 	}
 
 	.pets-list {
