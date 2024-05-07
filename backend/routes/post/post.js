@@ -12,19 +12,28 @@ const TextTranslationClient = require("@azure-rest/ai-translation-text").default
 const apiKey = env.TRANSLATION_API_KEY; //change into a ENVIRONMENTAL KEY 
 const endpoint = env.TRANSLATION_ENDPOINT;
 const region = env.TRANSLATION_REGION;
+console.log(apiKey);
 
 const translateClient = new TextTranslationClient(endpoint, { key: apiKey, region });
 
 // Helper function to translate text
 async function translatePostText(text, targetLanguage, postLanguage) {
-    const response = await translateClient.path("/translate").post({
-        queryParameters: {to: targetLanguage, from : postLanguage},
-        body: [{ text: text }]
-    });
-    if (response.status != 200) {
-        throw new Error(`Translation service returned status code ${response.status}`);
-    }
-    return response.body[0].translations[0].text;
+	let translatedSuccessfully = false
+	let response;
+	while (!translatedSuccessfully) {
+		response = await translateClient.path("/translate").post({
+			queryParameters: {to: targetLanguage, from : postLanguage},
+			body: [{ text: text }]
+		});
+		if (response.status != 200) {
+			console.log(response);
+			console.log("post translation api call failed. trying again...");
+			// throw new Error(`Translation service returned status code ${response.status}`);
+			continue;
+		}
+		translatedSuccessfully = true;
+	}
+	return response.body[0].translations[0].text;
 }
 
 // Create a new post
@@ -112,7 +121,8 @@ router.get("/get", checkAuthenticated, async (req, res) => {
 			up.profile_picture "poster_profile_picture",
 			p.text_content,
 			p.visibility,
-			p.created_at,
+			DATE_FORMAT(p.created_at, "%m/%d/%y") "created_at_date",
+			DATE_FORMAT(p.created_at, "%h:%i%p") "created_at_time",
 			p.post_language, 
 			l.language_code,
 			? AS "preferred_language",

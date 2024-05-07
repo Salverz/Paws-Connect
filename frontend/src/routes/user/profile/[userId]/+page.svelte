@@ -5,10 +5,13 @@
 	import SiteHeader from "$lib/components/SiteHeader.svelte";
 	import { checkAuthenticated } from "$lib/functions/authentication"
 
+	let token;
+
 	let name = "Loading...";
 	let profile_picture = "https://static.vecteezy.com/system/resources/thumbnails/009/292/244/small/default-avatar-icon-of-social-media-user-vector.jpg";
 	let bio = "Loading...";
-	let zip, preferred_language, username, birthDate;
+	let zip, preferred_language, username, birthDate, userProfilePicture, viewerUserId, areFriends, pendingRequest, friendRequestStatus;
+	let connectionPath = [];
 
 	let friends = [], pets = [];
 	let posts = 121;
@@ -42,7 +45,8 @@
 	console.log(userId);
 
 	async function getProfileData() {
-		let data = await fetch(`http://localhost:3000/account/profile/${userId}`);
+		let data = await fetch(`http://localhost:3000/account/profile/${userId}`,
+			{ headers: { 'Authorization': `Bearer ${token}` }});
 		let json = await data.json();
 		console.log(json);
 		username = json.username;
@@ -53,13 +57,119 @@
 		birthDate = json.birthDate;
 		friends = json.friends;
 		pets = json.pets;
+		userProfilePicture = json.userProfilePicture;
+		viewerUserId = json.viewerUserId;
+		areFriends = json.areFriends;
+		friendRequestStatus = json.friendRequestStatus;
 	}
 
+	async function getConnectionPath() {
+		const path = await fetch(`http://localhost:3000/connection/path?end=${userId}`,
+			{ headers: { 'Authorization': `Bearer ${token}` }});
+		const json = await path.json();
 
-	//   getProfileData();
+		connectionPath = json;
+		console.log(json);
+	}
+
+	async function removeFriend() {
+		const deleteFriend = confirm(`Are you sure you want to remove ${name} as a friend?`);
+		if (!deleteFriend) {
+			return;
+		}
+
+		const response = await fetch(`http://localhost:3000/connection`, {
+			method: "DELETE",
+			body: JSON.stringify({
+				"friend": userId
+			}),
+			headers: {
+				"Content-type": "application/json; charset=UTF-8",
+				'Authorization': `Bearer ${token}`
+			}
+		});
+		const json = await response.json();
+		console.log(JSON.stringify(json));
+		if (json.success) {
+			alert(`Removed ${name} as a friend`);
+			areFriends = false;
+			await getConnectionPath();
+		}
+	}
+
+	async function createFreindRequest() {
+		const response = await fetch(`http://localhost:3000/connection/request/create`, {
+			method: "POST",
+			body: JSON.stringify({
+				"connectionReceiver": userId
+			}),
+			headers: {
+				"Content-type": "application/json; charset=UTF-8",
+				"Authorization": `Bearer ${token}` 
+			}
+		});
+		const json = await response.json();
+		console.log(JSON.stringify(json));
+		if (!json.success) {
+			alert(json.message);
+			return;
+		}
+
+		friendRequestStatus = "sent";
+		alert(json.message);
+	}
+
+	async function respondToRequest(doAccept) {
+		const response = await fetch(`http://localhost:3000/connection/request/respond`, {
+			method: "POST",
+			body: JSON.stringify({
+				"senderId": userId,
+				"doAccept": doAccept
+			}),
+			headers: {
+				"Content-type": "application/json; charset=UTF-8",
+				'Authorization': `Bearer ${token}`
+			}
+		});
+		const json = await response.json();
+		console.log(JSON.stringify(json));
+
+		if (!json.success) {
+			alert(json.message);
+			return;
+		}
+
+		if (doAccept) {
+			alert(json.message);
+			areFriends = true;
+		} else {
+			alert(json.message);
+			friendRequestStatus = "none";
+		}
+	}
+
+	async function cancelFriendRequest(petIndex) {
+		const response = await fetch(`http://localhost:3000/connection/request`, {
+			method: "DELETE",
+			body: JSON.stringify({
+				"connectionReceiver": userId
+			}),
+			headers: {
+				"Content-type": "application/json; charset=UTF-8",
+				'Authorization': `Bearer ${token}`
+			}
+		});
+		const json = await response.json();
+		console.log(JSON.stringify(json));
+
+		alert(json.message);
+		friendRequestStatus = "none";
+	}
+
 	onMount(async () => {
-		await checkAuthenticated();
+		token = await checkAuthenticated();
 		await getProfileData();
+		await getConnectionPath();
 	});
 
 </script>
@@ -72,6 +182,16 @@
 			<img class="profile-picture" src="{profile_picture}" alt="Profile Picture">
 			<div class="profile-info">
 				<h1>{name}</h1>
+				{#if areFriends}
+					<button on:click={removeFriend} class="add-friend-button">Remove friend</button>
+				{:else if friendRequestStatus == "sent"}
+					<button on:click={cancelFriendRequest} class="add-friend-button">Cancel friend request</button>
+				{:else if friendRequestStatus == "received"}
+					<button on:click={() => respondToRequest(true)} class="add-friend-button">Accept friend request</button>
+					<button on:click={() => respondToRequest(false)} class="add-friend-button">Deny friend request</button>
+				{:else}
+					<button on:click={createFreindRequest} class="add-friend-button">Send friend request</button>
+				{/if}
 				<!--
 				<div class="stats">
 					<p>Username: {username}</p>
@@ -93,6 +213,38 @@
 			</div>
 		</div>
 		<br>
+		<div class="connection-path">
+			<div class="connection-path-text">
+				Connection path:
+			</div>
+			{#if connectionPath.length == 0}
+				<div class="connection-path-text">
+					No path
+				</div>
+			{:else}
+				<div class="connection-path-text">
+					<a rel="external" href="/user/profile/{viewerUserId}">
+						<div class="you friend">
+							<img class="friend-profile-picture" src={userProfilePicture}>
+							<span class="friend-name">You</span>
+						</div>
+					</a>
+				</div>
+					{#each connectionPath as connection}
+						{#if connection != connectionPath[0]}
+							<div class="arrow">
+								&rarr;
+							</div>
+							<a rel="external" href="/user/profile/{connection[0].user_id}">
+								<div class="friend">
+									<img class="friend-profile-picture" src={connection[0].profile_picture}>
+									<span class="friend-name">{connection[0].display_name}</span>
+								</div>
+							</a>
+						{/if}
+					{/each}
+				{/if}
+		</div>
 		Friends
 		<div class="friend-list">
 			{#each friends as friend}
@@ -174,8 +326,27 @@
 		flex: 1;
 	}
 
+	.add-friend-button {
+		margin-top: 20px;
+	}
+
 	.pets-list {
 		margin-left: 20px;
+	}
+
+	.connection-path {
+		display: flex;
+		justify-items: center;
+		align-items: center;
+		gap: 15px;
+	}
+
+	.you:hover {
+		background-color: none;
+	}
+
+	.arrow {
+		font-size: 30px;
 	}
 
 	h1 {

@@ -1,6 +1,7 @@
 <script>
 	import NavBar from "$lib/components/NavBar.svelte";
 	import SiteHeader from "$lib/components/SiteHeader.svelte";
+	import { goto } from "$app/navigation";
 
 	let username, password;
 
@@ -20,6 +21,12 @@
 		console.log("token: " + json.token);
 		localStorage.setItem("token", json.token);
 		console.log(json);
+
+		if (json.login) {
+			goto("/feed");
+		} else {
+			alert(json.message);
+		}
 	}
 </script>
 
